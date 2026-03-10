@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PetCare — Una comunidad para tus mascotas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <!-- NAV -->
+    <%- include('plantillas/navbar') %> 
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-text">
+        <div class="hero-badge">Tu compañero digital</div>
+        <h1>Todo sobre tu mascota, <em>en un solo lugar</em></h1>
+        <p class="hero-desc">
+          Lleva el control de la salud, vacunas, citas veterinarias y mucho más.
+          Porque ellos se merecen lo mejor.
+        </p>
+        <div class="hero-cta">
+          <a href="/register" class="btn-large">Empieza gratis</a>
+          <a href="#features" class="btn-outline-large">Ver más</a>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="hero-card-stack">
+          <div class="card-back"></div>
+          <div class="card-mid"></div>
+          <div class="card-main">
+            <div class="card-pet-img">🐶</div>
+            <div class="card-pet-name">Toby</div>
+            <div class="card-pet-breed">Golden Retriever · 3 años</div>
+            <div class="card-stats">
+              <div class="stat-box">
+                <div class="stat-value">12 kg</div>
+                <div class="stat-label">Peso</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-value">✔</div>
+                <div class="stat-label">Vacunas</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-value">Jun</div>
+                <div class="stat-label">Próx. cita</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="features" id="features">
+      <div class="features-header">
+          <h2>Todo lo que <em>necesitas</em></h2>
+          <p>Diseñado para dueños que se preocupan de verdad</p>
+      </div>
+      <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">💉</div>
+            <div class="feature-title">Historial médico</div>
+            <div class="feature-desc">Registra vacunas, tratamientos y visitas al veterinario en un único lugar accesible.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📅</div>
+            <div class="feature-title">Recordatorios</div>
+            <div class="feature-desc">Nunca olvides una cita, desparasitación o revisión anual gracias a los avisos automáticos.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🐾</div>
+            <div class="feature-title">Perfil de mascota</div>
+            <div class="feature-desc">Crea perfiles detallados para cada una de tus mascotas con toda su información importante.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">👥</div>
+            <div class="feature-title">Crea una comunidad</div>
+            <div class="feature-desc">Contacta con otros usuarios y contrata servicios de manera fácil y segura.</div>
+          </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section" id="about">
+      <h2>¿Listo para empezar?</h2>
+      <p>Únete y dale a tu mascota el cuidado que merece.</p>
+      <a href="/register" class="btn-large">Crear cuenta gratis</a>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>© 2026 PetCare · Por un futuro mejor para tus mascotas</p>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,52 @@
+const express = require('express');
+const session = require('express-session');
+const path = require('path');
+require('dotenv').config();
+const morgan = require('morgan');
+
+const app = express();
+app.use(morgan('dev'));
+
+// Motor de plantillas
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// Middlewares básicos
+app.use(express.urlencoded({ extended: true })); // Parsear formularios
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Sesiones
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'secreto_provisional',
+  resave: false,
+  saveUninitialized: false
+}));
+
+//Middleware global para la sesión 
+app.use((req, res, next) => {
+    res.locals.usuario = req.session.usuario || null;
+    next();
+});
+
+// Almacén temporal (sustituirá la base de datos más adelante)
+const db = {
+  owners:    [],
+  businesses: []
+};
+app.locals.db = db;
+
+// Rutas (se añadirán aquí)
+const userRoutes = require('./routes/userRoutes');
+
+app.get('/', (req, res) => {
+    res.render('inicio');
+});
+
+app.use('/auth', userRoutes);
+
+// Arranque del servidor
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});

@@ -1,0 +1,25 @@
+<% if (typeof error !== 'undefined' && error) { %>
+  <div class="modal-overlay" id="modalError">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3><%= error %></h3>
+      </div>
+      <% if (typeof errores !== 'undefined' && errores.length > 0) { %>
+        <ul class="modal-list">
+          <% errores.forEach(function(err) { %>
+            <li><%= err.msg %></li>
+          <% }) %>
+        </ul>
+      <% } %>
+      <div class="modal-footer">
+        <button class="btn-submit" onclick="cerrarModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function cerrarModal() {
+      document.getElementById('modalError').style.display = 'none';
+    }
+  </script>
+<% } %>
