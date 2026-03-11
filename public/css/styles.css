@@ -705,3 +705,29 @@ footer {
   display: flex;
   justify-content: flex-end;
 }
+
+/* ── ERROR 404 ── */
+.full-height-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.full-height-layout main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.error-container{
+    text-align: center;
+    border-radius: 12px;
+    box-shadow: 12px 12px 12px rgba(0,0,0,0.1);
+    padding: 2rem;
+}
+
+.error-text{
+  margin-top: 1rem;
+  margin-bottom: 1rem;;
+}

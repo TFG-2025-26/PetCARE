@@ -45,6 +45,16 @@ app.get('/', (req, res) => {
 
 app.use('/auth', authRoutes);
 
+app.use((req, res) => {
+  next();
+    res.status(404).render('error404');
+});
+
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).render('error500');
+});
+
 // Arranque del servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
