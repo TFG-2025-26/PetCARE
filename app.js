@@ -46,7 +46,6 @@ app.get('/', (req, res) => {
 app.use('/auth', authRoutes);
 
 app.use((req, res) => {
-  next();
     res.status(404).render('error404');
 });
 
