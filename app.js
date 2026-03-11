@@ -31,19 +31,19 @@ app.use((req, res, next) => {
 
 // Almacén temporal (sustituirá la base de datos más adelante)
 const db = {
-  owners:    [],
+  clients:    [],
   businesses: []
 };
 app.locals.db = db;
 
 // Rutas (se añadirán aquí)
-const userRoutes = require('./routes/userRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 app.get('/', (req, res) => {
     res.render('inicio');
 });
 
-app.use('/auth', userRoutes);
+app.use('/auth', authRoutes);
 
 // Arranque del servidor
 const PORT = process.env.PORT || 3000;
