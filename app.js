@@ -38,12 +38,14 @@ app.locals.db = db;
 
 // Rutas (se añadirán aquí)
 const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 app.get('/', (req, res) => {
     res.render('inicio');
 });
 
 app.use('/auth', authRoutes);
+app.use('/user', userRoutes);
 
 app.use((req, res) => {
     res.status(404).render('error404');
