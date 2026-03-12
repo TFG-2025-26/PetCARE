@@ -1,8 +1,11 @@
+"use strict";
+
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
 require('dotenv').config();
 const morgan = require('morgan');
+const { isAuthenticated } = require('./middlewares/authMiddleware');
 
 const app = express();
 app.use(morgan('dev'));
@@ -38,20 +41,25 @@ app.locals.db = db;
 
 // Rutas (se añadirán aquí)
 const authRoutes = require('./routes/authRoutes');
+const petRoutes = require('./routes/petRouter');
 
 app.get('/', (req, res) => {
     res.render('inicio');
 });
 
 app.use('/auth', authRoutes);
+app.use('/pets', petRoutes);
 
+
+
+// Manejo de errores
 app.use((req, res) => {
     res.status(404).render('error404');
 });
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).render('error500');
+    res.status(500).render('error500', { mensaje: err.mensaje || 'Error interno del servidor' });
 });
 
 // Arranque del servidor

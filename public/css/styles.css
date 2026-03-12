@@ -8,7 +8,7 @@
   --brown:       #3D2B1F;
   --amber:       #C8873A;
   --amber-light: #E8A857;
-  --green:       #4A6741;
+  --green:       #4f7c42;
   --text:        #2A1F18;
   --muted:       #7A6558;
 }
@@ -25,7 +25,7 @@ body {
 
 /* ── NAV ── */
 nav {
-  position: fixed;
+  position: sticky;
   top: 0; left: 0; right: 0;
   z-index: 100;
   display: flex;
@@ -146,7 +146,7 @@ nav {
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
-  padding: 8rem 4rem 4rem;
+  padding: 0rem 4rem;
   gap: 4rem;
   position: relative;
   overflow: hidden;
@@ -706,7 +706,7 @@ footer {
   justify-content: flex-end;
 }
 
-/* ── ERROR 404 ── */
+/*------ Para que el main ocupe toda la altura disponible -------*/
 .full-height-layout {
   min-height: 100vh;
   display: flex;
@@ -719,15 +719,118 @@ footer {
   justify-content: center;
   align-items: center;
 }
+/*---------------------------------------------------------------*/
 
+/* ── ERROR 404 y 500── */
 .error-container{
     text-align: center;
     border-radius: 12px;
     box-shadow: 12px 12px 12px rgba(0,0,0,0.1);
     padding: 2rem;
+    animation: fadeUp 0.5s ease both;
+    max-width: 500px;
+    
 }
 
 .error-text{
   margin-top: 1rem;
   margin-bottom: 1rem;;
+}
+
+.error-image{
+  width: 75%;
+  height: auto;
+  object-fit: cover;
+
+}
+
+/*---MASCOTAS---*/
+.full-height-layout-mypets {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.full-height-layout-mypets main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.full-height-layout-mypets h1 {
+  margin-bottom: 1.5rem;
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.my-pets-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 2rem;
+}
+
+.empty-pets-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+  animation: fadeUp 0.5s ease both;
+}
+
+.btn-registrar{
+  width: 100%;
+  padding: 0.9rem;
+  background: var(--green);
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(74,103,65,0.3);
+  text-decoration: none;
+}
+
+.btn-registrar:hover {
+  background: #5a7d51;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(74,103,65,0.4);
+}
+
+.pet-register-container{
+  background: #fff;
+  border-radius: 28px;
+  box-shadow: 0 20px 60px rgba(61,43,31,0.1);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 380px;
+  animation: fadeUp 0.5s ease both;
+  border-top: 4px solid var(--green);
+
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.pet-register-container {
+  max-width: 900px; /* más ancho para las dos columnas */
+  margin: 1rem auto; /* hueco arriba y abajo */
+}
+
+/* responsive: en móvil vuelve a una columna */
+@media (max-width: 600px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
 }

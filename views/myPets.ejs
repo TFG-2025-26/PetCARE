@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Mascota - PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="full-height-layout-mypets">
+    <!-- NAV -->
+    <%- include('plantillas/navbar') %> 
+
+    <main>
+        <section class="my-pets-section">
+            <h1>Mis Mascotas</h1>
+            <% if(pets.length == 0) { %>
+                <div class="empty-pets-container">
+                    <p>Aquí se verán las huellas de tus mascotas... pero de momento no hay nadie</p>
+                    <a href="/pets/register" class="btn-registrar">Registrar Mascota</a>
+                </div>
+            <% } else {%>
+                <p>Tienes mascotas pero todavia no las ves</p>
+            </div>
+            <% } %>
+        </section>
+    </main>
+
+    <%- include('plantillas/footer') %>
+
+</body>
+</html>
