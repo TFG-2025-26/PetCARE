@@ -62,6 +62,36 @@
             <span class="data-value data-bio"><%= usuario.bio %></span>
           </li>
           <% } %>
+          <% if (usuario.pais) { %>
+          <li>
+            <span class="data-label">País</span>
+            <span class="data-value"><%= usuario.pais %></span>
+          </li>
+          <% } %>
+          <% if (usuario.codigo_postal) { %>
+          <li>
+            <span class="data-label">Código postal</span>
+            <span class="data-value"><%= usuario.codigo_postal %></span>
+          </li>
+          <% } %>
+          <% if (usuario.genero) { %>
+          <li>
+            <span class="data-label">Género</span>
+            <span class="data-value"><%= usuario.genero %></span>
+          </li>
+          <% } %>
+          <% if (usuario.trabajo) { %>
+          <li>
+            <span class="data-label">Trabajo</span>
+            <span class="data-value"><%= usuario.trabajo %></span>
+          </li>
+          <% } %>
+          <% if (usuario.aficiones) { %>
+          <li>
+            <span class="data-label">Aficiones</span>
+            <span class="data-value"><%= usuario.aficiones %></span>
+          </li>
+          <% } %>
         </ul>
       </div>
 

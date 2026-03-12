@@ -15,7 +15,15 @@ const getPerfilEmpresa = (req, res) => {
     res.render('perfilEmpresa', { empresa });
 };
 
+const getEditarPerfilUsuario = (req, res) => {
+    const miDB = req.app.locals.db;
+    const usuarioId = parseInt(req.params.id, 10);
+    const usuario = miDB.clients.find(client => client.id === usuarioId);
+    res.render('editarPerfilUsuario', { usuario });
+};
+
 module.exports = {
     getPerfilUsuario,
-    getPerfilEmpresa
+    getPerfilEmpresa, 
+    getEditarPerfilUsuario
 };
