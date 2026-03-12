@@ -14,31 +14,37 @@
     <main>
         <div class="pet-register-container">
         <h2>Registro de Mascota</h2>
-            <form action="/pets/register" method="POST" style="margin-top: 1.5rem;">
+            <form action="/pets/register" method="POST" style="margin-top: 1.5rem;" id="petRegisterForm">
                    <div class="form-grid">
                        <div class="form-group">
                            <label for="pet-name">Nombre de la mascota</label>
                            <input type="text" id="pet-name" name="pet-name" placeholder="Ej: Coco">
+                           <span id="error-pet-name" class="error"></span>
                        </div>
                        <div class="form-group">
                            <label for="pet-species">Especie</label>
                            <input type="text" id="pet-species" name="pet-species" placeholder="Ej: Gato">
+                           <span id="error-pet-species" class="error"></span>
                        </div>
                        <div class="form-group">
                            <label for="pet-breed">Raza</label>
                            <input type="text" id="pet-breed" name="pet-breed" placeholder="Ej: Pardo común">
+                           <span id="error-pet-breed" class="error"></span>
                        </div>
                        <div class="form-group">
-                           <label for="pet-weight">Peso</label>
-                           <input type="text" id="pet-weight" name="pet-weight" placeholder="Ej: 8 kg">
+                           <label for="pet-weight">Peso (kg)</label>
+                           <input type="text" id="pet-weight" name="pet-weight" placeholder="Ej: 8">
+                            <span id="error-pet-weight" class="error"></span>
                        </div>
                        <div class="form-group">
                            <label for="pet-birthday">Fecha de nacimiento</label>
                            <input type="date" id="pet-birthday" name="pet-birthday">
+                            <span id="error-pet-birthday" class="error"></span>
                        </div>
                        <div class="form-group">
                            <label for="pet-image">Foto de la mascota</label>
                            <input type="file" id="pet-image" name="pet-image" accept="image/*">
+                            <span id="error-pet-image" class="error"></span>
                        </div>
                    </div>
                 <button type="submit" class="btn-registrar">Registrar Mascota</button>
@@ -47,6 +53,8 @@
     </main>
 
     <%- include('plantillas/footer') %>
+
+    <script src="/js/petRegister.js"></script>
 
 </body>
 </html>
