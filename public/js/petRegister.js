@@ -70,6 +70,12 @@ function validatePetBirthday() {
     if (birthday === "") {
         errorPetBirthday.textContent = "La fecha de nacimiento de la mascota es obligatoria.";
         return false;
+    } else if(isNaN(Date.parse(birthday))) {
+        errorPetBirthday.textContent = "La fecha de nacimiento debe ser una fecha válida.";
+        return false;
+    } else if (new Date(birthday) > new Date()) {
+        errorPetBirthday.textContent = "La fecha de nacimiento no puede ser en el futuro.";
+        return false;
     } else {
         errorPetBirthday.textContent = "";
         return true;

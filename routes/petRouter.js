@@ -21,9 +21,17 @@ const petValidationRules = [
     body('pet-breed').notEmpty().withMessage('La raza de la mascota es obligatoria.'),
     body('pet-weight').notEmpty().withMessage('El peso de la mascota es obligatorio.').isFloat({ gt: 0 }).withMessage('El peso debe ser un número positivo.'),
     body('pet-birthday').notEmpty().withMessage('La fecha de nacimiento de la mascota es obligatoria.').isDate().withMessage('La fecha de nacimiento debe ser una fecha válida.'),
+    body('pet-birthday').custom((value) => {
+        const today = new Date();
+        const birthDate = new Date(value);
+        if (birthDate > today) {
+            throw new Error('La fecha de nacimiento no puede ser en el futuro.');
+        }
+        return true;
+    })
 ];
 
-
+//TODO Añadir middleware de autenticación para proteger las rutas de mascotas
 
 router.get("/mypets", getMyPets);
 router.get("/register", getRegisterPet);
