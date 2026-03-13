@@ -18,32 +18,32 @@
                    <div class="form-grid">
                        <div class="form-group">
                            <label for="pet-name">Nombre de la mascota</label>
-                           <input type="text" id="pet-name" name="pet-name" placeholder="Ej: Coco">
+                           <input type="text" id="pet-name" name="pet-name" placeholder="Ej: Coco" value:="<%= formData ? formData['pet-name'] : '' %>">
                            <span id="error-pet-name" class="error"></span>
                        </div>
                        <div class="form-group">
                            <label for="pet-species">Especie</label>
-                           <input type="text" id="pet-species" name="pet-species" placeholder="Ej: Gato">
+                           <input type="text" id="pet-species" name="pet-species" placeholder="Ej: Gato" value="<%= formData ? formData['pet-species'] : '' %>">
                            <span id="error-pet-species" class="error"></span>
                        </div>
                        <div class="form-group">
                            <label for="pet-breed">Raza</label>
-                           <input type="text" id="pet-breed" name="pet-breed" placeholder="Ej: Pardo común">
+                           <input type="text" id="pet-breed" name="pet-breed" placeholder="Ej: Pardo común" value="<%= formData ? formData['pet-breed'] : '' %>">
                            <span id="error-pet-breed" class="error"></span>
                        </div>
                        <div class="form-group">
                            <label for="pet-weight">Peso (kg)</label>
-                           <input type="text" id="pet-weight" name="pet-weight" placeholder="Ej: 8">
+                           <input type="text" id="pet-weight" name="pet-weight" placeholder="Ej: 8" value="<%= formData ? formData['pet-weight'] : '' %>">
                             <span id="error-pet-weight" class="error"></span>
                        </div>
                        <div class="form-group">
                            <label for="pet-birthday">Fecha de nacimiento</label>
-                           <input type="date" id="pet-birthday" name="pet-birthday">
+                           <input type="date" id="pet-birthday" name="pet-birthday" value="<%= formData ? formData['pet-birthday'] : '' %>">
                             <span id="error-pet-birthday" class="error"></span>
                        </div>
                        <div class="form-group">
-                           <label for="pet-image">Foto de la mascota (JPEG/PNG)</label>
-                           <input type="file" id="pet-image" name="pet-image" accept="image/jpeg,image/png">
+                           <label for="pet-image">Foto de la mascota (JPEG)</label>
+                           <input type="file" id="pet-image" name="pet-image" accept="image/jpeg" value="<%= formData ? formData['pet-image'] : '' %>">
                             <span id="error-pet-image" class="error"></span>
                        </div>
                    </div>
