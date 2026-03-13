@@ -818,6 +818,7 @@ footer {
   justify-content: center;
   padding: 2rem;
   font-family: 'Fraunces', serif;
+  margin-bottom: 1rem;
 }
 
 .pets-container {
@@ -960,4 +961,11 @@ footer {
 .empty-pet-container-text{
   margin-top: 1rem;
   margin-bottom: 1rem;;
+  font-family: 'Fraunces', serif;
+}
+
+
+.add-pet-container{
+  padding: 1rem 2rem;
+  text-align: end;
 }
