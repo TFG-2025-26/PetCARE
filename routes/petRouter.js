@@ -13,7 +13,7 @@ const upload = multer({ storage: multer.memoryStorage(), fileFilter: (req, file,
     } else {
         cb(null, true);
     }
-} }); // Configuración de multer para subir archivos a la carpeta 'uploads'
+}, limits: { fileSize: 2 * 1024 * 1024 } }); // Configuración de multer para subir archivos a la carpeta 'uploads'
 
 const petValidationRules = [
     body('pet-name').notEmpty().withMessage('El nombre de la mascota es obligatorio.'),
@@ -29,6 +29,15 @@ router.get("/mypets", getMyPets);
 router.get("/register", getRegisterPet);
 router.post("/register", (req, res, next) => {
     upload.single('pet-image')(req, res, (err) => {
+        if (err instanceof multer.MulterError) {
+            if (err.code === 'LIMIT_FILE_SIZE') {
+                return res.status(400).render('petRegister', { 
+                    error: 'Por favor, corrige los errores en el formulario.',
+                    errores: [{ msg: 'El tamaño de la imagen no debe exceder los 2MB.' }],
+                    formData: req.body
+                });
+            }
+        } 
         if (err) {
             return res.status(400).render('petRegister', { 
                 error: 'Por favor, corrige los errores en el formulario.',
