@@ -54,9 +54,11 @@
                 <% }) %>
             <% } %>
         </div>
+        <% if (pets.length > 0) { %>
         <div class="add-pet-container">
             <a href="/pets/register" class="btn-pet-register">¡Hay un nuevo miembro en casa!</a>
         </div>
+        <% } %>
     </div>
 
     <%- include('plantillas/footer') %>

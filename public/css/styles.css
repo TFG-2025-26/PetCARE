@@ -917,7 +917,7 @@ footer {
 }
 
 .btn-pet-register{
-  width: 100%;
+  width: fit-content;
   padding: 0.9rem;
   background: var(--green);
   color: #fff;
@@ -966,6 +966,9 @@ footer {
 
 
 .add-pet-container{
+  flex: 1;
   padding: 1rem 2rem;
-  text-align: end;
+  display: flex;
+  justify-content: end;
+  align-items: end;
 }
