@@ -18,7 +18,7 @@
       <h2>Inicio de sesión como cliente</h2>
       <form action="/auth/login/client" method="POST" style="margin-top: 1.5rem;">
         <div class="form-group">
-          <label for="client-email">Correo, Nombre de Usuario o teléfono</label>
+          <label for="client-email">Nombre de usuario, correo o teléfono</label>
           <input type="text" id="client-login-input" name="login_input" placeholder="Ej: ana@ejemplo.com o ana_garcia o 612345678"
           value = "<%= formType === 'client' && formData ? formData.login_input : '' %>">
         </div>
