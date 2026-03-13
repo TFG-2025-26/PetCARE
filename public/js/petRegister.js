@@ -84,10 +84,7 @@ function validatePetBirthday() {
 
 function validatePetImage() {
     const file = petImageInput.files[0];
-    if (!file) {
-        errorPetImage.textContent = "La foto de la mascota es obligatoria.";
-        return false;
-    } else if (!file.type.startsWith("image/")) {
+    if (!file.type.startsWith("image/")) {
         errorPetImage.textContent = "El archivo debe ser una imagen.";
         return false;
     } else {

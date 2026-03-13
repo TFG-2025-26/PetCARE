@@ -33,26 +33,9 @@ const postRegisterPet = (req, res) => {
             errores: errores.array(), 
             formData: req.body
         });
-    }
-    else if(!req.file) {
-        errores.errors.push({ msg: 'La imagen de la mascota es obligatoria.' });
-        return res.status(400).render('petRegister', { 
-            error: 'Por favor, corrige los errores en el formulario.',
-            errores: errores.array(),
-            formData: req.body
-        });
-    }
-    else if (req.file.mimetype !== 'image/jpeg') {
-        errores.errors.push({ msg: 'El formato de la imagen debe ser JPEG.' });
-        return res.status(400).render('petRegister', { 
-            error: 'Por favor, corrige los errores en el formulario.',
-            errores: errores.array(),
-            formData: req.body
-        });
-    }
-    else{
+    } else{
         const { "pet-name": petName, "pet-species": petSpecies, "pet-breed": petBreed, "pet-birthday": petBirthday, "pet-weight": petWeight } = req.body;
-        const imagen = req.file.buffer;
+        const imagen = req.file ? req.file.buffer : null;
         pool.getConnection((err, connection) => {
             if (err) {
                 console.error("Error al conectar a la base de datos:", err);
