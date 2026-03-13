@@ -942,7 +942,7 @@ footer {
 
 .empty-pets{
   text-align: center;
-  padding: 2rem 2rem;
+  padding: 0rem 2rem;
   border-radius: 12px;
   max-width: 500px;
   margin: 2rem auto;
@@ -958,12 +958,16 @@ footer {
     background-color: var(--warm);
 }
 
-.empty-pet-container-text{
+.empty-pet-container-title{
   margin-top: 1rem;
-  margin-bottom: 1rem;;
+  margin-bottom: 2rem;
   font-family: 'Fraunces', serif;
 }
 
+.empty-pet-container-text{
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+}
 
 .add-pet-container{
   flex: 1;
