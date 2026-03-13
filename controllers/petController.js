@@ -36,13 +36,14 @@ const postRegisterPet = (req, res) => {
     } else{
         const { "pet-name": petName, "pet-species": petSpecies, "pet-breed": petBreed, "pet-birthday": petBirthday, "pet-weight": petWeight } = req.body;
         const imagen = req.file ? req.file.buffer : null;
+        const id = req.session.usuario.id; // Asegúrate de que el ID del usuario esté disponible en la sesión
         pool.getConnection((err, connection) => {
             if (err) {
                 console.error("Error al conectar a la base de datos:", err);
                 return res.status(500).render('error500', { mensaje: "Error al conectar a la base de datos" });
             }
             const query = "INSERT INTO mascotas (nombre_mascota, fecha_nacimiento, especie, raza, peso, foto, id_usuario) VALUES (?, ?, ?, ?, ?, ?, ?)";
-            connection.query(query, [petName, petBirthday, petSpecies, petBreed, petWeight, imagen, 1], (err, results) => {
+            connection.query(query, [petName, petBirthday, petSpecies, petBreed, petWeight, imagen, id], (err, results) => {
                 connection.release();
                 if (err) {
                     console.error("Error al ejecutar la consulta:", err);
