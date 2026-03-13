@@ -21,7 +21,7 @@ const getMyPets = (req, res) => {
 }
 
 const getRegisterPet = (req, res) => {
-    res.render("petRegister");
+    res.render("petRegister", { error: null, errores: [], formData: null });
 }
 
 const postRegisterPet = (req, res) => {
