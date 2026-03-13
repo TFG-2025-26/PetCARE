@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 12-03-2026 a las 01:47:38
+-- Tiempo de generación: 13-03-2026 a las 14:35:54
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -24,25 +24,6 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `empresas`
---
-
-CREATE TABLE `empresas` (
-  `id_empresa` int(11) NOT NULL,
-  `nombre` varchar(100) NOT NULL,
-  `correo` varchar(100) NOT NULL,
-  `contraseña` varchar(255) NOT NULL,
-  `CIF` varchar(50) NOT NULL,
-  `telefono_contacto` int(11) NOT NULL,
-  `tipo` enum('clinica_veterinaria','hotel') NOT NULL,
-  `descripcion` text NOT NULL,
-  `ubicacion` varchar(255) NOT NULL,
-  `foto` blob NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
 -- Estructura de tabla para la tabla `mascotas`
 --
 
@@ -53,45 +34,13 @@ CREATE TABLE `mascotas` (
   `especie` varchar(50) NOT NULL,
   `raza` varchar(50) NOT NULL,
   `peso` float NOT NULL,
-  `foto` blob NOT NULL,
+  `foto` longblob DEFAULT NULL,
   `id_usuario` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `usuarios`
---
-
-CREATE TABLE `usuarios` (
-  `id_usuario` int(11) NOT NULL,
-  `nombre_usuario` varchar(50) NOT NULL,
-  `fecha_nacimiento` date NOT NULL,
-  `ciudad` varchar(50) NOT NULL,
-  `pais` varchar(50) NOT NULL,
-  `telefono` int(11) NOT NULL,
-  `correo` varchar(100) NOT NULL,
-  `contraseña` int(255) NOT NULL,
-  `rol` enum('user','admin') NOT NULL,
-  `codigo_postal` int(11) NOT NULL,
-  `genero` enum('hombre','mujer','otro','no_decirlo') NOT NULL,
-  `trabajo` varchar(50) NOT NULL,
-  `aficiones` varchar(255) NOT NULL,
-  `foto` blob NOT NULL,
-  `ban` tinyint(1) NOT NULL,
-  `suspendido` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Índices para tablas volcadas
 --
-
---
--- Indices de la tabla `empresas`
---
-ALTER TABLE `empresas`
-  ADD PRIMARY KEY (`id_empresa`),
-  ADD UNIQUE KEY `correo` (`correo`);
 
 --
 -- Indices de la tabla `mascotas`
@@ -101,34 +50,14 @@ ALTER TABLE `mascotas`
   ADD KEY `id_usuario` (`id_usuario`);
 
 --
--- Indices de la tabla `usuarios`
---
-ALTER TABLE `usuarios`
-  ADD PRIMARY KEY (`id_usuario`),
-  ADD UNIQUE KEY `nombre_usuario` (`nombre_usuario`),
-  ADD UNIQUE KEY `correo` (`correo`);
-
---
 -- AUTO_INCREMENT de las tablas volcadas
 --
-
---
--- AUTO_INCREMENT de la tabla `empresas`
---
-ALTER TABLE `empresas`
-  MODIFY `id_empresa` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `mascotas`
 --
 ALTER TABLE `mascotas`
   MODIFY `id_mascota` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `usuarios`
---
-ALTER TABLE `usuarios`
-  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Restricciones para tablas volcadas
