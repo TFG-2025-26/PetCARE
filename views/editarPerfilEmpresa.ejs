@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar perfil empresa — PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <%- include('plantillas/navbar') %>
+
+  <main class="editar-page">
+
+    <div class="editar-header">
+      <a href="/user/perfilEmpresa/<%= usuario.id %>" class="editar-back">← Volver al perfil</a>
+      <h1>Editar perfil de empresa</h1>
+    </div>
+
+    <form action="/perfil/empresa/editar" method="POST" enctype="multipart/form-data" class="editar-form">
+
+      <!-- LOGO -->
+      <div class="editar-section">
+        <h2 class="editar-section-title">Logo de la empresa</h2>
+        <div class="editar-avatar-row">
+          <div class="editar-avatar-preview" id="avatarPreview">
+            <% if (empresa.foto) { %>
+              <img src="<%= empresa.foto %>" id="avatarImg" alt="Logo de la empresa">
+            <% } else { %>
+              <span class="perfil-avatar-initials empresa-initial"><%= empresa.nombre.charAt(0).toUpperCase() %></span>
+            <% } %>
+          </div>
+          <div class="editar-avatar-actions">
+            <label for="foto" class="btn-perfil-edit" style="cursor:pointer;">Subir logo</label>
+            <input type="file" id="foto" name="foto" accept="image/*" style="display:none;" onchange="previewFoto(event)">
+            <span class="editar-avatar-hint">JPG, PNG o WEBP. Máximo 2MB.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- DATOS BÁSICOS -->
+      <div class="editar-section">
+        <h2 class="editar-section-title">Datos básicos</h2>
+        <div class="editar-grid">
+          <div class="form-group">
+            <label for="nombre_empresa">Nombre de la empresa</label>
+            <input type="text" id="nombre_empresa" name="nombre_empresa" value="<%= empresa.nombre %>">
+          </div>
+          <div class="form-group">
+            <label for="email">Correo corporativo</label>
+            <input type="email" id="email" name="email" value="<%= empresa.email %>">
+          </div>
+          <div class="form-group">
+            <label for="cif">CIF</label>
+            <input type="text" id="cif" name="cif" value="<%= empresa.cif %>">
+          </div>
+          <div class="form-group">
+            <label for="tipo_empresa">Tipo de empresa</label>
+            <select id="tipo_empresa" name="tipo_empresa" onchange="toggleOtro(this)">
+              <option value="clinica"    <%= empresa.tipo_empresa === 'clinica'    ? 'selected' : '' %>>Clínica veterinaria</option>
+              <option value="tienda"     <%= empresa.tipo_empresa === 'tienda'     ? 'selected' : '' %>>Tienda de animales</option>
+              <option value="peluqueria" <%= empresa.tipo_empresa === 'peluqueria' ? 'selected' : '' %>>Peluquería canina</option>
+              <option value="residencia" <%= empresa.tipo_empresa === 'residencia' ? 'selected' : '' %>>Residencia / Hotel para mascotas</option>
+              <option value="otro"       <%= empresa.tipo_empresa === 'otro' || !['clinica','tienda','peluqueria','residencia'].includes(empresa.tipo_empresa) ? 'selected' : '' %>>Otro</option>
+            </select>
+          </div>
+          <div class="form-group" id="otro-group" style="display: <%= ['clinica','tienda','peluqueria','residencia'].includes(empresa.tipo_empresa) ? 'none' : 'block' %>;">
+            <label for="tipo_empresa_otro">¿Qué otro tipo de empresa?</label>
+            <input type="text" id="tipo_empresa_otro" name="tipo_empresa_otro" value="<%= !['clinica','tienda','peluqueria','residencia'].includes(empresa.tipo_empresa) ? empresa.tipo_empresa : '' %>" placeholder="Describe tu tipo de empresa">
+          </div>
+        </div>
+      </div>
+
+      <!-- DATOS ADICIONALES -->
+      <div class="editar-section">
+        <h2 class="editar-section-title">Información adicional</h2>
+        <div class="editar-grid">
+          <div class="form-group">
+            <label for="telefono">Teléfono</label>
+            <input type="text" id="telefono" name="telefono" value="<%= empresa.telefono || '' %>" placeholder="Ej: +34 600 000 000">
+          </div>
+          <div class="form-group">
+            <label for="ubicacion">Ubicación</label>
+            <input type="text" id="ubicacion" name="ubicacion" value="<%= empresa.ubicacion || '' %>" placeholder="Ej: Calle Mayor 1, Madrid">
+          </div>
+          <div class="form-group editar-grid-full">
+            <label for="descripcion">Descripción</label>
+            <textarea id="descripcion" name="descripcion" rows="4" placeholder="Describe tu empresa, servicios, horarios..."><%= empresa.descripcion || '' %></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- CAMBIAR CONTRASEÑA -->
+      <div class="editar-section">
+        <h2 class="editar-section-title">Cambiar contraseña</h2>
+        <p class="editar-section-hint">Deja estos campos en blanco si no quieres cambiar la contraseña.</p>
+        <div class="editar-grid">
+          <div class="form-group">
+            <label for="password_actual">Contraseña actual</label>
+            <input type="password" id="password_actual" name="password_actual" placeholder="••••••••">
+          </div>
+          <div class="form-group">
+            <label for="password_nueva">Nueva contraseña</label>
+            <input type="password" id="password_nueva" name="password_nueva" placeholder="••••••••">
+          </div>
+          <div class="form-group">
+            <label for="password_confirmar">Confirmar nueva contraseña</label>
+            <input type="password" id="password_confirmar" name="password_confirmar" placeholder="••••••••">
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTONES -->
+      <div class="editar-footer">
+        <a href="/perfil/empresa" class="btn-outline-large">Cancelar</a>
+        <button type="submit" class="btn-submit" style="width:auto; padding: 0.9rem 2.5rem;">Guardar cambios</button>
+      </div>
+
+    </form>
+
+  </main>
+
+  <script>
+    function previewFoto(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const preview = document.getElementById('avatarPreview');
+        preview.innerHTML = `<img src="${e.target.result}" id="avatarImg" alt="Logo de la empresa">`;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function toggleOtro(select) {
+      const otroGroup = document.getElementById('otro-group');
+      otroGroup.style.display = select.value === 'otro' ? 'block' : 'none';
+    }
+  </script>
+
+  <%- include('plantillas/modalErrores', { error: typeof error !== 'undefined' ? error : null, errores: typeof errores !== 'undefined' ? errores : [] }) %>
+
+</body>
+</html>
