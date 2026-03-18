@@ -21,10 +21,10 @@
 
       <!-- SELECTOR DE TIPO -->
       <div class="type-selector">
-        <div class="type-option" id="opt-owner" onclick="selectType('owner')">
+        <div class="type-option" id="opt-client" onclick="selectType('client')">
           <div class="type-icon">🐾</div>
-          <span class="type-label">Dueño</span>
-          <div class="type-desc">Tengo una o más mascotas</div>
+          <span class="type-label">Cliente</span>
+          <div class="type-desc">Participa en la comunidad de PetCare</div>
         </div>
         <div class="type-option" id="opt-business" onclick="selectType('business')">
           <div class="type-icon">🏢</div>
@@ -33,32 +33,43 @@
         </div>
       </div>
 
-      <!-- FORMULARIO DUEÑO -->
-      <form class="register-form" id="form-owner" action="/auth/register/owner" method="POST">
+      <!-- FORMULARIO CLIENTE -->
+      <form class="register-form" id="form-client" action="/auth/register/client" method="POST">
         <div class="form-group">
-          <label for="owner-nombre">Nombre completo</label>
-          <input type="text" id="owner-nombre" name="nombre" placeholder="Ej: Ana García López">
-          <span id="error-owner-nombre" class="error"></span>
+          <label for="client-nombre">Nombre completo</label>
+          <input type="text" id="client-nombre" name="nombre" placeholder="Ej: Ana García López"
+          value="<%= formType === 'client' && formData ? formData.nombre : '' %>">
+          <span id="error-client-nombre" class="error"></span>
         </div>
         <div class="form-group">
-          <label for="owner-usuario">Nombre de usuario</label>
-          <input type="text" id="owner-usuario" name="usuario" placeholder="Ej: ana_garcia">
-          <span id="error-owner-nombre-usuario" class="error"></span>
+          <label for="client-usuario">Nombre de usuario</label>
+          <input type="text" id="client-usuario" name="usuario" placeholder="Ej: ana_garcia"
+          value="<%= formType === 'client' && formData ? formData.usuario : '' %>">
+          <span id="error-client-nombre-usuario" class="error"></span>
         </div>
         <div class="form-group">
-          <label for="owner-email">Correo electrónico</label>
-          <input type="email" id="owner-email" name="email" placeholder="ana@ejemplo.com">
-          <span id="error-owner-email" class="error"></span>
+          <label for="client-email">Correo electrónico</label>
+          <input type="email" id="client-email" name="email" placeholder="ana@ejemplo.com"
+          value="<%= formType === 'client' && formData ? formData.email : '' %>">
+          <span id="error-client-email" class="error"></span>
         </div>
         <div class="form-group">
-          <label for="owner-password">Contraseña</label>
-          <input type="password" id="owner-password" name="password" placeholder="••••••••">
-          <span id="error-owner-password" class="error"></span>
+          <label for="client-telefono">Teléfono</label>
+          <input type="number" id="client-telefono" name="telefono" placeholder="Ej: 612345678"
+          value="<%= formType === 'client' && formData ? formData.telefono : '' %>">
+          <span id="error-client-telefono" class="error"></span>
         </div>
         <div class="form-group">
-          <label for="owner-fecha">Fecha de nacimiento</label>
-          <input type="date" id="owner-fecha" name="fecha_nacimiento">
-          <span id="error-owner-fecha" class="error"></span>
+          <label for="client-password">Contraseña</label>
+          <input type="password" id="client-password" name="password" placeholder="••••••••"
+          value="<%= formType === 'client' && formData ? formData.password : '' %>">
+          <span id="error-client-password" class="error"></span>
+        </div>
+        <div class="form-group">
+          <label for="client-fecha">Fecha de nacimiento</label>
+          <input type="date" id="client-fecha" name="fecha_nacimiento"
+          value="<%= formType === 'client' && formData ? formData.fecha_nacimiento : '' %>">
+          <span id="error-client-fecha" class="error"></span>
         </div>
         <button type="submit" class="btn-submit">Crear cuenta</button>
       </form>
@@ -67,22 +78,26 @@
       <form class="register-form" id="form-business" action="/auth/register/business" method="POST">
         <div class="form-group">
           <label for="biz-nombre">Nombre de la empresa</label>
-          <input type="text" id="biz-nombre" name="nombre_empresa" placeholder="Ej: Clínica Veterinaria Sol">
+          <input type="text" id="biz-nombre" name="nombre_empresa" placeholder="Ej: Clínica Veterinaria Sol"
+          value="<%= formType === 'business' && formData ? formData.nombre_empresa : '' %>">
           <span id="biz-nombre-error" class="error"></span>
         </div>
         <div class="form-group">
           <label for="biz-email">Correo corporativo</label>
-          <input type="email" id="biz-email" name="email" placeholder="contacto@empresa.com">
+          <input type="email" id="biz-email" name="email" placeholder="contacto@empresa.com"
+          value="<%= formType === 'business' && formData ? formData.email : '' %>">
           <span id="biz-email-error" class="error"></span>
         </div>
         <div class="form-group">
           <label for="biz-cif">CIF</label>
-          <input type="text" id="biz-cif" name="cif" placeholder="Ej: B12345678">
+          <input type="text" id="biz-cif" name="cif" placeholder="Ej: B12345678"
+          value="<%= formType === 'business' && formData ? formData.cif : '' %>">
           <span id="biz-cif-error" class="error"></span>
         </div>
         <div class="form-group">
           <label for="biz-password">Contraseña</label>
-          <input type="password" id="biz-password" name="password" placeholder="••••••••">
+          <input type="password" id="biz-password" name="password" placeholder="••••••••"
+          value="<%= formType === 'business' && formData ? formData.password : '' %>">
           <span id="biz-password-error" class="error"></span>
         </div>
         <div class="form-group">
@@ -106,20 +121,22 @@
       </form>
 
       <div class="register-footer">
-        ¿Ya tienes cuenta? <a href="/login">Inicia sesión</a>
+        ¿Ya tienes cuenta? <a href="/auth/login">Inicia sesión</a>
       </div>
 
     </div>
   </main>
 
   <script>
+    const formType = "<%= formType || '' %>";
+
     function selectType(type) {
       // Actualizar estilo de los botones
-      document.getElementById('opt-owner').classList.toggle('active', type === 'owner');
+      document.getElementById('opt-client').classList.toggle('active', type === 'client');
       document.getElementById('opt-business').classList.toggle('active', type === 'business');
 
       // Mostrar el formulario correspondiente
-      document.getElementById('form-owner').classList.toggle('visible', type === 'owner');
+      document.getElementById('form-client').classList.toggle('visible', type === 'client');
       document.getElementById('form-business').classList.toggle('visible', type === 'business');
     }
 
@@ -127,6 +144,8 @@
       const otroGroup = document.getElementById('otro-group');
       otroGroup.style.display = select.value === 'otro' ? 'block' : 'none';
     }
+
+    if (formType) selectType(formType);
   </script>
   <script src="/js/registro.js"></script>
 

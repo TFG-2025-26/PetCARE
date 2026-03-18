@@ -14,21 +14,23 @@
   <main class="login-page">
 
     <!-- FORMULARIO CLIENTE -->
-    <div class="login-box owner">
+    <div class="login-box client">
       <h2>Inicio de sesión como cliente</h2>
-      <form action="/auth/login/owner" method="POST" style="margin-top: 1.5rem;">
+      <form action="/auth/login/client" method="POST" style="margin-top: 1.5rem;">
         <div class="form-group">
-          <label for="owner-email">Correo</label>
-          <input type="email" id="owner-email" name="email" placeholder="ana@ejemplo.com">
+          <label for="client-email">Nombre de usuario, correo o teléfono</label>
+          <input type="text" id="client-login-input" name="login_input" placeholder="Ej: ana@ejemplo.com o ana_garcia o 612345678"
+          value = "<%= formType === 'client' && formData ? formData.login_input : '' %>">
         </div>
         <div class="form-group">
-          <label for="owner-password">Contraseña</label>
-          <input type="password" id="owner-password" name="password" placeholder="••••••••">
+          <label for="client-password">Contraseña</label>
+          <input type="password" id="client-password" name="password" placeholder="••••••••"
+          value = "<%= formType === 'client' && formData ? formData.password : '' %>">
         </div>
         <button type="submit" class="btn-submit">Login</button>
       </form>
       <div class="register-footer">
-        No tienes cuenta. <a href="/register">Regístrate</a>
+        No tienes cuenta. <a href="/auth/register">Regístrate</a>
       </div>
     </div>
 
@@ -38,16 +40,18 @@
       <form action="/auth/login/business" method="POST" style="margin-top: 1.5rem;">
         <div class="form-group">
           <label for="biz-email">Correo</label>
-          <input type="email" id="biz-email" name="email" placeholder="contacto@empresa.com">
+          <input type="email" id="biz-email" name="email" placeholder="contacto@empresa.com"
+          value = "<%= formType === 'business' && formData ? formData.email : '' %>">
         </div>
         <div class="form-group">
           <label for="biz-password">Contraseña</label>
-          <input type="password" id="biz-password" name="password" placeholder="••••••••">
+          <input type="password" id="biz-password" name="password" placeholder="••••••••"
+          value = "<%= formType === 'business' && formData ? formData.password : '' %>">
         </div>
         <button type="submit" class="btn-submit-green">Login</button>
       </form>
       <div class="register-footer">
-        No tienes cuenta. <a href="/register">Únete</a>
+        No tienes cuenta. <a href="/auth/register">Únete</a>
       </div>
     </div>
 
