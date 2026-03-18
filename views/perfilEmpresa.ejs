@@ -54,12 +54,6 @@
             <span class="data-value"><%= empresa.ubicacion %></span>
           </li>
           <% } %>
-          <% if (empresa.descripcion) { %>
-          <li>
-            <span class="data-label">Descripción</span>
-            <span class="data-value data-bio"><%= empresa.descripcion %></span>
-          </li>
-          <% } %>
         </ul>
       </div>
 
@@ -73,6 +67,31 @@
 
     <!-- COLUMNA DERECHA -->
     <section class="perfil-main">
+
+      <!-- Descripción -->
+       <% if (empresa.descripcion) { %>
+        <div class="perfil-section">
+        <div class="perfil-section-header">
+            <h2>Sobre nosotros</h2>
+            <% if (esPropia) { %>
+            <a href="/perfil/empresa/editar" class="btn-section-add">Editar</a>
+            <% } %>
+        </div>
+        <p class="empresa-descripcion"><%= empresa.descripcion %></p>
+        </div>
+        <% } else if (esPropia) { %>
+        <div class="perfil-section">
+        <div class="perfil-section-header">
+            <h2>Sobre nosotros</h2>
+            <a href="/perfil/empresa/editar" class="btn-section-add">Editar</a>
+        </div>
+        <div class="perfil-empty" style="padding: 1.5rem;">
+            <span class="perfil-empty-icon">📝</span>
+            <p>Añade una descripción para que los usuarios te conozcan mejor.</p>
+        </div>
+        </div>
+     <% } %>  
+
 
       <!-- MAPA -->
       <div class="perfil-section">
