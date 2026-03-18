@@ -16,7 +16,11 @@
       </ul>
       <div class="nav-actions">
         <% if(usuario) { %>
+            <% if(usuario.tipo === 'client') { %>
             <a href="/user/perfilUsuario/<%= usuario.id %>" class="btn-ghost">Perfil</a>
+            <% } else { %>
+            <a href="/user/perfilEmpresa/<%= usuario.id %>" class="btn-ghost">Perfil</a>
+            <% } %>
             <a href="/auth/logout" class="btn-primary">Cerrar sesión</a>
         <% } else { %>
             <a href="/auth/login" class="btn-ghost">Iniciar sesión</a>
