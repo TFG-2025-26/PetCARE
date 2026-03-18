@@ -26,8 +26,16 @@ const getEditarPerfilUsuario = (req, res) => {
     res.render('editarPerfilUsuario', { usuario });
 };
 
+const getEditarPerfilEmpresa = (req, res) => {
+    const miDB = req.app.locals.db; 
+    const empresaId = parseInt(req.params.id, 10); 
+    const empresa = miDB.businesses.find(business => business.id === empresaId); 
+    res.render('editarPerfilEmpresa', {empresa}); 
+}
+
 module.exports = {
     getPerfilUsuario,
     getPerfilEmpresa, 
-    getEditarPerfilUsuario
+    getEditarPerfilUsuario, 
+    getEditarPerfilEmpresa
 };

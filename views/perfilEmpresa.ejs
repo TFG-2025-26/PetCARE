@@ -54,18 +54,12 @@
             <span class="data-value"><%= empresa.ubicacion %></span>
           </li>
           <% } %>
-          <% if (empresa.descripcion) { %>
-          <li>
-            <span class="data-label">Descripción</span>
-            <span class="data-value data-bio"><%= empresa.descripcion %></span>
-          </li>
-          <% } %>
         </ul>
       </div>
 
       <!-- Acciones -->
       <div class="perfil-actions">
-        <a href="/perfil/empresa/editar" class="btn-perfil-edit">Editar perfil</a>
+        <a href="/user/perfilEmpresa/<%= usuario.id %>/editar" class="btn-perfil-edit">Editar perfil</a>
         <a href="/logout" class="btn-perfil-danger">Cerrar sesión</a>
       </div>
 
@@ -73,6 +67,31 @@
 
     <!-- COLUMNA DERECHA -->
     <section class="perfil-main">
+
+      <!-- Descripción -->
+       <% if (empresa.descripcion) { %>
+        <div class="perfil-section">
+        <div class="perfil-section-header">
+            <h2>Sobre nosotros</h2>
+            <% if (esPropia) { %>
+            <a href="/user/perfilEmpresa/<%= usuario.id %>/editar" class="btn-section-add">Editar</a>
+            <% } %>
+        </div>
+        <p class="empresa-descripcion"><%= empresa.descripcion %></p>
+        </div>
+        <% } else if (esPropia) { %>
+        <div class="perfil-section">
+        <div class="perfil-section-header">
+            <h2>Sobre nosotros</h2>
+            <a href="/user/perfilEmpresa/<%= usuario.id %>/editar" class="btn-section-add">Editar</a>
+        </div>
+        <div class="perfil-empty" style="padding: 1.5rem;">
+            <span class="perfil-empty-icon">📝</span>
+            <p>Añade una descripción para que los usuarios te conozcan mejor.</p>
+        </div>
+        </div>
+     <% } %>  
+
 
       <!-- MAPA -->
       <div class="perfil-section">
@@ -91,7 +110,7 @@
             <span class="perfil-empty-icon">📍</span>
             <p>Esta empresa aún no ha añadido su ubicación.</p>
             <% if (esPropia) { %>
-              <a href="/perfil/empresa/editar" class="btn-submit" style="display:inline-block; width:auto; padding: 0.6rem 1.5rem;">Añadir ubicación</a>
+              <a href="/user/perfilEmpresa/<%= usuario.id %>/editar" class="btn-submit" style="display:inline-block; width:auto; padding: 0.6rem 1.5rem;">Añadir ubicación</a>
             <% } %>
           </div>
         <% } %>
