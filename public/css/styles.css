@@ -1206,6 +1206,8 @@ footer {
   .editar-footer { flex-direction: column-reverse; }
   .editar-footer .btn-outline-large,
   .editar-footer .btn-submit { width: 100%; text-align: center; }
+}
+
 .error-image{
   width: 75%;
   height: auto;
@@ -1444,4 +1446,140 @@ footer {
   display: flex;
   justify-content: end;
   align-items: end;
+}
+
+/* ── PERFIL EMPRESA ── */
+.empresa-initial {
+  background: var(--green);
+}
+
+.empresa-badge {
+  text-transform: capitalize;
+  color: var(--green);
+  border-color: rgba(74,103,65,0.25);
+}
+
+/* ── MAPA PLACEHOLDER ── */
+.empresa-mapa-placeholder {
+  height: 220px;
+  background: var(--warm);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 2px dashed rgba(61,43,31,0.15);
+}
+
+.mapa-icon { font-size: 2.5rem; }
+
+.empresa-mapa-placeholder p {
+  font-size: 0.95rem;
+  color: var(--brown);
+  font-weight: 500;
+}
+
+.mapa-hint {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 300;
+}
+
+/* ── RATING SUMMARY ── */
+.empresa-rating-summary {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem 1.2rem;
+  background: var(--cream);
+  border-radius: 14px;
+  margin-bottom: 1.2rem;
+}
+
+.empresa-rating-score {
+  display: flex;
+  align-items: baseline;
+  gap: 0.2rem;
+}
+
+.rating-number {
+  font-family: 'Fraunces', serif;
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: var(--brown);
+  line-height: 1;
+}
+
+.rating-max {
+  font-size: 1rem;
+  color: var(--muted);
+  font-weight: 300;
+}
+
+.empresa-rating-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.rating-stars { display: flex; gap: 0.1rem; }
+
+.star {
+  font-size: 1.2rem;
+  color: var(--warm);
+}
+
+.star-on { color: var(--amber); }
+
+.rating-count {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 300;
+}
+
+/* ── REVIEWS ── */
+.empresa-reviews {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.review-card {
+  background: var(--cream);
+  border-radius: 14px;
+  padding: 1rem 1.2rem;
+  transition: background 0.2s;
+}
+
+.review-card:hover { background: var(--warm); }
+
+.review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.review-autor {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--brown);
+}
+
+.review-stars { display: flex; gap: 0.1rem; }
+
+.review-stars .star { font-size: 0.9rem; }
+
+.review-texto {
+  font-size: 0.9rem;
+  color: var(--text);
+  line-height: 1.5;
+  font-weight: 300;
+  margin-bottom: 0.4rem;
+}
+
+.review-fecha {
+  font-size: 0.75rem;
+  color: var(--muted);
 }

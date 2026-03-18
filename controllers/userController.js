@@ -12,7 +12,11 @@ const getPerfilEmpresa = (req, res) => {
     const miDB = req.app.locals.db;
     const empresaId = parseInt(req.params.id, 10);
     const empresa = miDB.businesses.find(business => business.id === empresaId);
-    res.render('perfilEmpresa', { empresa });
+    res.render('perfilEmpresa', { 
+        empresa, 
+        valoraciones: [],
+        esPropia: true
+    });
 };
 
 const getEditarPerfilUsuario = (req, res) => {

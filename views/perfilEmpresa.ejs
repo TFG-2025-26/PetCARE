@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil Empresa — PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <%- include('plantillas/navbar') %>
+
+  <main class="perfil-page">
+
+    <!-- COLUMNA IZQUIERDA -->
+    <aside class="perfil-sidebar">
+
+      <!-- Logo y nombre -->
+      <div class="perfil-avatar-block">
+        <div class="perfil-avatar">
+          <% if (empresa.foto) { %>
+            <img src="<%= empresa.foto %>" alt="Logo de la empresa">
+          <% } else { %>
+            <span class="perfil-avatar-initials empresa-initial"><%= empresa.nombre.charAt(0).toUpperCase() %></span>
+          <% } %>
+          <button class="perfil-avatar-edit" title="Cambiar logo">＋</button>
+        </div>
+        <h1 class="perfil-nombre"><%= empresa.nombre %></h1>
+        <span class="perfil-badge empresa-badge"><%= empresa.tipo_empresa %></span>
+      </div>
+
+      <!-- Datos principales -->
+      <div class="perfil-card">
+        <h2 class="perfil-card-title">Información</h2>
+        <ul class="perfil-data-list">
+          <li>
+            <span class="data-label">Correo corporativo</span>
+            <span class="data-value"><%= empresa.email %></span>
+          </li>
+          <li>
+            <span class="data-label">CIF</span>
+            <span class="data-value"><%= empresa.cif %></span>
+          </li>
+          <% if (empresa.telefono) { %>
+          <li>
+            <span class="data-label">Teléfono</span>
+            <span class="data-value"><%= empresa.telefono %></span>
+          </li>
+          <% } %>
+          <% if (empresa.ubicacion) { %>
+          <li>
+            <span class="data-label">Ubicación</span>
+            <span class="data-value"><%= empresa.ubicacion %></span>
+          </li>
+          <% } %>
+          <% if (empresa.descripcion) { %>
+          <li>
+            <span class="data-label">Descripción</span>
+            <span class="data-value data-bio"><%= empresa.descripcion %></span>
+          </li>
+          <% } %>
+        </ul>
+      </div>
+
+      <!-- Acciones -->
+      <div class="perfil-actions">
+        <a href="/perfil/empresa/editar" class="btn-perfil-edit">Editar perfil</a>
+        <a href="/logout" class="btn-perfil-danger">Cerrar sesión</a>
+      </div>
+
+    </aside>
+
+    <!-- COLUMNA DERECHA -->
+    <section class="perfil-main">
+
+      <!-- MAPA -->
+      <div class="perfil-section">
+        <div class="perfil-section-header">
+          <h2>Ubicación</h2>
+        </div>
+        <% if (empresa.ubicacion) { %>
+          <div class="empresa-mapa-placeholder" id="mapaEmpresa">
+            <!-- Aquí se conectará la API de Google Maps -->
+            <span class="mapa-icon">🗺️</span>
+            <p>Mapa de <strong><%= empresa.ubicacion %></strong></p>
+            <span class="mapa-hint">Integración con Google Maps API pendiente</span>
+          </div>
+        <% } else { %>
+          <div class="perfil-empty">
+            <span class="perfil-empty-icon">📍</span>
+            <p>Esta empresa aún no ha añadido su ubicación.</p>
+            <% if (esPropia) { %>
+              <a href="/perfil/empresa/editar" class="btn-submit" style="display:inline-block; width:auto; padding: 0.6rem 1.5rem;">Añadir ubicación</a>
+            <% } %>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- VALORACIONES -->
+      <div class="perfil-section">
+        <div class="perfil-section-header">
+          <h2>Valoraciones</h2>
+          <% if (!esPropia) { %>
+            <a href="#" class="btn-section-add">+ Dejar reseña</a>
+          <% } %>
+        </div>
+
+        <!-- Resumen de puntuación -->
+        <div class="empresa-rating-summary">
+          <div class="empresa-rating-score">
+            <span class="rating-number"><%= empresa.valoracion_media || '—' %></span>
+            <span class="rating-max">/ 5</span>
+          </div>
+          <div class="empresa-rating-info">
+            <div class="rating-stars">
+              <% for (let i = 1; i <= 5; i++) { %>
+                <span class="star <%= i <= Math.round(empresa.valoracion_media || 0) ? 'star-on' : '' %>">★</span>
+              <% } %>
+            </div>
+            <span class="rating-count"><%= empresa.num_valoraciones || 0 %> valoraciones</span>
+          </div>
+        </div>
+
+        <!-- Lista de reseñas -->
+        <% if (valoraciones && valoraciones.length > 0) { %>
+          <div class="empresa-reviews">
+            <% valoraciones.forEach(function(v) { %>
+              <div class="review-card">
+                <div class="review-header">
+                  <span class="review-autor">@<%= v.usuario %></span>
+                  <div class="review-stars">
+                    <% for (let i = 1; i <= 5; i++) { %>
+                      <span class="star <%= i <= v.puntuacion ? 'star-on' : '' %>">★</span>
+                    <% } %>
+                  </div>
+                </div>
+                <p class="review-texto"><%= v.texto %></p>
+                <span class="review-fecha"><%= new Date(v.fecha).toLocaleDateString('es-ES') %></span>
+              </div>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="perfil-empty" style="padding: 1.5rem;">
+            <span class="perfil-empty-icon">⭐</span>
+            <p>Aún no hay valoraciones para esta empresa.</p>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- Zona de peligro (solo si es el propio perfil) -->
+      <% if (esPropia) { %>
+      <div class="perfil-section perfil-danger-zone">
+        <h2>Zona de peligro</h2>
+        <p>Una vez elimines tu cuenta no hay vuelta atrás.</p>
+        <a href="/perfil/eliminar" class="btn-perfil-danger">Eliminar cuenta</a>
+      </div>
+      <% } %>
+
+    </section>
+
+  </main>
+
+  <%- include('plantillas/footer') %>
+  <%- include('plantillas/modalErrores', { error: typeof error !== 'undefined' ? error : null, errores: typeof errores !== 'undefined' ? errores : [] }) %>
+
+
+</body>
+</html>

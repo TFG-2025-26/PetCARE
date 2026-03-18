@@ -123,10 +123,11 @@ const postRegisterBusiness = (req, res) => {
     // Crear una nueva empresa y agregarla a la base de datos
     const nuevaBusiness = {
         id:       Date.now(),
-        nombre:   req.body.nombre,
+        nombre:   req.body.nombre_empresa,
         email:    req.body.email,
         password: req.body.password,
-        cif:      req.body.cif
+        cif:      req.body.cif, 
+        tipo_empresa: req.body.tipo_empresa === 'otro' ? req.body.tipo_empresa_otro : req.body.tipo_empresa
     };
     miDB.businesses.push(nuevaBusiness);
 
