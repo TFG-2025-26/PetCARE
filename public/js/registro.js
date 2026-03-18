@@ -1,16 +1,15 @@
 "use strict"; 
 
 // Selección de formularios
-const clientForm = document.getElementById("form-client");
+const ownerForm = document.getElementById("form-owner");
 const bizForm = document.getElementById("form-business");
 
-// Selección de elementos - Client
-const clientNombreInput = document.getElementById("client-nombre"); 
-const clientNombreUsuarioInput = document.getElementById("client-usuario"); 
-const clientEmailInput = document.getElementById("client-email"); 
-const clientTelefonoInput = document.getElementById("client-telefono");
-const clientPasswordInput = document.getElementById("client-password"); 
-const clientFechaInput = document.getElementById("client-fecha"); 
+// Selección de elementos - Owner
+const ownerNombreInput = document.getElementById("owner-nombre"); 
+const ownerNombreUsuarioInput = document.getElementById("owner-usuario"); 
+const ownerEmailInput = document.getElementById("owner-email"); 
+const ownerPasswordInput = document.getElementById("owner-password"); 
+const ownerFechaInput = document.getElementById("owner-fecha"); 
 
 // Selección de elementos - Business 
 const bizNombreInput = document.getElementById("biz-nombre"); 
@@ -20,13 +19,12 @@ const bizPasswordInput = document.getElementById("biz-password");
 const bizTipoSelect = document.getElementById("biz-tipo"); 
 const bizTipoOtroInput = document.getElementById("biz-tipo-otro");
 
-// Selección de Spans - Client
-const clientNombreError = document.getElementById("error-client-nombre");
-const clientUsuarioError = document.getElementById("error-client-nombre-usuario");
-const clientEmailError = document.getElementById("error-client-email");
-const clientTelefonoError = document.getElementById("error-client-telefono");
-const clientPasswordError = document.getElementById("error-client-password");
-const clientFechaError = document.getElementById("error-client-fecha");
+// Selección de Spans - Owner
+const ownerNombreError = document.getElementById("error-owner-nombre");
+const ownerUsuarioError = document.getElementById("error-owner-nombre-usuario");
+const ownerEmailError = document.getElementById("error-owner-email");
+const ownerPasswordError = document.getElementById("error-owner-password");
+const ownerFechaError = document.getElementById("error-owner-fecha");
 
 // Selección de Spans - Business 
 const bizNombreError = document.getElementById("biz-nombre-error");
@@ -36,84 +34,70 @@ const bizPasswordError = document.getElementById("biz-password-error");
 const bizTipoError = document.getElementById("biz-tipo-error");
 const bizTipoOtroError = document.getElementById("biz-tipo-otro-error");
 
-// Funciones de validación - Client
-function validarNombreClient() {
-    let nombreClientValid = true;
+// Funciones de validación - Owner
+function validarNombreOwner() {
+    let nombreOwnerValid = true;
 
-    if (clientNombreInput.value.trim().length < 3) {
-        clientNombreError.textContent = "El nombre debe tener al menos 3 caracteres.";
-        nombreClientValid = false; 
+    if (ownerNombreInput.value.trim().length < 3) {
+        ownerNombreError.textContent = "El nombre debe tener al menos 3 caracteres.";
+        nombreOwnerValid = false; 
     } else {
-        clientNombreError.textContent = "";
+        ownerNombreError.textContent = "";
     }
-    return nombreClientValid;
+    return nombreOwnerValid;
 }
 
-function validarUsuarioClient() {
-    let usuarioClientValid = true;
+function validarUsuarioOwner() {
+    let usuarioOwnerValid = true;
     const regex = /^\S+$/;
 
-    if (clientNombreUsuarioInput.value.trim().length < 3) {
-        clientUsuarioError.textContent = "El nombre de usuario debe tener al menos 3 caracteres.";
-        usuarioClientValid = false;
-    } else if (!regex.test(clientNombreUsuarioInput.value)) {
-        clientUsuarioError.textContent = "El nombre de usuario no puede contener espacios en blanco.";
-        usuarioClientValid = false;
+    if (ownerNombreUsuarioInput.value.trim().length < 3) {
+        ownerUsuarioError.textContent = "El nombre de usuario debe tener al menos 3 caracteres.";
+        usuarioOwnerValid = false;
+    } else if (!regex.test(ownerNombreUsuarioInput.value)) {
+        ownerUsuarioError.textContent = "El nombre de usuario no puede contener espacios en blanco.";
+        usuarioOwnerValid = false;
     } else {
-        clientUsuarioError.textContent = "";
+        ownerUsuarioError.textContent = "";
     }
 
-    return usuarioClientValid;
+    return usuarioOwnerValid;
 }
 
-function validarEmailClient() {
-    let emailClientValid = true;
+function validarEmailOwner() {
+    let emailOwnerValid = true;
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!regex.test(clientEmailInput.value.trim())) {
-        clientEmailError.textContent = "Por favor, introduce un email válido.";
-        emailClientValid = false;
+    if (!regex.test(ownerEmailInput.value.trim())) {
+        ownerEmailError.textContent = "Por favor, introduce un email válido.";
+        emailOwnerValid = false;
     } else {
-        clientEmailError.textContent = "";
+        ownerEmailError.textContent = "";
     }
 
-    return emailClientValid;
+    return emailOwnerValid;
 }
 
-function validarTelefonoClient() {
-    let telefonoClientValid = true;
-    const regex = /^\d{9,15}$/;
-
-    if (!regex.test(clientTelefonoInput.value.trim())) {
-        clientTelefonoError.textContent = "Por favor, introduce un teléfono válido (9-15 dígitos).";
-        telefonoClientValid = false;
-    } else {
-        clientTelefonoError.textContent = "";
-    }
-
-    return telefonoClientValid;
-}
-
-function validarPasswordClient() {
-    let passwordClientValid = true;
+function validarPasswordOwner() {
+    let passwordOwnerValid = true;
     const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
-    if (/\s/.test(clientPasswordInput.value)) {
-        clientPasswordError.textContent = "La contraseña no puede contener espacios en blanco.";
-        passwordClientValid = false;
-    } else if (!regex.test(clientPasswordInput.value.trim())) {
-        clientPasswordError.textContent = "La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una letra minúscula y un número.";
-        passwordClientValid = false;
+    if (/\s/.test(bizPasswordInput.value)) {
+        bizPasswordError.textContent = "La contraseña no puede contener espacios en blanco.";
+        passwordBusinessValid = false;
+    } else if (!regex.test(ownerPasswordInput.value.trim())) {
+        ownerPasswordError.textContent = "La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una letra minúscula y un número.";
+        passwordOwnerValid = false;
     } else {
-        clientPasswordError.textContent = "";
+        ownerPasswordError.textContent = "";
     }
 
-    return passwordClientValid;
+    return passwordOwnerValid;
 }
 
-function validarFechaClient() {
-    let fechaClientValid = true;
-    const fechaNacimiento = new Date(clientFechaInput.value);
+function validarFechaOwner() {
+    let fechaOwnerValid = true;
+    const fechaNacimiento = new Date(ownerFechaInput.value);
     const hoy = new Date();
 
     let edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
@@ -124,19 +108,19 @@ function validarFechaClient() {
     }
 
     if (isNaN(fechaNacimiento.getTime())) {
-        clientFechaError.textContent = "Por favor, introduce una fecha de nacimiento válida.";
-        fechaClientValid = false;
+        ownerFechaError.textContent = "Por favor, introduce una fecha de nacimiento válida.";
+        fechaOwnerValid = false;
     } else if (edad < 14) {
-        clientFechaError.textContent = "Debes tener al menos 14 años para registrarte.";
-        fechaClientValid = false;
+        ownerFechaError.textContent = "Debes tener al menos 14 años para registrarte.";
+        fechaOwnerValid = false;
     } else if (edad > 120) {
-        clientFechaError.textContent = "Por favor, introduce una fecha de nacimiento realista.";
-        fechaClientValid = false;
+        ownerFechaError.textContent = "Por favor, introduce una fecha de nacimiento realista.";
+        fechaOwnerValid = false;
     } else {
-        clientFechaError.textContent = "";
+        ownerFechaError.textContent = "";
     }
 
-    return fechaClientValid;
+    return fechaOwnerValid;
 }
 
 // Funciones de validación - Business 
@@ -224,22 +208,20 @@ function validarTipoOtroBusiness() {
     return tipoOtroBusinessValid;
 }
 
-// Eventos de validación - Client
-clientNombreInput.addEventListener("input", validarNombreClient);
-clientNombreUsuarioInput.addEventListener("input", validarUsuarioClient);
-clientEmailInput.addEventListener("input", validarEmailClient);
-clientTelefonoInput.addEventListener("input", validarTelefonoClient);
-clientPasswordInput.addEventListener("input", validarPasswordClient);
-clientFechaInput.addEventListener("input", validarFechaClient);
+// Eventos de validación - Owner
+ownerNombreInput.addEventListener("input", validarNombreOwner);
+ownerNombreUsuarioInput.addEventListener("input", validarUsuarioOwner);
+ownerEmailInput.addEventListener("input", validarEmailOwner);
+ownerPasswordInput.addEventListener("input", validarPasswordOwner);
+ownerFechaInput.addEventListener("input", validarFechaOwner);
 
-clientForm.addEventListener("submit", function(event) {
-    let isNombreValid = validarNombreClient();
-    let isUsuarioValid = validarUsuarioClient();
-    let isEmailValid = validarEmailClient();
-    let isPasswordValid = validarPasswordClient();
-    let isFechaValid = validarFechaClient();
-    let isTelefonoValid = validarTelefonoClient();
-    if (!isNombreValid || !isUsuarioValid || !isEmailValid || !isPasswordValid || !isFechaValid || !isTelefonoValid) {
+ownerForm.addEventListener("submit", function(event) {
+    let isNombreValid = validarNombreOwner();
+    let isUsuarioValid = validarUsuarioOwner();
+    let isEmailValid = validarEmailOwner();
+    let isPasswordValid = validarPasswordOwner();
+    let isFechaValid = validarFechaOwner();
+    if (!isNombreValid || !isUsuarioValid || !isEmailValid || !isPasswordValid || !isFechaValid) {
         event.preventDefault();
         alert("Por favor, corrige los errores en el formulario antes de enviarlo.");
     }
