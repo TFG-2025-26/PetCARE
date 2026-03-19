@@ -108,60 +108,100 @@ const postRegisterClient = (req, res) => {
     });
 };
 
-// Hacer función postRegisterBusiness similar a postRegisterClient pero para empresas, y que también verifique si el CIF ya está registrado antes de crear la nueva empresa.
 const postRegisterBusiness = (req, res) => {
-    const miDB = req.app.locals.db;
+    
     const errores = validationResult(req);
 
     if (!errores.isEmpty()) {
-        return res.render('register', { 
-            error: 'Por favor, corrige los errores en el formulario.', 
+        return res.status(400).render('register', {
+            error: 'Por favor, corrige los errores en el formulario.',
             errores: errores.array(),
             formData: req.body,
             formType: 'business'
         });
     }
 
-    // Verificar si el correo ya está registrado
-    const emailExistente = findUserByEmail(req.body.email, 'business', miDB);
-    if (emailExistente) {
-        return res.render('register', { 
-            error: 'El correo electrónico ya está registrado.', 
-            errores: [], 
-            formData: req.body,
-            formType: 'business' 
+    const { nombre_empresa, email, telefono, password, cif, tipo_empresa, tipo_empresa_otro } = req.body;
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error("Error al conectar a la base de datos:", err);
+            return res.status(500).render('error500', { mensaje: "Error al conectar a la base de datos" });
+        }
+
+        // 1. Comprobar email 
+        connection.query("SELECT id_empresa FROM empresas WHERE correo = ?", [email], (err, results) => {
+            if (err) {
+                connection.release();
+                console.error("Error al verificar el correo:", err);
+                return res.status(500).render('error500', { mensaje: "Error al verificar el correo" });
+            }
+            if (results.length > 0) {
+                connection.release();
+                return res.render('register', {
+                    error: 'El correo electrónico ya está registrado.',
+                    errores: [],
+                    formData: req.body,
+                    formType: 'business'
+                });
+            }
+
+            // 2. Comprobar CIF
+            connection.query("SELECT id_empresa FROM empresas WHERE CIF = ?", [cif], (err, results) => {
+                if (err) {
+                    connection.release();
+                    console.error("Error al verificar el CIF:", err);
+                    return res.status(500).render('error500', { mensaje: "Error al verificar el CIF" });
+                }
+                if (results.length > 0) {
+                    connection.release();
+                    return res.render('register', {
+                        error: 'El CIF ya está registrado.',
+                        errores: [],
+                        formData: req.body,
+                        formType: 'business'
+                    });
+                }
+
+                // 3. Comprobar teléfono
+                connection.query("SELECT id_empresa FROM empresas WHERE telefono_contacto = ?", [telefono], (err, results) => {
+                    if (err) {
+                        connection.release();
+                        console.error("Error al verificar el teléfono:", err);
+                        return res.status(500).render('error500', { mensaje: "Error al verificar el teléfono" });
+                    }
+                    if (results.length > 0) {
+                        connection.release();
+                        return res.render('register', {
+                            error: 'El teléfono ya está registrado.',
+                            errores: [],
+                            formData: req.body,
+                            formType: 'business'
+                        });
+                    }
+
+                    // 4. Insertar
+                    //! Cambiar tipo_empresa en bd y aquí
+                    const insert_query = "INSERT INTO empresas (nombre, correo, contraseña, CIF, telefono_contacto, tipo) VALUES (?, ?, ?, ?, ?, ?)";
+                    connection.query(insert_query, [nombre_empresa, email, password, cif, telefono, tipo_empresa === 'otro' ? tipo_empresa_otro : tipo_empresa], (err, results) => {
+                        connection.release();
+                        if (err) {
+                            console.error("Error al insertar la empresa:", err);
+                            return res.status(500).render('error500', { mensaje: "Error al insertar la empresa" });
+                        }
+                        req.session.usuario = {
+                            id:    results.insertId,
+                            nombre: nombre_empresa,
+                            tipo: 'business'
+                        };
+                        // Empresa registrada correctamente
+                        res.redirect('/');
+                    });
+                }); 
+            }); 
         });
-    }
+    }); 
 
-    // Verificar si el CIF ya está registrado
-    const cifExistente = findUserByCIF(req.body.cif, miDB);
-    if (cifExistente) {
-        return res.render('register', { 
-            error: 'El CIF ya está registrado.', 
-            errores: [], 
-            formData: req.body,
-            formType: 'business' 
-        });
-    }
-
-    // Crear una nueva empresa y agregarla a la base de datos
-    const nuevaBusiness = {
-        id:       Date.now(),
-        nombre:   req.body.nombre_empresa,
-        email:    req.body.email,
-        password: req.body.password,
-        cif:      req.body.cif, 
-        tipo_empresa: req.body.tipo_empresa === 'otro' ? req.body.tipo_empresa_otro : req.body.tipo_empresa
-    };
-    miDB.businesses.push(nuevaBusiness);
-
-    // Iniciar sesión automáticamente después del registro
-    req.session.usuario = {
-        id: nuevaBusiness.id,
-        nombre: nuevaBusiness.nombre,
-        tipo: 'business'
-    };
-    res.redirect('/');
 };
 
 const postLoginClient = (req, res) => {

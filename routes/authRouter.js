@@ -56,6 +56,10 @@ const validarRegistroBusiness = [
         .isLength({ min: 8 }).withMessage('La contraseña debe tener al menos 8 caracteres')
         .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/).withMessage('La contraseña debe contener al menos una letra mayúscula, una letra minúscula y un número')
         .matches(/^\S+$/).withMessage('La contraseña no puede contener espacios en blanco'),
+    body('telefono')
+        .notEmpty().withMessage('El teléfono es obligatorio')
+        .isLength({ min: 9, max: 15 }).withMessage('El teléfono debe tener entre 9 y 15 caracteres')
+        .matches(/^\d+$/).withMessage('El teléfono solo puede contener números'),
     body('cif')
         .notEmpty().withMessage('El CIF es obligatorio')
         .matches(/^[A-Za-z0-9]{8,}$/).withMessage('El CIF debe tener al menos 8 caracteres alfanuméricos'),
