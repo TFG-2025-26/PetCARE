@@ -2,6 +2,7 @@
 
 const express = require('express'); 
 const router = express.Router(); 
+const pool = require('../db');
 const { body } = require('express-validator');
 const authController = require('../controllers/authController');
 

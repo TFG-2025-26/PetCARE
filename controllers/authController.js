@@ -1,87 +1,111 @@
 "use strict"; 
 
 const { validationResult } = require('express-validator');
+const pool = require('../db'); 
 
 const getRegister = (req, res) => {
-  res.render('register', { 
-    error: null, 
-    errores: [], 
-    formData: null, 
-    formType: null
-  });
+    res.render('register', { 
+        error: null, 
+        errores: [], 
+        formData: null, 
+        formType: null
+    });
 };
 
 const getLogin = (req, res) => {
-  res.render('login', { 
-    error: null, 
-    errores: [], 
-    formData: null,
-    formType: null});
+    res.render('login', { 
+        error: null, 
+        errores: [], 
+        formData: null,
+        formType: null
+    });
 };
 
 const postRegisterClient = (req, res) => {
-    const miDB = req.app.locals.db;
+
     const errores = validationResult(req);
 
     if (!errores.isEmpty()) {
-        return res.render('register', { 
-            error: 'Por favor, corrige los errores en el formulario.', 
-            errores: errores.array(), 
-            formData: req.body,
-            formType: 'client' 
-        });
-    }
-
-    // Verificar si el correo ya está registrado usando la función auxiliar findUserByEmail
-    const emailExistente = findUserByEmail(req.body.email, 'client', miDB);
-    if (emailExistente) {
-        return res.render('register', { 
-            error: 'El correo electrónico ya está registrado.', 
-            errores: [],
-            formData: req.body,
-            formType: 'client' 
-        });
-    }
-
-    // Verificar si el nombre de usuario ya está registrado usando la función auxiliar findUserByUsername
-    const usernameExistente = findUserByUsername(req.body.nombreUsuario, miDB);
-    if (usernameExistente) {
-        return res.render('register', {
-            error: 'El nombre de usuario ya está registrado.', 
-            errores: [],
-            formData: req.body,
-            formType: 'client' 
-        });
-    }
-
-    const telefonoExistente = findUserByTelefono(req.body.telefono, miDB);
-    if (telefonoExistente) {
-        return res.render('register', {
-            error: 'El teléfono ya está registrado.',
-            errores: [],
+        return res.status(400).render('register', {
+            error: 'Por favor, corrige los errores en el formulario.',
+            errores: errores.array(),
             formData: req.body,
             formType: 'client'
         });
     }
 
-    // Crear un nuevo cliente y agregarlo a la base de datos
-    const nuevoClient = {
-        id:       Date.now(),
-        nombre:   req.body.nombre,
-        email:    req.body.email,
-        nombreUsuario: req.body.usuario,
-        telefono: req.body.telefono,
-        password: req.body.password
-    };
-    miDB.clients.push(nuevoClient);
+    const { nombre, email, usuario, telefono, password, fecha_nacimiento } = req.body;
 
-    // Iniciar sesión automáticamente después del registro
-    req.session.usuario = {
-        id: nuevoClient.id,
-        nombre: nuevoClient.nombre,
-        tipo: 'client'
-    };
-    res.redirect('/');
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error("Error al conectar a la base de datos:", err);
+            return res.status(500).render('error500', { mensaje: "Error al conectar a la base de datos" });
+        }
+
+        // 1. Comprobar email
+        connection.query("SELECT id_usuario FROM usuarios WHERE correo = ?", [email], (err, results) => {
+            if (err) {
+                connection.release();
+                console.error("Error al verificar el correo:", err);
+                return res.status(500).render('error500', { mensaje: "Error al verificar el correo" });
+            }
+            if (results.length > 0) {
+                connection.release();
+                return res.render('register', {
+                    error: 'El correo electrónico ya está registrado.',
+                    errores: [], formData: req.body, formType: 'client'
+                });
+            }
+
+            // 2. Comprobar usuario
+            connection.query("SELECT id_usuario FROM usuarios WHERE nombre_usuario = ?", [usuario], (err, results) => {
+                if (err) {
+                    connection.release();
+                    console.error("Error al verificar el nombre de usuario:", err);
+                    return res.status(500).render('error500', { mensaje: "Error al verificar el nombre de usuario" });
+                }
+                if (results.length > 0) {
+                    connection.release();
+                    return res.render('register', {
+                        error: 'El nombre de usuario ya está en uso.',
+                        errores: [], formData: req.body, formType: 'client'
+                    });
+                }
+
+                // 3. Comprobar teléfono
+                connection.query("SELECT id_usuario FROM usuarios WHERE telefono = ?", [telefono], (err, results) => {
+                    if (err) {
+                        connection.release();
+                        console.error("Error al verificar el teléfono:", err);
+                        return res.status(500).render('error500', { mensaje: "Error al verificar el teléfono" });
+                    }
+                    if (results.length > 0) {
+                        connection.release();
+                        return res.render('register', {
+                            error: 'El teléfono ya está registrado.',
+                            errores: [], formData: req.body, formType: 'client'
+                        });
+                    }
+
+                    // 4. Insertar
+                    const insert_query = "INSERT INTO usuarios (nombre_usuario, nombre_completo, fecha_nacimiento, telefono, correo, contraseña) VALUES (?, ?, ?, ?, ?, ?)";
+                    connection.query(insert_query, [usuario, nombre, fecha_nacimiento, telefono, email, password], (err, results) => {
+                        connection.release();
+                        if (err) {
+                            console.error("Error al ejecutar la consulta de inserción:", err);
+                            return res.status(500).render('error500', { mensaje: "Error al registrar el usuario" });
+                        }
+                        req.session.usuario = {
+                            id:     results.insertId,
+                            nombre: nombre,        // ← antes ponías results.nombre, que no existe
+                            tipo:   'client'
+                        };
+                        res.redirect('/');
+                    });
+                });
+            });
+        });
+    });
 };
 
 // Hacer función postRegisterBusiness similar a postRegisterClient pero para empresas, y que también verifique si el CIF ya está registrado antes de crear la nueva empresa.
