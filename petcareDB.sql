@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 18-03-2026 a las 02:32:33
+-- Tiempo de generación: 19-03-2026 a las 13:20:40
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -139,6 +139,22 @@ CREATE TABLE `condicion_medica` (
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `disponibilidad`
+--
+
+CREATE TABLE `disponibilidad` (
+  `id_disp` int(11) NOT NULL,
+  `tipo` enum('puntual','recurrente') NOT NULL,
+  `fecha_inicio` date DEFAULT NULL,
+  `dia_semana` enum('lunes','martes','miercoles','jueves','viernes','sabado','domingo') DEFAULT NULL,
+  `hora_inicio` time NOT NULL,
+  `hora_fin` time NOT NULL,
+  `id_anuncio` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `empresas`
 --
 
@@ -149,7 +165,8 @@ CREATE TABLE `empresas` (
   `contraseña` varchar(255) NOT NULL,
   `CIF` varchar(50) NOT NULL,
   `telefono_contacto` int(11) NOT NULL,
-  `tipo` enum('clinica_veterinaria','hotel') NOT NULL,
+  `tipo` enum('clinica_veterinaria','hotel','tienda_animal','peluquería_canina','otro') NOT NULL,
+  `tipo_otro` varchar(100) DEFAULT NULL,
   `descripcion` text DEFAULT NULL,
   `ubicacion` varchar(255) DEFAULT NULL,
   `foto` longblob DEFAULT NULL,
@@ -242,7 +259,14 @@ CREATE TABLE `reportes` (
 --
 
 CREATE TABLE `reservas` (
-  `id_reserva` int(11) NOT NULL
+  `id_reserva` int(11) NOT NULL,
+  `fecha` date NOT NULL,
+  `hora_inicio` time NOT NULL,
+  `hora_fin` time NOT NULL,
+  `precio_hora` int(11) NOT NULL,
+  `recordatorio_enviado` tinyint(1) NOT NULL DEFAULT 0,
+  `id_chat` int(11) NOT NULL,
+  `activo` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -380,6 +404,13 @@ ALTER TABLE `condicion_medica`
   ADD KEY `id_cartilla` (`id_cartilla`);
 
 --
+-- Indices de la tabla `disponibilidad`
+--
+ALTER TABLE `disponibilidad`
+  ADD PRIMARY KEY (`id_disp`),
+  ADD KEY `id_anuncio` (`id_anuncio`);
+
+--
 -- Indices de la tabla `empresas`
 --
 ALTER TABLE `empresas`
@@ -430,7 +461,8 @@ ALTER TABLE `reportes`
 -- Indices de la tabla `reservas`
 --
 ALTER TABLE `reservas`
-  ADD PRIMARY KEY (`id_reserva`);
+  ADD PRIMARY KEY (`id_reserva`),
+  ADD KEY `id_chat` (`id_chat`);
 
 --
 -- Indices de la tabla `tratamientos`
@@ -508,6 +540,12 @@ ALTER TABLE `cita_veterinaria`
 --
 ALTER TABLE `comentarios`
   MODIFY `id_comentario` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `disponibilidad`
+--
+ALTER TABLE `disponibilidad`
+  MODIFY `id_disp` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `empresas`
@@ -630,6 +668,12 @@ ALTER TABLE `condicion_medica`
   ADD CONSTRAINT `condicion_medica_ibfk_1` FOREIGN KEY (`id_cartilla`) REFERENCES `cartilla_medica` (`id_cartilla`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Filtros para la tabla `disponibilidad`
+--
+ALTER TABLE `disponibilidad`
+  ADD CONSTRAINT `disponibilidad_ibfk_1` FOREIGN KEY (`id_anuncio`) REFERENCES `anuncios` (`id_anuncio`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Filtros para la tabla `foros`
 --
 ALTER TABLE `foros`
@@ -662,6 +706,12 @@ ALTER TABLE `reportes`
   ADD CONSTRAINT `reportes_ibfk_3` FOREIGN KEY (`id_comentario`) REFERENCES `comentarios` (`id_comentario`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `reportes_ibfk_4` FOREIGN KEY (`id_foro`) REFERENCES `foros` (`id_foro`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `reportes_ibfk_5` FOREIGN KEY (`id_valoracion`) REFERENCES `valoraciones` (`id_valoracion`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `reservas`
+--
+ALTER TABLE `reservas`
+  ADD CONSTRAINT `reservas_ibfk_1` FOREIGN KEY (`id_chat`) REFERENCES `chats` (`id_chat`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `tratamientos`
