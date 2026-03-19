@@ -205,64 +205,107 @@ const postRegisterBusiness = (req, res) => {
 };
 
 const postLoginClient = (req, res) => {
-    const miDB = req.app.locals.db;
-    const { login_input, password } = req.body;
 
-    console.log('Login input:', login_input);
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error("Error al conectar a la base de datos:", err);
+            return res.status(500).render('error500', { mensaje: "Error al conectar a la base de datos" });
+        }
 
-    // comprobar si login_input es un correo electrónico, teléfono o nombre de usuario (para ello usaremos isNaN y tal)
-    let email, telefono, username;
-    let client = null;
-    if (login_input.includes('@')) {
-        email = login_input;
-        client = findUserByEmail(email, 'client', miDB);
-    } else if (!isNaN(login_input)) {
-        telefono = login_input;
-        client = findUserByTelefono(telefono, miDB);
-    } else {
-        username = login_input;
-        client = findUserByUsername(username, miDB);
-    }
+        const { login_input, password } = req.body; 
 
-    console.log('Login input:', login_input);
+        const query = "SELECT * FROM usuarios WHERE correo = ? OR telefono = ? OR nombre_usuario = ?";
+        connection.query(query, [login_input, login_input, login_input], (err, results) => {
+            connection.release();
+            if (err) {
+                console.error("Error al ejecutar la consulta de login:", err);
+                return res.status(500).render('error500', { mensaje: "Error al ejecutar la consulta de login" });
+            }
 
-    if (!client || client.password !== password) {
-        return res.render('login', { 
-            error: 'Datos del formulario incorrectos', 
-            errores: [], 
-            formData: req.body,
-            formType: 'client' 
-        });
-    }
+            console.log(results); // <-- Añade este log para ver qué devuelve la consulta
+            
+            // 1. Comprobar si se encontró un usuario con ese correo, teléfono o nombre de usuario
+            if (results.length === 0) {
+                return res.render('login', { 
+                    error: 'Datos del formulario incorrectos', 
+                    errores: [], 
+                    formData: req.body,
+                    formType: 'client' 
+                });
+            }
 
-    req.session.usuario = {
-        id: client.id,
-        nombre: client.nombre,
-        tipo: 'client'
-    };
-    res.redirect('/');
+            // 2. Comprobar contraseña
+            const client = results[0];
+            if (client.contraseña !== password) {
+                return res.render('login', { 
+                    error: 'Datos del formulario incorrectos', 
+                    errores: [], 
+                    formData: req.body,
+                    formType: 'client' 
+                });
+            }
+
+            // 3. Guardar en sesión
+            req.session.usuario = {
+                id: client.id_usuario,
+                nombre: client.nombre_usuario,
+                tipo: 'client'
+            };
+            res.redirect('/');
+        }); 
+    })
 };
 
 const postLoginBusiness = (req, res) => {
-    const miDB = req.app.locals.db;
-    const { email, password } = req.body;
 
-    const business = findUserByEmail(email, 'business', miDB);
-    if (!business || business.password !== password) {
-        return res.render('login', { 
-            error: 'Correo o contraseña incorrectos', 
-            errores: [], 
-            formData: req.body,
-            formType: 'business' 
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error("Error al conectar a la base de datos:", err); 
+            return res.status(500).render('error500', {mensake: "Error al conectar a la base de datos"}); 
+        }
+
+        const { email, password } = req.body;
+        
+        const query = "SELECT * FROM empresas WHERE correo = ?";
+        connection.query(query, [email], (err, results) => {
+            connection.release();
+            if (err) {
+                console.error("Error al ejecutar la consulta de login:", err);
+                return res.status(500).render('error500', { mensaje: "Error al ejecutar la consulta de login" });
+            }
+
+            console.log(results); // <-- Añade este log para ver qué devuelve la consulta
+
+            // 1. Comprobar si se encontró una empresa con ese correo
+            if (results.length === 0) {
+                return res.render('login', { 
+                    error: 'Datos del formulario incorrectos', 
+                    errores: [], 
+                    formData: req.body,
+                    formType: 'business' 
+                });
+            }
+
+            // 2. Comprobar contraseña
+            const business = results[0];
+            if (business.contraseña !== password) {
+                return res.render('login', { 
+                    error: 'Datos del formulario incorrectos', 
+                    errores: [], 
+                    formData: req.body,
+                    formType: 'business' 
+                });
+            }
+
+            // 3. Guardar en sesión
+            req.session.usuario = {
+                id: business.id_empresa,
+                nombre: business.nombre,
+                tipo: 'business'
+            };
+            res.redirect('/');
         });
-    }
-
-    req.session.usuario = {
-        id: business.id,
-        nombre: business.nombre,
-        tipo: 'business'
-    };
-    res.redirect('/');
+    })
 };
 
 const logout = (req, res) => {
