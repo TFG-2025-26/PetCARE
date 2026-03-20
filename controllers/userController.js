@@ -100,9 +100,104 @@ const getEditarPerfilEmpresa = (req, res) => {
     })
 }
 
+const postEditarPerfilUsuario = (req, res) => {
+    const errors = validationResult(req); 
+
+    const usuarioActual = {
+        id_usuario: req.params.id,
+        nombre_completo: req.body.nombre,
+        nombre_usuario: req.body.usuario,
+        correo: req.body.email,
+        fecha_nacimiento: req.body.fecha_nacimiento,
+        telefono: req.body.telefono,
+        ciudad: req.body.ciudad,
+        pais: req.body.pais,
+        codigo_postal: req.body.codigo_postal,
+        genero: req.body.genero,
+        trabajo: req.body.trabajo,
+        bio: req.body.bio
+    };
+
+    if (!errors.isEmpty()) {
+        return res.status(400).render('editarPerfilUsuario', { 
+            usuario: usuarioActual, 
+            error: 'Por favor corrige los errores en el formulario', 
+            errores: errors.array()
+        }); 
+    }
+
+    const { nombre, usuario, email, fecha_nacimiento, telefono, ciudad, pais, codigo_postal, genero, trabajo, bio, password_actual, password_nueva } = req.body;
+    const usuarioId = parseInt(req.params.id, 10); 
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al obtener la conexión a la base de datos:', err); 
+            return res.status(500).send('Error al obtener la conexión a la base de datos'); 
+        }
+
+        // 1. En caso de cambiar la contraseña se precisa verificar la actual
+        if (password_nueva) {
+            connection.query('SELECT contraseña FROM usuarios WHERE id_usuario = ?', [usuarioId], (err, results) => {
+                if (err) {
+                    connection.release();
+                    return res.status(500).send('Error al verificar la contraseña');
+                }
+                if (results[0].contraseña !== password_actual) {
+                    connection.release();
+                    return res.status(400).render('editarPerfilUsuario', {
+                        usuario: usuarioActual,
+                        error: 'La contraseña actual no es correcta',
+                        errores: []
+                    });
+                }
+                // Contraseña correcta, actualizar con nueva contraseña
+                ejecutarUpdate(connection, [nombre, usuario, email, fecha_nacimiento, telefono, ciudad, pais, codigo_postal, genero, trabajo, bio, password_nueva, usuarioId], res, usuarioId);
+            });
+        } else {
+            // 2. Sin cambio de contraseña, mantener la actual
+            connection.query('SELECT contraseña FROM usuarios WHERE id_usuario = ?', [usuarioId], (err, results) => {
+                if (err) {
+                    connection.release();
+                    return res.status(500).send('Error al obtener la contraseña');
+                }
+                ejecutarUpdate(connection, [nombre, usuario, email, fecha_nacimiento, telefono, ciudad, pais, codigo_postal, genero, trabajo, bio, results[0].contraseña, usuarioId], res, usuarioId);
+            });
+        }
+
+        function ejecutarUpdate(connection, params, res, usuarioId) {
+            const sql_update = `UPDATE usuarios SET 
+                nombre_completo = ?, 
+                nombre_usuario = ?,
+                correo = ?,
+                fecha_nacimiento = ?,
+                telefono = ?,
+                ciudad = ?,
+                pais = ?,
+                codigo_postal = ?,
+                genero = ?,
+                trabajo = ?,
+                bio = ?, 
+                contraseña = ?
+            WHERE id_usuario = ?`;
+            connection.query(sql_update, params, (err) => {
+                connection.release();
+                if (err) {
+                    console.error('Error al ejecutar la consulta:', err);
+                    return res.status(500).send('Error al actualizar los datos del usuario');
+                }
+                res.redirect('/user/perfilUsuario/' + usuarioId);
+            });
+        }
+    });
+};
+
+const postEditarPerfilEmpresa = (req, res) => {};
+
 module.exports = {
     getPerfilUsuario,
     getPerfilEmpresa, 
     getEditarPerfilUsuario, 
-    getEditarPerfilEmpresa
+    getEditarPerfilEmpresa, 
+    postEditarPerfilUsuario, 
+    postEditarPerfilEmpresa
 };

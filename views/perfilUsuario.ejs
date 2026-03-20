@@ -56,12 +56,6 @@
             <span class="data-value"><%= usuario.ciudad %></span>
           </li>
           <% } %>
-          <% if (usuario.bio) { %>
-          <li>
-            <span class="data-label">Bio</span>
-            <span class="data-value data-bio"><%= usuario.bio %></span>
-          </li>
-          <% } %>
           <% if (usuario.pais) { %>
           <li>
             <span class="data-label">País</span>
@@ -86,12 +80,6 @@
             <span class="data-value"><%= usuario.trabajo %></span>
           </li>
           <% } %>
-          <% if (usuario.aficiones) { %>
-          <li>
-            <span class="data-label">Aficiones</span>
-            <span class="data-value"><%= usuario.aficiones %></span>
-          </li>
-          <% } %>
         </ul>
       </div>
 
@@ -105,6 +93,16 @@
 
     <!-- COLUMNA DERECHA -->
     <section class="perfil-main">
+
+      <!-- Bio -->
+      <% if (usuario.bio) { %>
+        <div class="perfil-section">
+          <div class="perfil-section-header">
+            <h2>Bio</h2>
+          </div>
+          <p class="perfil-bio"><%= usuario.bio %></p>
+        </div>
+      <% } %>
 
       <!-- Mis mascotas -->
       <div class="perfil-section">

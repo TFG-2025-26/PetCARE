@@ -17,6 +17,7 @@ const bizNombreInput = document.getElementById("biz-nombre");
 const bizEmailInput = document.getElementById("biz-email"); 
 const bizCifInput = document.getElementById("biz-cif");
 const bizPasswordInput = document.getElementById("biz-password"); 
+const bizTelefonoInput = document.getElementById("biz-telefono");
 const bizTipoSelect = document.getElementById("biz-tipo"); 
 const bizTipoOtroInput = document.getElementById("biz-tipo-otro");
 
@@ -33,6 +34,7 @@ const bizNombreError = document.getElementById("biz-nombre-error");
 const bizEmailError = document.getElementById("biz-email-error");
 const bizCifError = document.getElementById("biz-cif-error");
 const bizPasswordError = document.getElementById("biz-password-error");
+const bizTelefonoError = document.getElementById("biz-telefono-error");
 const bizTipoError = document.getElementById("biz-tipo-error");
 const bizTipoOtroError = document.getElementById("biz-tipo-otro-error");
 
@@ -197,6 +199,20 @@ function validarPasswordBusiness() {
     return passwordBusinessValid;
 }
 
+function validarTelefonoBusiness() {
+    let telefonoBusinessValid = true;
+    const regex = /^\d{9,15}$/;
+
+    if (!regex.test(bizTelefonoInput.value.trim())) {
+        bizTelefonoError.textContent = "Por favor, introduce un teléfono válido (9-15 dígitos).";
+        telefonoBusinessValid = false;
+    } else {
+        bizTelefonoError.textContent = "";
+    }
+
+    return telefonoBusinessValid;
+}
+
 function validarTipoBusiness() {
     let tipoBusinessValid = true;
     if (bizTipoSelect.value === "") {
@@ -252,6 +268,7 @@ bizCifInput.addEventListener("input", validarCifBusiness);
 bizPasswordInput.addEventListener("input", validarPasswordBusiness);
 bizTipoSelect.addEventListener("change", validarTipoBusiness);
 bizTipoOtroInput.addEventListener("input", validarTipoOtroBusiness);
+bizTelefonoInput.addEventListener("input", validarTelefonoBusiness);
 
 bizForm.addEventListener("submit", function(event) {
     let isNombreValid = validarNombreBusiness();
@@ -260,7 +277,8 @@ bizForm.addEventListener("submit", function(event) {
     let isPasswordValid = validarPasswordBusiness();
     let isTipoValid = validarTipoBusiness();
     let isTipoOtroValid = validarTipoOtroBusiness();
-    if (!isNombreValid || !isEmailValid || !isCifValid || !isPasswordValid || !isTipoValid || !isTipoOtroValid) {
+    let isTelefonoValid = validarTelefonoBusiness();    
+    if (!isNombreValid || !isEmailValid || !isCifValid || !isPasswordValid || !isTipoValid || !isTipoOtroValid || !isTelefonoValid) {
         event.preventDefault();
         alert("Por favor, corrige los errores en el formulario antes de enviarlo.");
     }
