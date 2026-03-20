@@ -55,17 +55,49 @@ const getPerfilEmpresa = (req, res) => {
 };
 
 const getEditarPerfilUsuario = (req, res) => {
-    const miDB = req.app.locals.db;
-    const usuarioId = parseInt(req.params.id, 10);
-    const usuario = miDB.clients.find(client => client.id === usuarioId);
-    res.render('editarPerfilUsuario', { usuario });
+
+    pool.getConnection((err, connection) => {
+        if(err) {
+            console.error('Error al obtener la conexión a la base de datos:', err); 
+            return res.status(500).send('Error al obtener la conexión a la base de datos'); 
+        }
+
+        const usuarioId = parseInt(req.params.id, 10); 
+        connection.query('SELECT * FROM usuarios WHERE id_usuario = ?', [usuarioId], (err, results) => {
+            connection.release(); 
+            if (err) {
+                console.error('Error al ejecutar la consulta:', err); 
+                return res.status(500).send('Error al recuperar los datos de usuario'); 
+            }
+            if (results.length === 0) {
+                return res.status(404).send('Usuario no encontrado'); 
+            }
+            res.render('editarPerfilUsuario', { usuario: results[0] });
+        })
+    })
 };
 
 const getEditarPerfilEmpresa = (req, res) => {
-    const miDB = req.app.locals.db; 
-    const empresaId = parseInt(req.params.id, 10); 
-    const empresa = miDB.businesses.find(business => business.id === empresaId); 
-    res.render('editarPerfilEmpresa', {empresa}); 
+    
+    pool.getConnection((err, connection) => {
+        if(err) {
+            console.error('Error al obtener la conexión a la base de datos:', err); 
+            return res.status(500).send('Error al obtener la conexión a la base de datos'); 
+        }
+
+        const empresaId = parseInt(req.params.id, 10); 
+        connection.query('SELECT * FROM empresas WHERE id_empresa = ?', [empresaId], (err, results) => {
+            connection.release(); 
+            if (err) {
+                console.error('Error al ejecutar la consulta:', err); 
+                return res.status(500).send('Error al recuperar los datos de la empresa'); 
+            }
+            if (results.length === 0) {
+                return res.status(404).send('Empresa no encontrada'); 
+            }
+            res.render('editarPerfilEmpresa', { empresa: results[0] });
+        })
+    })
 }
 
 module.exports = {

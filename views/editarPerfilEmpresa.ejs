@@ -14,7 +14,7 @@
   <main class="editar-page">
 
     <div class="editar-header">
-      <a href="/user/perfilEmpresa/<%= usuario.id %>" class="editar-back">← Volver al perfil</a>
+      <a href="/user/perfilEmpresa/<%= empresa.id_empresa %>" class="editar-back">← Volver al perfil</a>
       <h1>Editar perfil de empresa</h1>
     </div>
 
@@ -49,11 +49,11 @@
           </div>
           <div class="form-group">
             <label for="email">Correo corporativo</label>
-            <input type="email" id="email" name="email" value="<%= empresa.email %>">
+            <input type="email" id="email" name="email" value="<%= empresa.correo %>">
           </div>
           <div class="form-group">
             <label for="cif">CIF</label>
-            <input type="text" id="cif" name="cif" value="<%= empresa.cif %>">
+            <input type="text" id="cif" name="cif" value="<%= empresa.CIF %>">
           </div>
           <div class="form-group">
             <label for="tipo_empresa">Tipo de empresa</label>
@@ -67,7 +67,7 @@
           </div>
           <div class="form-group" id="otro-group" style="display: <%= ['clinica','tienda','peluqueria','residencia'].includes(empresa.tipo_empresa) ? 'none' : 'block' %>;">
             <label for="tipo_empresa_otro">¿Qué otro tipo de empresa?</label>
-            <input type="text" id="tipo_empresa_otro" name="tipo_empresa_otro" value="<%= !['clinica','tienda','peluqueria','residencia'].includes(empresa.tipo_empresa) ? empresa.tipo_empresa : '' %>" placeholder="Describe tu tipo de empresa">
+            <input type="text" id="tipo_empresa_otro" name="tipo_empresa_otro" value="<%= !['clinica','tienda','peluqueria','residencia'].includes(empresa.tipo_empresa) ? empresa.tipo : '' %>" placeholder="Describe tu tipo de empresa">
           </div>
         </div>
       </div>
@@ -78,7 +78,7 @@
         <div class="editar-grid">
           <div class="form-group">
             <label for="telefono">Teléfono</label>
-            <input type="text" id="telefono" name="telefono" value="<%= empresa.telefono || '' %>" placeholder="Ej: +34 600 000 000">
+            <input type="text" id="telefono" name="telefono" value="<%= empresa.telefono_contacto || '' %>" placeholder="Ej: +34 600 000 000">
           </div>
           <div class="form-group">
             <label for="ubicacion">Ubicación</label>
