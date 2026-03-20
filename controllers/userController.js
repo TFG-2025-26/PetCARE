@@ -1,11 +1,30 @@
 "use strict";
 
+const { validationResult } = require('express-validator');
+const pool = require('../db'); 
+
 const getPerfilUsuario = (req, res) => {
-    const miDB = req.app.locals.db;
-    const usuarioId = parseInt(req.params.id, 10);
-    const usuario = miDB.clients.find(client => client.id === usuarioId);
-    const mascotas = []; // Aquí se podrían cargar las mascotas asociadas al usuario
-    res.render('perfilUsuario', { usuario, mascotas });
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al obtener la cnexión a la base de datos:', err); 
+            return res.status(500).send('Error al obtener la conexión a la base de datos'); 
+        }
+
+        const usuarioId = parseInt(req.params.id, 10); 
+        connection.query('SELECT * FROM usuarios WHERE id_usuario = ?', [usuarioId], (err, results) => {
+            connection.release(); 
+            if (err) {
+                console.error('Error al ejecutar la consulta:', err); 
+                return res.status(500).send('Error al ejecutar al recuperar los datos del usuario'); 
+            }
+            if (results.length === 0) {
+                return res.status(404).send('Usuario no encontrado'); 
+            }
+            // TODO: Falta recoger bien las mascotas 
+            res.render('perfilUsuario', { usuario: results[0], mascotas: [] });
+        })
+    })
 };
 
 const getPerfilEmpresa = (req, res) => {

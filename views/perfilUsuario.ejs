@@ -22,12 +22,12 @@
           <% if (usuario.foto) { %>
             <img src="<%= usuario.foto %>" alt="Foto de perfil">
           <% } else { %>
-            <span class="perfil-avatar-initials"><%= usuario.nombre.charAt(0).toUpperCase() %></span>
+            <span class="perfil-avatar-initials"><%= usuario.nombre_completo.charAt(0).toUpperCase() %></span>
           <% } %>
           <button class="perfil-avatar-edit" title="Cambiar foto">＋</button>
         </div>
-        <h1 class="perfil-nombre"><%= usuario.nombre %></h1>
-        <span class="perfil-usuario">@<%= usuario.nombreUsuario %></span>
+        <h1 class="perfil-nombre"><%= usuario.nombre_completo %></h1>
+        <span class="perfil-usuario">@<%= usuario.nombre_usuario %></span>
       </div>
 
       <!-- Datos principales -->
@@ -36,7 +36,7 @@
         <ul class="perfil-data-list">
           <li>
             <span class="data-label">Correo</span>
-            <span class="data-value"><%= usuario.email %></span>
+            <span class="data-value"><%= usuario.correo %></span>
           </li>
           <% if (usuario.fecha_nacimiento) { %>
           <li>

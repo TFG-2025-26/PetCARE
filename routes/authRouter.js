@@ -2,10 +2,10 @@
 
 const express = require('express'); 
 const router = express.Router(); 
-const pool = require('../db');
 const { body } = require('express-validator');
 const authController = require('../controllers/authController');
 
+// TODO: Hay que implementar esto para mejorar la contraseña
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 

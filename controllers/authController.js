@@ -325,25 +325,3 @@ module.exports = {
     postLoginBusiness,
     logout
 };
-
-// FUNCIONES AUXILIARES
-const findUserByEmail = (email, tipo, miDB) => {
-    if (tipo === 'client') {
-        return miDB.clients.find(client => client.email === email) || null;
-    } else if (tipo === 'business') {
-        return miDB.businesses.find(business => business.email === email) || null;
-    }
-    return null;
-};
-
-const findUserByCIF = (cif, miDB) => {
-    return miDB.businesses.find(business => business.cif === cif) || null;
-};
-
-const findUserByUsername = (username, miDB) => {
-    return miDB.clients.find(client => client.nombreUsuario === username) || null;
-}; 
-
-const findUserByTelefono = (telefono, miDB) => {
-    return miDB.clients.find(client => client.telefono === telefono) || null;
-};
