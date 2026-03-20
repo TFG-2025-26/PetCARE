@@ -7,7 +7,7 @@ const getPerfilUsuario = (req, res) => {
 
     pool.getConnection((err, connection) => {
         if (err) {
-            console.error('Error al obtener la cnexión a la base de datos:', err); 
+            console.error('Error al obtener la conexión a la base de datos:', err); 
             return res.status(500).send('Error al obtener la conexión a la base de datos'); 
         }
 
@@ -16,7 +16,7 @@ const getPerfilUsuario = (req, res) => {
             connection.release(); 
             if (err) {
                 console.error('Error al ejecutar la consulta:', err); 
-                return res.status(500).send('Error al ejecutar al recuperar los datos del usuario'); 
+                return res.status(500).send('Error al recuperar los datos del usuario'); 
             }
             if (results.length === 0) {
                 return res.status(404).send('Usuario no encontrado'); 
@@ -28,14 +28,30 @@ const getPerfilUsuario = (req, res) => {
 };
 
 const getPerfilEmpresa = (req, res) => {
-    const miDB = req.app.locals.db;
-    const empresaId = parseInt(req.params.id, 10);
-    const empresa = miDB.businesses.find(business => business.id === empresaId);
-    res.render('perfilEmpresa', { 
-        empresa, 
-        valoraciones: [],
-        esPropia: true
-    });
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al obtener la conexión a la base de datos:', err);
+            return res.status(500).send('Error al obtener la conexión a la base de datos'); 
+        }
+
+        const empresaId = parseInt(req.params.id, 10); 
+        connection.query('SELECT * FROM empresas WHERE id_empresa = ?', [empresaId], (err, results) => {
+            connection.release(); 
+            if (err) {
+                console.error('Error al ejecutar la consulta:', err);
+                return res.status(500).send('Error al recuperar los datos de la empresa'); 
+            }
+            if (results.length === 0) {
+                return res.status(404).send('Empresa no encontrada'); 
+            }
+            res.render('perfilEmpresa', {
+                empresa: results[0], 
+                valoraciones: [], //TODO: Falta recoger bien las valoraciones
+                esPropia: true //TODO: Falta comprobar si la empresa es propia o no
+            })
+        })
+    })
 };
 
 const getEditarPerfilUsuario = (req, res) => {

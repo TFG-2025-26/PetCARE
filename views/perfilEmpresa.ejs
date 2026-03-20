@@ -27,7 +27,7 @@
           <button class="perfil-avatar-edit" title="Cambiar logo">＋</button>
         </div>
         <h1 class="perfil-nombre"><%= empresa.nombre %></h1>
-        <span class="perfil-badge empresa-badge"><%= empresa.tipo_empresa %></span>
+        <span class="perfil-badge empresa-badge"><%= empresa.tipo %></span>
       </div>
 
       <!-- Datos principales -->
@@ -36,16 +36,16 @@
         <ul class="perfil-data-list">
           <li>
             <span class="data-label">Correo corporativo</span>
-            <span class="data-value"><%= empresa.email %></span>
+            <span class="data-value"><%= empresa.correo %></span>
           </li>
           <li>
             <span class="data-label">CIF</span>
-            <span class="data-value"><%= empresa.cif %></span>
+            <span class="data-value"><%= empresa.CIF %></span>
           </li>
           <% if (empresa.telefono) { %>
           <li>
             <span class="data-label">Teléfono</span>
-            <span class="data-value"><%= empresa.telefono %></span>
+            <span class="data-value"><%= empresa.telefono_contacto %></span>
           </li>
           <% } %>
           <% if (empresa.ubicacion) { %>
