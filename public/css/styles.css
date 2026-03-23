@@ -375,7 +375,7 @@ footer {
   background: var(--brown);
   color: rgba(255,255,255,0.4);
   text-align: center;
-  padding: 1.5rem;
+  padding: 1rem;
   font-size: 0.8rem;
 }
 
@@ -1326,6 +1326,12 @@ footer {
   z-index: 1;
 }
 
+.pet-card-link{
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
 .pet-card {
   width: 325px;
   background: var(--warm);
@@ -1360,9 +1366,9 @@ footer {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 40%;
+  border-radius: 30%;
   border: 3px solid #fff;
-  box-shadow: 0 0 0 4px var(--amber-light);
+  box-shadow: 0 0 0 4px #a69489;
 }
 
 .pet-info {
@@ -1584,4 +1590,259 @@ footer {
 .review-fecha {
   font-size: 0.75rem;
   color: var(--muted);
+}
+
+/*----- Perfil Mascota -----*/
+
+.pet-profile-body{
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.pet-main{
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.pet-profile-info{
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 1rem;
+  grid-template-areas: "foto info boton";
+  background-color: white;
+  margin: 4rem;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  max-height: fit-content;
+  max-width: fit-content;
+}
+
+.pet-foto{
+  grid-area: foto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pet-image-wrapper{
+  flex-shrink: 0;
+  width: clamp(150px, 80%, 250px);
+  aspect-ratio: 1 / 1;
+  border-radius: 20%;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 4px var(--muted);
+  overflow: hidden;
+}
+
+.pet-foto img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  
+}
+
+
+@media (max-width: 600px) {
+  .pet-foto {
+    width: auto;
+    height: 250px;
+  }
+}
+
+.pet-datos{
+  grid-area: info;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items:center;
+  padding-left: 3rem;
+}
+
+.pet-datos h1{
+  font-family: 'Fraunces', serif;
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--brown);
+}
+
+.pet-datos ul{
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.pet-datos li{
+  font-size: 1rem;
+  color: var(--muted);
+  box-shadow: 0 1px 0 #ccc;
+}
+
+.pet-datos li strong{
+  color: #2A1F18;
+}
+
+.pet-botones{
+  grid-area: boton;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.boton-editar-mascota{
+  color: white;
+  text-decoration: none;
+  background-color: var(--green);
+  border-radius: 24px;
+  border: 1px solid #e0e0e0;
+  padding: 0.8rem;
+
+}
+
+@media (max-width: 600px){
+  .pet-profile-info{
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "foto"
+      "info"
+      "boton";
+  }
+
+  .pet-datos{
+    padding: 1rem;
+  }
+}
+
+.pet-clinic{
+  flex: 1;
+  background-color: #4f7c42;
+}
+
+.seccion-cartilla{
+  display: none;
+}
+
+.seccion-cartilla.activa{
+  display: block;
+}
+
+/* Ocultamos los títulos del acordeón en desktop */
+.acordeon-titulo {
+  display: none;
+}
+
+/* El contenido del acordeón siempre visible en desktop */
+.acordeon-contenido {
+  display: block;
+}
+
+@media (max-width: 600px) {
+
+  /* Ocultamos la nav de tabs */
+  .cartilla-nav {
+    display: none;
+  }
+
+  /* Las secciones visibles en móvil */
+  .seccion-cartilla {
+    display: block;
+  }
+
+  /* Mostramos los títulos */
+  .acordeon-titulo {
+    display: block;
+  }
+
+  /* El contenido oculto por defecto */
+  .acordeon-contenido {
+    display: none;
+  }
+
+  /* El contenido visible cuando la sección está abierta */
+  .seccion-cartilla.abierta .acordeon-contenido {
+    display: block;
+  }
+}
+
+.eliminar-mascota-boton{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+}
+
+.boton-eliminar-mascota{
+  color: white;
+  text-decoration: none;
+  background-color: var(--amber);
+  border-radius: 24px;
+  padding: 0.8rem;
+}
+
+/*Modal de confirmacion de eliminación*/
+
+.overlay {
+  display: flex;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+  z-index: 100;
+  transition: background 0.5s ease;
+}
+
+.overlay.activo {
+  background: rgba(0, 0, 0, 0.45);
+  pointer-events: all;
+}
+
+.modal {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  width: 90%;
+  max-width: 500px;
+  opacity: 0;
+  transform: translateY(16px) scale(0.97);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.overlay.activo .modal {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.botones-modal {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+.botones-modal button{
+  color: white;
+  background-color: var(--amber);
+  border-radius: 24px;
+  padding: 0.6rem;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+
+#cancelar-eliminar-mascota{
+  background-color:#c8b0a2
 }
