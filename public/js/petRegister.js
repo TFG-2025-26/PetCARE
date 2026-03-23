@@ -2,26 +2,29 @@
 
 /*Selectores de elementos*/
 const petRegisterForm = document.getElementById("petRegisterForm");
-const petNameInput = document.getElementById("pet-name");
-const petSpeciesInput = document.getElementById("pet-species");
-const petBreedInput = document.getElementById("pet-breed");
-const petWeightInput = document.getElementById("pet-weight");
-const petBirthdayInput = document.getElementById("pet-birthday");
-const petImageInput = document.getElementById("pet-image");
+const petNameInput = document.getElementById("nombre_mascota");
+const petSpeciesInput = document.getElementById("especie");
+const petBreedInput = document.getElementById("raza");
+const petWeightInput = document.getElementById("peso");
+const petBirthdayInput = document.getElementById("fecha_nacimiento");
+const petImageInput = document.getElementById("foto");
 
 /*Selectores de spans de error*/ 
-const errorPetName = document.getElementById("error-pet-name");
-const errorPetSpecies = document.getElementById("error-pet-species");
-const errorPetBreed = document.getElementById("error-pet-breed");
-const errorPetWeight = document.getElementById("error-pet-weight");
-const errorPetBirthday = document.getElementById("error-pet-birthday");
-const errorPetImage = document.getElementById("error-pet-image");
+const errorPetName = document.getElementById("error-nombre_mascota");
+const errorPetSpecies = document.getElementById("error-especie");
+const errorPetBreed = document.getElementById("error-raza");
+const errorPetWeight = document.getElementById("error-peso");
+const errorPetBirthday = document.getElementById("error-fecha_nacimiento");
+const errorPetImage = document.getElementById("error-foto");
 
 /********** Funciones de validación **********/
 function validatePetName() {
     const name = petNameInput.value.trim();
     if (name === "") {
         errorPetName.textContent = "El nombre de la mascota es obligatorio.";
+        return false;
+    } else if(name.length > 50) {
+        errorPetName.textContent = "El nombre de la mascota no puede exceder los 50 caracteres.";
         return false;
     } else {
         errorPetName.textContent = "";
@@ -84,7 +87,7 @@ function validatePetBirthday() {
 
 function validatePetImage() {
     const file = petImageInput.files[0];
-    if (!file.type.startsWith("image/")) {
+    if (file && !file.type.startsWith("image/")) {
         errorPetImage.textContent = "El archivo debe ser una imagen.";
         return false;
     } else {

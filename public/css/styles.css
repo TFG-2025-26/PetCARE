@@ -1269,7 +1269,7 @@ footer {
   }
 }
 
-/* Mis mascotas */
+/* ------ Mis mascotas ------ */
 
 .pets-body {
   min-height: 100vh;
@@ -1383,6 +1383,7 @@ footer {
   font-family: 'Fraunces', serif;
   width: 100%;
   text-align: center;
+  overflow-wrap: break-word;
 }
 
 @media (max-width: 640px) {
@@ -1631,7 +1632,7 @@ footer {
 
 .pet-image-wrapper{
   flex-shrink: 0;
-  width: clamp(150px, 80%, 250px);
+  width: clamp(100px, 80%, 250px);
   aspect-ratio: 1 / 1;
   border-radius: 20%;
   border: 3px solid #fff;
@@ -1668,6 +1669,9 @@ footer {
   font-size: 2rem;
   font-weight: 900;
   color: var(--brown);
+  overflow-wrap: break-word;
+  word-wrap: break-all;
+  max-width: 100px;
 }
 
 .pet-datos ul{
@@ -1783,6 +1787,9 @@ footer {
   background-color: var(--amber);
   border-radius: 24px;
   padding: 0.8rem;
+  overflow-wrap: break-word;
+  word-wrap: break-all;
+  max-width: 100%;
 }
 
 /*Modal de confirmacion de eliminación*/
@@ -1817,6 +1824,8 @@ footer {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  overflow-wrap: break-word;
+  word-wrap: break-all;
 }
 
 .overlay.activo .modal {
@@ -1845,4 +1854,59 @@ footer {
 
 #cancelar-eliminar-mascota{
   background-color:#c8b0a2
+}
+
+
+/*----- Editar Mascota-----*/
+.btn-editar-mascota{
+  width: 100%;
+  padding: 0.9rem;
+  background: var(--green);
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(74,103,65,0.3);
+  text-decoration: none;
+}
+
+.btn-editar-mascota:hover {
+  background: #5a7d51;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(74,103,65,0.4);
+}
+
+.pet-edit-container{
+  background: #fff;
+  border-radius: 28px;
+  box-shadow: 0 20px 60px rgba(61,43,31,0.1);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 380px;
+  animation: fadeUp 0.5s ease both;
+  border-top: 4px solid var(--green);
+
+}
+
+.form-grid-editar-mascota {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.pet-edit-container {
+  max-width: 900px; /* más ancho para las dos columnas */
+  margin: 1rem auto; /* hueco arriba y abajo */
+}
+
+/* responsive: en móvil vuelve a una columna */
+@media (max-width: 600px) {
+  .form-grid-editar-mascota {
+    grid-template-columns: 1fr;
+  }
 }

@@ -34,7 +34,7 @@ const postRegisterPet = (req, res) => {
             formData: req.body
         });
     } else{
-        const { "pet-name": petName, "pet-species": petSpecies, "pet-breed": petBreed, "pet-birthday": petBirthday, "pet-weight": petWeight } = req.body;
+        const { "nombre_mascota": petName, "especie": petSpecies, "raza": petBreed, "fecha_nacimiento": petBirthday, "peso": petWeight } = req.body;
         const imagen = req.file ? req.file.buffer : null;
         //const id = req.session.usuario.id; // Asegúrate de que el ID del usuario esté disponible en la sesión
         const id = 1; // Temporalmente, se asigna un ID fijo para pruebas. Reemplazar con el ID del usuario autenticado.
@@ -99,10 +99,76 @@ const postEliminarMascota = (req, res) =>{
     });
 }
 
+const getEditarMascota = (req, res) => {
+    const petId = req.params.id;
+
+    pool.getConnection((err, connection) => {
+        if(err){
+            console.error("Error al conectar a la base de datos:", err);
+            return res.status(500).render("error500", {mensaje: "Error al conectar a la base de datos"});
+        }
+        connection.query("SELECT * FROM mascotas WHERE id_mascota = ? and activo = 1", [petId], (err, results) => {
+            connection.release();
+            if(err){
+                console.error("Error al obtener los datos de la mascota:", err);
+                return res.status(500).render("error500", {mensaje: "Error al obtener los datos de la mascota"});
+            }
+            if(results.length === 0){
+                return res.status(404).render("error404");
+            }
+            const pet = results[0];
+            console.log(pet);
+            pet.fecha_nacimiento = new Date(pet.fecha_nacimiento).toISOString().split('T')[0];
+            res.render("editarMascota", {formData: pet});
+        });
+    });
+}
+
+const postEditarMascota = (req, res) => {
+    const errores = validationResult(req);
+    console.log(req.body);
+    if (!errores.isEmpty()) {
+        return res.status(400).render("editarMascota", { formData: req.body, errores: errores.array(), error: "Por favor, corrige los errores en el formulario." });
+    }
+    const { id_mascota, "nombre_mascota": petName, "especie": petSpecies, "raza": petBreed, "fecha_nacimiento": petBirthday, "peso": petWeight } = req.body;
+    const imagen = req.file ? req.file.buffer : null;
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error("Error al conectar a la base de datos:", err);
+            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+        }
+        if (imagen) {
+            const query = "UPDATE mascotas SET nombre_mascota = ?, especie = ?, raza = ?, fecha_nacimiento = ?, peso = ?, foto = ? WHERE id_mascota = ?";
+            connection.query(query, [petName, petSpecies, petBreed, petBirthday, petWeight, imagen, id_mascota], (err, results) => {
+                connection.release();
+                if (err) {
+                    console.error("Error al actualizar los datos de la mascota:", err);
+                    return res.status(500).render("error500", { mensaje: "Error al actualizar los datos de la mascota" });
+                }
+                res.redirect("/pets/profile/" + id_mascota);
+            });
+        } else{
+            const query = "UPDATE mascotas SET nombre_mascota = ?, especie = ?, raza = ?, fecha_nacimiento = ?, peso = ? WHERE id_mascota = ?";
+            connection.query(query, [petName, petSpecies, petBreed, petBirthday, petWeight, id_mascota], (err, results) => {
+                connection.release();
+                if (err) {
+                    console.error("Error al actualizar los datos de la mascota:", err);
+                    return res.status(500).render("error500", { mensaje: "Error al actualizar los datos de la mascota" });
+                }
+                res.redirect("/pets/profile/" + id_mascota);
+            });
+        }
+    });
+}
+
+
 module.exports = {
     getMyPets,
     getRegisterPet,
     postRegisterPet,
     getPetProfile,
-    postEliminarMascota
+    postEliminarMascota,
+    getEditarMascota,
+    postEditarMascota
 };
