@@ -9,7 +9,7 @@ const getMyPets = (req, res) => {
             console.error("Error al conectar a la base de datos:", err);
             return res.status(500).render('error500', { mensaje: "Error al conectar a la base de datos" });
         }
-        connection.query("SELECT * FROM mascotas", (err, results) => {
+        connection.query("SELECT * FROM mascotas WHERE activo = 1", (err, results) => {
             connection.release();
             if (err) {
                 console.error("Error al ejecutar la consulta:", err);
@@ -36,7 +36,8 @@ const postRegisterPet = (req, res) => {
     } else{
         const { "pet-name": petName, "pet-species": petSpecies, "pet-breed": petBreed, "pet-birthday": petBirthday, "pet-weight": petWeight } = req.body;
         const imagen = req.file ? req.file.buffer : null;
-        const id = req.session.usuario.id; // Asegúrate de que el ID del usuario esté disponible en la sesión
+        //const id = req.session.usuario.id; // Asegúrate de que el ID del usuario esté disponible en la sesión
+        const id = 1; // Temporalmente, se asigna un ID fijo para pruebas. Reemplazar con el ID del usuario autenticado.
         pool.getConnection((err, connection) => {
             if (err) {
                 console.error("Error al conectar a la base de datos:", err);
@@ -55,8 +56,53 @@ const postRegisterPet = (req, res) => {
     }
 }
 
+const getPetProfile = (req, res) => {
+    const petId = req.params.id;
+
+    pool.getConnection((err, connection) => {
+        if(err){
+            console.error("Error al conectar a la base de datos:", err);
+            return res.status(500).render("error500", {mensaje: "Error al conectar a la base de datos"});
+        }
+        connection.query("SELECT * FROM mascotas WHERE id_mascota = ?", [petId], (err, results) => {
+            connection.release();
+            if(err){
+                console.error("Error al obtener los datos de la mascota:", err);
+                return res.status(500).render("error500", {mensaje: "Error al obtener los datos de la mascota"});
+            }
+            if(results.lenght === 0){
+                return res.status(404).render("error404");
+            }
+            const pet = results[0];
+            pet.fecha_nacimiento = new Date(pet.fecha_nacimiento).toLocaleDateString('es-ES');
+            res.render("perfilMascota", {pet: pet});
+        })
+    })
+}
+
+const postEliminarMascota = (req, res) =>{
+    const id = req.body.id;
+
+    pool.getConnection((err, connection) => {
+        if(err){
+            console.error("Error al conectar a la base de datos:", err);
+            return res.status(500).render("error500", {mensaje: "Error al conectar a la base de datos"});
+        }
+        connection.query("UPDATE mascotas SET activo = 0 WHERE id_mascota = ?", [id], (err, results) => {
+            connection.release();
+            if(err){
+                console.error("Error al eliminar la mascota:", err);
+                return res.status(500).render("error500", {mensaje: "Error al eliminar la mascota"});
+            }
+            res.redirect("/pets/mypets");
+        })
+    });
+}
+
 module.exports = {
     getMyPets,
     getRegisterPet,
-    postRegisterPet
+    postRegisterPet,
+    getPetProfile,
+    postEliminarMascota
 };
