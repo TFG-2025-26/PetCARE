@@ -23,6 +23,9 @@ function validatePetName() {
     if (name === "") {
         errorPetName.textContent = "El nombre de la mascota es obligatorio.";
         return false;
+    } else if(name.length > 50) {
+        errorPetName.textContent = "El nombre de la mascota no puede exceder los 50 caracteres.";
+        return false;
     } else {
         errorPetName.textContent = "";
         return true;
