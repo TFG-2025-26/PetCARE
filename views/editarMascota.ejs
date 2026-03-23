@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Mascota - PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="full-height-layout">
+    <!-- NAV -->
+    <%- include('plantillas/navbar') %> 
+
+    <main>
+        <div class="pet-register-container">
+        <h2>Editar Mascota</h2>
+            <form action="/pets/editar" method="POST" style="margin-top: 1.5rem;" id="petEditForm" enctype="multipart/form-data">
+                   <div class="form-grid-editar-mascota">
+                          <input type="hidden" name="id_mascota" value="<%= formData ? formData['id_mascota'] : '' %>">
+                       <div class="form-group">
+                           <label for="nombre_mascota">Nombre de la mascota</label>
+                           <input type="text" id="nombre_mascota" name="nombre_mascota" placeholder="Ej: Coco" value="<%= formData ? formData['nombre_mascota'] : '' %>">
+                           <span id="error-nombre_mascota" class="error"></span>
+                       </div>
+                       <div class="form-group">
+                           <label for="especie">Especie</label>
+                           <input type="text" id="especie" name="especie" placeholder="Ej: Gato" value="<%= formData ? formData['especie'] : '' %>">
+                           <span id="error-especie" class="error"></span>
+                       </div>
+                       <div class="form-group">
+                           <label for="raza">Raza</label>
+                           <input type="text" id="raza" name="raza" placeholder="Ej: Pardo común" value="<%= formData ? formData['raza'] : '' %>">
+                           <span id="error-raza" class="error"></span>
+                       </div>
+                       <div class="form-group">
+                           <label for="peso">Peso (kg)</label>
+                           <input type="text" id="peso" name="peso" placeholder="Ej: 8" value="<%= formData ? formData['peso'] : '' %>">
+                            <span id="error-peso" class="error"></span>
+                       </div>
+                       <div class="form-group">
+                           <label for="fecha_nacimiento">Fecha de nacimiento</label>
+                           <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" value="<%= formData ? formData['fecha_nacimiento'] : '' %>">
+                            <span id="error-fecha_nacimiento" class="error"></span>
+                       </div>
+                       <div class="form-group">
+                           <label for="foto">Foto de la mascota (JPEG)</label>
+                           <input type="file" id="foto" name="foto" accept="image/jpeg">
+                           <small class="form-hint">Si no seleccionas un archivo, la foto actual no se modificará.</small>
+                            <span id="error-foto" class="error"></span>
+                       </div>
+                   </div>
+                <button type="submit" class="btn-editar-mascota">Guardar Cambios</button>
+            </form>
+        </div>
+    </main>
+
+
+    <%- include ('plantillas/modalErrores.ejs')%>
+
+    <%- include('plantillas/footer') %>
+
+    <script src="/js/petRegister.js"></script>
+
+</body>
+</html>
