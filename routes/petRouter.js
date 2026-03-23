@@ -4,7 +4,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db'); // Importamos el pool de conexiones a la base de datos
-const { getMyPets, getRegisterPet, postRegisterPet } = require('../controllers/petController');
+const { getMyPets, getRegisterPet, postRegisterPet, getPetProfile, postEliminarMascota } = require('../controllers/petController');
 const { body } = require('express-validator');
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage(), fileFilter: (req, file, cb) => {
@@ -56,5 +56,8 @@ router.post("/register", (req, res, next) => {
         next();
     });
 }, petValidationRules, postRegisterPet);
+
+router.get("/profile/:id", getPetProfile);
+router.post("/eliminar", postEliminarMascota);
 
 module.exports = router;

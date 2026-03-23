@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil de <%= pet.nombre_mascota %> - PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="pet-profile-body">
+    <!-- NAV -->
+    <%- include('plantillas/navbar') %> 
+
+    <main class="pet-main">
+        <section class="pet-profile-info">
+            <div class="pet-foto">
+                <% if(pet.foto) {%>
+                    <div class="pet-image-wrapper">
+                        <img src="data:image/jpeg;base64,<%= pet.foto.toString('base64') %>" alt="<%= pet.nombre_mascota %>">
+                    </div>
+                <% } else {%>
+                    <div class="pet-image-wrapper">
+                        <img src="/images/no-pet.png" alt="Mascota sin foto">
+                    </div>
+                <% } %>
+            </div>
+            <div class="pet-datos">
+                <h1><%= pet.nombre_mascota %></h1>
+                <ul>
+                    <li><strong>Especie:</strong> <%= pet.especie %></li>
+                    <li><strong>Raza:</strong> <%= pet.raza %></li>
+                    <li><strong>Peso:</strong> <%= pet.peso %> kg</li>
+                    <li><strong>Fecha de nacimiento:</strong> <%= pet.fecha_nacimiento %></li>
+                </ul>
+            </div>
+            <div class="pet-botones">
+                <a href="/pets/edit/<%= pet.id_mascota %>" class="boton-editar-mascota">Editar</a>
+            </div>
+        </section>
+
+        <section class="pet-clinic">
+            <div class="cartilla-nav">
+                <button data-seccion-cartilla="citas" class="boton-cartilla activa">Citas</button>
+                <button data-seccion-cartilla="vacunas" class="boton-cartilla">Vacunas</button>
+                <button data-seccion-cartilla="tratamientos" class="boton-cartilla">Tratamientos</button>
+                <button data-seccion-cartilla="patologias" class="boton-cartilla">Patologías</button>
+                <button id="añadir_registro_cartilla">+ Añadir registro</button>
+            </div>
+
+            <div class="cartilla-contenido">
+                <div class="seccion-cartilla activa" id="citas">
+                    <button class="acordeon-titulo">Citas</button>
+                    <div class="acordeon-contenido">
+                        <ul>
+                            <li>28/03/2025 — Revisión anual — Dra. García</li>
+                            <li>10/01/2025 — Desparasitación — Dr. Martínez</li>
+                            <li>15/09/2024 — Otitis leve — Dra. García</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="seccion-cartilla" id="vacunas">
+                    <button class="acordeon-titulo">Vacunas</button>
+                    <div class="acordeon-contenido">
+                        <ul>
+                            <li>Polivalente — 12/03/2024 — Próxima: 12/03/2025</li>
+                            <li>Rabia — 05/01/2024 — Próxima: 05/01/2025</li>
+                            <li>Leishmaniosis — 20/06/2023 — Próxima: 20/06/2024</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="seccion-cartilla" id="tratamientos">
+                    <button class="acordeon-titulo">Tratamientos</button>
+                    <div class="acordeon-contenido">
+                        <ul>
+                            <li>Nexgard — 1 comprimido al mes — Activo</li>
+                            <li>Otomax gotas — 5 gotas cada 12h — Finalizado</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="seccion-cartilla" id="patologias">
+                    <button class="acordeon-titulo">Patologías</button>
+                    <div class="acordeon-contenido">
+                        <ul>
+                            <li>Displasia de cadera leve — Crónica — Desde 03/2022</li>
+                            <li>Alergia alimentaria — Controlada — Desde 07/2023</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="añadir_registro_movil">
+                <button id="añadir_registro_cartilla_movil">+ Añadir registro</button>
+            </div>
+        </section>
+        <section class="eliminar-mascota-boton">
+            <a href="#" onclick="abrirModal(event)" class="boton-eliminar-mascota">Dejar a <%= pet.nombre_mascota %> en libertad</a>
+        </section>
+
+        <!-- Modal -->
+        <div id="modal" class="overlay">
+        <div class="modal">
+            <h3>¿Seguro que quieres dejar a <%= pet.nombre_mascota%> en libertad?</h3>
+            <p>Esta acción no se puede deshacer.</p>
+            <div class="botones-modal">
+            <button onclick="cerrarModal()" id="cancelar-eliminar-mascota">Cancelar</button>
+            <form action="/pets/eliminar" method="POST">
+                <input type="hidden" name="id" value="<%= pet.id_mascota %>">
+                <button type="submit">Confirmar</button>
+            </form>
+            </div>
+        </div>
+        </div>
+
+    </main>
+
+    <%- include('plantillas/footer') %>
+
+    <script src="/js/perfilMascota.js"></script>
+
+</body>
+</html>
