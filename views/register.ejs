@@ -89,6 +89,12 @@
           <span id="biz-email-error" class="error"></span>
         </div>
         <div class="form-group">
+          <label for="biz-telefono">Teléfono</label>
+          <input type="number" id="biz-telefono" name="telefono" placeholder="Ej: 912345678"
+          value="<%= formType === 'business' && formData ? formData.telefono : '' %>">
+          <span id="biz-telefono-error" class="error"></span>
+        </div>
+        <div class="form-group">
           <label for="biz-cif">CIF</label>
           <input type="text" id="biz-cif" name="cif" placeholder="Ej: B12345678"
           value="<%= formType === 'business' && formData ? formData.cif : '' %>">

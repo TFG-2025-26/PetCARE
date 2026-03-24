@@ -40,8 +40,8 @@ const db = {
 app.locals.db = db;
 
 // Rutas (se añadirán aquí)
-const authRoutes = require('./routes/authRoutes');
-const userRoutes = require('./routes/userRoutes');
+const authRoutes = require('./routes/authRouter');
+const userRoutes = require('./routes/userRouter');
 const petRoutes = require('./routes/petRouter');
 
 app.get('/', (req, res) => {

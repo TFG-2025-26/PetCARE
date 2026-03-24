@@ -14,11 +14,11 @@
   <main class="editar-page">
 
     <div class="editar-header">
-      <a href="/user/perfilEmpresa/<%= usuario.id %>" class="editar-back">← Volver al perfil</a>
+      <a href="/user/perfilEmpresa/<%= empresa.id_empresa %>" class="editar-back">← Volver al perfil</a>
       <h1>Editar perfil de empresa</h1>
     </div>
 
-    <form action="/perfil/empresa/editar" method="POST" enctype="multipart/form-data" class="editar-form">
+    <form action="/user/perfilEmpresa/<%= empresa.id_empresa %>/editar" method="POST" enctype="multipart/form-data" id="editarPerfilEmpresaForm" class="editar-form">
 
       <!-- LOGO -->
       <div class="editar-section">
@@ -46,14 +46,17 @@
           <div class="form-group">
             <label for="nombre_empresa">Nombre de la empresa</label>
             <input type="text" id="nombre_empresa" name="nombre_empresa" value="<%= empresa.nombre %>">
+            <span id="error-nombre_empresa" class="error"></span>
           </div>
           <div class="form-group">
             <label for="email">Correo corporativo</label>
-            <input type="email" id="email" name="email" value="<%= empresa.email %>">
+            <input type="email" id="email" name="email" value="<%= empresa.correo %>">
+            <span id="error-email" class="error"></span>
           </div>
           <div class="form-group">
             <label for="cif">CIF</label>
-            <input type="text" id="cif" name="cif" value="<%= empresa.cif %>">
+            <input type="text" id="cif" name="cif" value="<%= empresa.CIF %>">
+            <span id="error-cif" class="error"></span>
           </div>
           <div class="form-group">
             <label for="tipo_empresa">Tipo de empresa</label>
@@ -67,7 +70,8 @@
           </div>
           <div class="form-group" id="otro-group" style="display: <%= ['clinica','tienda','peluqueria','residencia'].includes(empresa.tipo_empresa) ? 'none' : 'block' %>;">
             <label for="tipo_empresa_otro">¿Qué otro tipo de empresa?</label>
-            <input type="text" id="tipo_empresa_otro" name="tipo_empresa_otro" value="<%= !['clinica','tienda','peluqueria','residencia'].includes(empresa.tipo_empresa) ? empresa.tipo_empresa : '' %>" placeholder="Describe tu tipo de empresa">
+            <input type="text" id="tipo_empresa_otro" name="tipo_empresa_otro" value="<%= !['clinica','tienda','peluqueria','residencia'].includes(empresa.tipo_empresa) ? empresa.tipo : '' %>" placeholder="Describe tu tipo de empresa">
+            <span id="error-tipo_empresa_otro" class="error"></span>
           </div>
         </div>
       </div>
@@ -78,15 +82,18 @@
         <div class="editar-grid">
           <div class="form-group">
             <label for="telefono">Teléfono</label>
-            <input type="text" id="telefono" name="telefono" value="<%= empresa.telefono || '' %>" placeholder="Ej: +34 600 000 000">
+            <input type="text" id="telefono" name="telefono" value="<%= empresa.telefono_contacto || '' %>" placeholder="Ej: +34 600 000 000">
+            <span id="error-telefono" class="error"></span>
           </div>
           <div class="form-group">
             <label for="ubicacion">Ubicación</label>
             <input type="text" id="ubicacion" name="ubicacion" value="<%= empresa.ubicacion || '' %>" placeholder="Ej: Calle Mayor 1, Madrid">
+            <span id="error-ubicacion" class="error"></span>
           </div>
           <div class="form-group editar-grid-full">
             <label for="descripcion">Descripción</label>
             <textarea id="descripcion" name="descripcion" rows="4" placeholder="Describe tu empresa, servicios, horarios..."><%= empresa.descripcion || '' %></textarea>
+            <span id="error-descripcion" class="error"></span>
           </div>
         </div>
       </div>
@@ -99,21 +106,24 @@
           <div class="form-group">
             <label for="password_actual">Contraseña actual</label>
             <input type="password" id="password_actual" name="password_actual" placeholder="••••••••">
+            <span id="error-password_actual" class="error"></span>
           </div>
           <div class="form-group">
             <label for="password_nueva">Nueva contraseña</label>
             <input type="password" id="password_nueva" name="password_nueva" placeholder="••••••••">
+            <span id="error-password_nueva" class="error"></span>
           </div>
           <div class="form-group">
             <label for="password_confirmar">Confirmar nueva contraseña</label>
             <input type="password" id="password_confirmar" name="password_confirmar" placeholder="••••••••">
+            <span id="error-password_confirmar" class="error"></span>
           </div>
         </div>
       </div>
 
       <!-- BOTONES -->
       <div class="editar-footer">
-        <a href="/perfil/empresa" class="btn-outline-large">Cancelar</a>
+        <a href="/user/perfilEmpresa/<%= empresa.id_empresa %>" class="btn-outline-large">Cancelar</a>
         <button type="submit" class="btn-submit" style="width:auto; padding: 0.9rem 2.5rem;">Guardar cambios</button>
       </div>
 
@@ -139,6 +149,7 @@
     }
   </script>
 
+  <script src="/js/validacionEditarPerfilEmpresa.js"></script>
   <%- include('plantillas/modalErrores', { error: typeof error !== 'undefined' ? error : null, errores: typeof errores !== 'undefined' ? errores : [] }) %>
 
 </body>

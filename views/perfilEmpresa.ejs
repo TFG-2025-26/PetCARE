@@ -27,7 +27,7 @@
           <button class="perfil-avatar-edit" title="Cambiar logo">＋</button>
         </div>
         <h1 class="perfil-nombre"><%= empresa.nombre %></h1>
-        <span class="perfil-badge empresa-badge"><%= empresa.tipo_empresa %></span>
+        <span class="perfil-badge empresa-badge"><%= empresa.tipo %></span>
       </div>
 
       <!-- Datos principales -->
@@ -36,16 +36,16 @@
         <ul class="perfil-data-list">
           <li>
             <span class="data-label">Correo corporativo</span>
-            <span class="data-value"><%= empresa.email %></span>
+            <span class="data-value"><%= empresa.correo %></span>
           </li>
           <li>
             <span class="data-label">CIF</span>
-            <span class="data-value"><%= empresa.cif %></span>
+            <span class="data-value"><%= empresa.CIF %></span>
           </li>
           <% if (empresa.telefono) { %>
           <li>
             <span class="data-label">Teléfono</span>
-            <span class="data-value"><%= empresa.telefono %></span>
+            <span class="data-value"><%= empresa.telefono_contacto %></span>
           </li>
           <% } %>
           <% if (empresa.ubicacion) { %>
@@ -59,7 +59,7 @@
 
       <!-- Acciones -->
       <div class="perfil-actions">
-        <a href="/user/perfilEmpresa/<%= usuario.id %>/editar" class="btn-perfil-edit">Editar perfil</a>
+        <a href="/user/perfilEmpresa/<%= empresa.id_empresa %>/editar" class="btn-perfil-edit">Editar perfil</a>
         <a href="/logout" class="btn-perfil-danger">Cerrar sesión</a>
       </div>
 
@@ -74,7 +74,7 @@
         <div class="perfil-section-header">
             <h2>Sobre nosotros</h2>
             <% if (esPropia) { %>
-            <a href="/user/perfilEmpresa/<%= usuario.id %>/editar" class="btn-section-add">Editar</a>
+            <a href="/user/perfilEmpresa/<%= empresa.id_empresa %>/editar" class="btn-section-add">Editar</a>
             <% } %>
         </div>
         <p class="empresa-descripcion"><%= empresa.descripcion %></p>
@@ -83,7 +83,7 @@
         <div class="perfil-section">
         <div class="perfil-section-header">
             <h2>Sobre nosotros</h2>
-            <a href="/user/perfilEmpresa/<%= usuario.id %>/editar" class="btn-section-add">Editar</a>
+            <a href="/user/perfilEmpresa/<%= empresa.id_empresa %>/editar" class="btn-section-add">Editar</a>
         </div>
         <div class="perfil-empty" style="padding: 1.5rem;">
             <span class="perfil-empty-icon">📝</span>
@@ -110,7 +110,7 @@
             <span class="perfil-empty-icon">📍</span>
             <p>Esta empresa aún no ha añadido su ubicación.</p>
             <% if (esPropia) { %>
-              <a href="/user/perfilEmpresa/<%= usuario.id %>/editar" class="btn-submit" style="display:inline-block; width:auto; padding: 0.6rem 1.5rem;">Añadir ubicación</a>
+              <a href="/user/perfilEmpresa/<%= empresa.id_empresa %>/editar" class="btn-submit" style="display:inline-block; width:auto; padding: 0.6rem 1.5rem;">Añadir ubicación</a>
             <% } %>
           </div>
         <% } %>
