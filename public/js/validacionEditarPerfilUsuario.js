@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const BioInput = document.getElementById("bio");
 
     // Selección de campos - contraseñas
+    const ActualPasswordInput = document.getElementById("password_actual");
     const PasswordInput = document.getElementById("password_nueva");
     const ConfirmPasswordInput = document.getElementById("password_confirmar");
 
@@ -38,6 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const ErrorCodigoPostal = document.getElementById("error-codigo_postal");
     const ErrorTrabajo = document.getElementById("error-trabajo");
     const ErrorBio = document.getElementById("error-bio");
+    const ErrorPasswordActual = document.getElementById("error-password_actual");
     const ErrorPassword = document.getElementById("error-password_nueva");
     const ErrorConfirmPassword = document.getElementById("error-password_confirmar");
 
@@ -218,9 +220,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function validarPasswordsConjunto() {
-        const actual    = PasswordActualInput.value;
-        const nueva     = PasswordNuevaInput.value;
-        const confirmar = PasswordConfirmarInput.value;
+        const actual    = ActualPasswordInput.value;
+        const nueva     = PasswordInput.value;
+        const confirmar = ConfirmPasswordInput.value;
 
         if (actual || nueva || confirmar) {
             if (!actual) {
@@ -228,11 +230,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 return false;
             }
             if (!nueva) {
-                ErrorPasswordNueva.textContent = 'Debes introducir la nueva contraseña';
+                ErrorPassword.textContent = 'Debes introducir la nueva contraseña';
                 return false;
             }
             if (!confirmar) {
-                ErrorPasswordConfirmar.textContent = 'Debes confirmar la nueva contraseña';
+                ErrorConfirmPassword.textContent = 'Debes confirmar la nueva contraseña';
                 return false;
             }
         }
