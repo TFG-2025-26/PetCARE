@@ -1,0 +1,22 @@
+<div class="modal-overlay" id="modalEliminar" style="display:none;">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>¿Eliminar cuenta?</h3>
+      <button class="modal-close" onclick="cerrarModalEliminar()">✕</button>
+    </div>
+    <ul class="modal-list">
+      <li>
+            Esta acción desactivará tu cuenta permanentemente.
+            No podrás acceder con este correo ni nombre de usuario.
+        </li>
+    </ul>
+    <div class="modal-footer" style="gap: 0.8rem;">
+      <button class="btn-outline-large" onclick="cerrarModalEliminar()">Cancelar</button>
+      <% if (tipo === 'cliente') { %>
+        <a href="/user/eliminarCuentaUsuario/<%= usuario.id_usuario %>" class="btn-perfil-danger">Eliminar cuenta</a>
+      <% } else if (tipo === 'empresa') { %>
+        <a href="/user/eliminarCuentaEmpresa/<%= usuario.id_empresa %>" class="btn-perfil-danger">Eliminar cuenta</a>
+      <% } %>
+    </div>
+  </div>
+</div>
