@@ -4,12 +4,13 @@ const pool = require('../db'); // Importamos el pool de conexiones a la base de 
 const { validationResult } = require('express-validator');
 
 const getMyPets = (req, res) => {
+    const id = req.session.usuario.id;
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
             return res.status(500).render('error500', { mensaje: "Error al conectar a la base de datos" });
         }
-        connection.query("SELECT * FROM mascotas WHERE activo = 1", (err, results) => {
+        connection.query("SELECT * FROM mascotas WHERE activo = 1 AND id_usuario = ?", [id], (err, results) => {
             connection.release();
             if (err) {
                 console.error("Error al ejecutar la consulta:", err);
@@ -36,8 +37,7 @@ const postRegisterPet = (req, res) => {
     } else{
         const { "nombre_mascota": petName, "especie": petSpecies, "raza": petBreed, "fecha_nacimiento": petBirthday, "peso": petWeight } = req.body;
         const imagen = req.file ? req.file.buffer : null;
-        //const id = req.session.usuario.id; // Asegúrate de que el ID del usuario esté disponible en la sesión
-        const id = 1; // Temporalmente, se asigna un ID fijo para pruebas. Reemplazar con el ID del usuario autenticado.
+        const id = req.session.usuario.id;
         pool.getConnection((err, connection) => {
             if (err) {
                 console.error("Error al conectar a la base de datos:", err);
