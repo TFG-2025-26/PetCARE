@@ -3,6 +3,8 @@
 const { validationResult } = require('express-validator');
 const pool = require('../db'); 
 
+// TODO: Queda pendiente verificación de cuentas inactivas y doble factor para cuentas inactivas. También queda pendiente recuperar contraseña.
+
 const getRegister = (req, res) => {
     res.render('register', { 
         error: null, 
