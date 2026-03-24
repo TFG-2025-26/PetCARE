@@ -4,8 +4,8 @@ const { validationResult } = require('express-validator');
 const pool = require('../db'); 
 
 const getPerfilUsuario = (req, res) => {
-
     pool.getConnection((err, connection) => {
+        // Comprobar errores de conexión
         if (err) {
             console.error('Error al obtener la conexión a la base de datos:', err); 
             return res.status(500).send('Error al obtener la conexión a la base de datos'); 
@@ -14,13 +14,18 @@ const getPerfilUsuario = (req, res) => {
         const usuarioId = parseInt(req.params.id, 10); 
         connection.query('SELECT * FROM usuarios WHERE id_usuario = ?', [usuarioId], (err, results) => {
             connection.release(); 
-            if (err) {
+
+            if (err) { // Comprobar errores de consulta
                 console.error('Error al ejecutar la consulta:', err); 
                 return res.status(500).send('Error al recuperar los datos del usuario'); 
             }
-            if (results.length === 0) {
+
+            if (results.length === 0) { // Comprobar si el usuario existe
                 return res.status(404).send('Usuario no encontrado'); 
+            } else if (results[0].activo === 0) { // Comprobar si el usuario está activo
+                return res.status(403).send('Cuenta de usuario inactiva');
             }
+
             // TODO: Falta recoger bien las mascotas 
             res.render('perfilUsuario', { usuario: results[0], mascotas: [] });
         })
@@ -28,8 +33,8 @@ const getPerfilUsuario = (req, res) => {
 };
 
 const getPerfilEmpresa = (req, res) => {
-
     pool.getConnection((err, connection) => {
+        // Comprobar errores de conexión
         if (err) {
             console.error('Error al obtener la conexión a la base de datos:', err);
             return res.status(500).send('Error al obtener la conexión a la base de datos'); 
@@ -38,13 +43,17 @@ const getPerfilEmpresa = (req, res) => {
         const empresaId = parseInt(req.params.id, 10); 
         connection.query('SELECT * FROM empresas WHERE id_empresa = ?', [empresaId], (err, results) => {
             connection.release(); 
-            if (err) {
+            if (err) { // Comprobar errores de consulta
                 console.error('Error al ejecutar la consulta:', err);
                 return res.status(500).send('Error al recuperar los datos de la empresa'); 
             }
-            if (results.length === 0) {
+
+            if (results.length === 0) { // Comprobar si la empresa existe
                 return res.status(404).send('Empresa no encontrada'); 
+            } else if (results[0].activo === 0) { // Comprobar si la empresa está activa
+                return res.status(403).send('Cuenta de empresa inactiva'); 
             }
+
             res.render('perfilEmpresa', {
                 empresa: results[0], 
                 valoraciones: [], //TODO: Falta recoger bien las valoraciones
@@ -55,9 +64,9 @@ const getPerfilEmpresa = (req, res) => {
 };
 
 const getEditarPerfilUsuario = (req, res) => {
-
     pool.getConnection((err, connection) => {
-        if(err) {
+        // Comprobar errores de conexión
+        if(err) { 
             console.error('Error al obtener la conexión a la base de datos:', err); 
             return res.status(500).send('Error al obtener la conexión a la base de datos'); 
         }
@@ -65,12 +74,14 @@ const getEditarPerfilUsuario = (req, res) => {
         const usuarioId = parseInt(req.params.id, 10); 
         connection.query('SELECT * FROM usuarios WHERE id_usuario = ?', [usuarioId], (err, results) => {
             connection.release(); 
-            if (err) {
+            if (err) { // Comprobar errores de consulta
                 console.error('Error al ejecutar la consulta:', err); 
                 return res.status(500).send('Error al recuperar los datos de usuario'); 
             }
-            if (results.length === 0) {
+            if (results.length === 0) { // Comprobar si el usuario existe
                 return res.status(404).send('Usuario no encontrado'); 
+            } else if (results[0].activo === 0) { // Comprobar si el usuario está activo
+                return res.status(403).send('Cuenta de usuario inactiva');
             }
             res.render('editarPerfilUsuario', { usuario: results[0] });
         })
@@ -78,8 +89,8 @@ const getEditarPerfilUsuario = (req, res) => {
 };
 
 const getEditarPerfilEmpresa = (req, res) => {
-    
     pool.getConnection((err, connection) => {
+        // Comprobar errores de conexión
         if(err) {
             console.error('Error al obtener la conexión a la base de datos:', err); 
             return res.status(500).send('Error al obtener la conexión a la base de datos'); 
@@ -88,12 +99,14 @@ const getEditarPerfilEmpresa = (req, res) => {
         const empresaId = parseInt(req.params.id, 10); 
         connection.query('SELECT * FROM empresas WHERE id_empresa = ?', [empresaId], (err, results) => {
             connection.release(); 
-            if (err) {
+            if (err) { // Comprobar errores de consulta
                 console.error('Error al ejecutar la consulta:', err); 
                 return res.status(500).send('Error al recuperar los datos de la empresa'); 
             }
-            if (results.length === 0) {
+            if (results.length === 0) { // Comprobar si la empresa existe
                 return res.status(404).send('Empresa no encontrada'); 
+            } else if (results[0].activo === 0) { // Comprobar si la empresa está activa
+                return res.status(403).send('Cuenta de empresa inactiva');
             }
             res.render('editarPerfilEmpresa', { empresa: results[0] });
         })
@@ -119,6 +132,7 @@ const postEditarPerfilUsuario = (req, res) => {
         bio: req.body.bio
     };
 
+    // Comprobar si hay errores de validación
     if (!errors.isEmpty()) {
         return res.status(400).render('editarPerfilUsuario', { 
             usuario: usuarioActual, 
@@ -131,106 +145,123 @@ const postEditarPerfilUsuario = (req, res) => {
     const usuarioId = parseInt(req.params.id, 10); 
 
     pool.getConnection((err, connection) => {
+        // Comprobar errores de conexión
         if (err) {
             console.error('Error al obtener la conexión a la base de datos:', err); 
             return res.status(500).send('Error al obtener la conexión a la base de datos'); 
         }
 
-        // 1. Comprobar correo
-        connection.query('SELECT id_usuario FROM usuarios WHERE correo = ? AND id_usuario != ?', [email, usuarioId], (err, results) => {
+        // 0. Comprobar si el usuario existe y está activo
+        connection.query('SELECT * FROM usuarios WHERE id_usuario = ?', [usuarioId], (err, results) => {
             if (err) {
                 connection.release();
-                return res.status(500).send('Error al verificar el correo');
+                console.error('Error al ejecutar la consulta:', err);
+                return res.status(500).send('Error al recuperar los datos del usuario');
             }
-            if (results.length > 0) {
+            if (results.length === 0) {
                 connection.release();
-                return res.status(400).render('editarPerfilUsuario', {
-                    usuario: usuarioActual,
-                    error: 'El correo electrónico ya está en uso',
-                    errores: []
-                });
+                return res.status(404).send('Usuario no encontrado');
+            } else if (results[0].activo === 0) {
+                connection.release();
+                return res.status(403).send('Cuenta de usuario inactiva');
             }
 
-            // 2. Comprobar nombre de usuario
-            connection.query('SELECT id_usuario FROM usuarios WHERE nombre_usuario = ? AND id_usuario != ?', [usuario, usuarioId], (err, results) => {
+            // 1. Comprobar correo
+            connection.query('SELECT id_usuario FROM usuarios WHERE correo = ? AND id_usuario != ?', [email, usuarioId], (err, results) => {
                 if (err) {
                     connection.release();
-                    return res.status(500).send('Error al verificar el nombre de usuario');
+                    return res.status(500).send('Error al verificar el correo');
                 }
                 if (results.length > 0) {
                     connection.release();
                     return res.status(400).render('editarPerfilUsuario', {
                         usuario: usuarioActual,
-                        error: 'El nombre de usuario ya está en uso',
+                        error: 'El correo electrónico ya está en uso',
                         errores: []
                     });
                 }
 
-                // 3. Comprobar teléfono
-                connection.query('SELECT id_usuario FROM usuarios WHERE telefono = ? AND id_usuario != ?', [telefono, usuarioId], (err, results) => {
+                // 2. Comprobar nombre de usuario
+                connection.query('SELECT id_usuario FROM usuarios WHERE nombre_usuario = ? AND id_usuario != ?', [usuario, usuarioId], (err, results) => {
                     if (err) {
                         connection.release();
-                        return res.status(500).send('Error al verificar el teléfono');
+                        return res.status(500).send('Error al verificar el nombre de usuario');
                     }
                     if (results.length > 0) {
                         connection.release();
                         return res.status(400).render('editarPerfilUsuario', {
                             usuario: usuarioActual,
-                            error: 'El teléfono ya está en uso',
+                            error: 'El nombre de usuario ya está en uso',
                             errores: []
                         });
                     }
 
-                    // 4. Recuperar contraseña y foto actual
-                    connection.query('SELECT contraseña, foto FROM usuarios WHERE id_usuario = ?', [usuarioId], (err, results) => {
+                    // 3. Comprobar teléfono
+                    connection.query('SELECT id_usuario FROM usuarios WHERE telefono = ? AND id_usuario != ?', [telefono, usuarioId], (err, results) => {
                         if (err) {
                             connection.release();
-                            return res.status(500).send('Error al obtener los datos del usuario');
+                            return res.status(500).send('Error al verificar el teléfono');
                         }
-
-                        if (password_nueva && results[0].contraseña !== password_actual) {
+                        if (results.length > 0) {
                             connection.release();
                             return res.status(400).render('editarPerfilUsuario', {
                                 usuario: usuarioActual,
-                                error: 'La contraseña actual no es correcta',
+                                error: 'El teléfono ya está en uso',
                                 errores: []
                             });
                         }
 
-                        const contrasenhaFinal = password_nueva || results[0].contraseña;
-                        const fotoFinal = fotoNueva || results[0].foto;
+                        // 4. Recuperar contraseña y foto actual
+                        connection.query('SELECT contraseña, foto FROM usuarios WHERE id_usuario = ?', [usuarioId], (err, results) => {
+                            if (err) {
+                                connection.release();
+                                return res.status(500).send('Error al obtener los datos del usuario');
+                            }
 
-                        ejecutarUpdate(connection, [nombre, usuario, email, fecha_nacimiento, telefono, ciudad, pais, codigo_postal, genero, trabajo, bio, contrasenhaFinal, fotoFinal, usuarioId], res, usuarioId);
+                            if (password_nueva && results[0].contraseña !== password_actual) {
+                                connection.release();
+                                return res.status(400).render('editarPerfilUsuario', {
+                                    usuario: usuarioActual,
+                                    error: 'La contraseña actual no es correcta',
+                                    errores: []
+                                });
+                            }
+
+                            const contrasenhaFinal = password_nueva || results[0].contraseña;
+                            const fotoFinal = fotoNueva || results[0].foto;
+
+                            ejecutarUpdate(connection, [nombre, usuario, email, fecha_nacimiento, telefono, ciudad, pais, codigo_postal, genero, trabajo, bio, contrasenhaFinal, fotoFinal, usuarioId], res, usuarioId);
+                        });
                     });
                 });
             });
-        });
 
-        function ejecutarUpdate(connection, params, res, usuarioId) {
-            const sql_update = `UPDATE usuarios SET 
-                nombre_completo = ?, 
-                nombre_usuario = ?,
-                correo = ?,
-                fecha_nacimiento = ?,
-                telefono = ?,
-                ciudad = ?,
-                pais = ?,
-                codigo_postal = ?,
-                genero = ?,
-                trabajo = ?,
-                bio = ?, 
-                contraseña = ?,
-                foto = ?
-            WHERE id_usuario = ?`;
-            connection.query(sql_update, params, (err) => {
-                connection.release();
-                if (err) {
-                    console.error('Error al ejecutar la consulta:', err);
-                    return res.status(500).send('Error al actualizar los datos del usuario');
-                }
-                res.redirect('/user/perfilUsuario/' + usuarioId);
-            });
-        }
+            function ejecutarUpdate(connection, params, res, usuarioId) {
+                const sql_update = `UPDATE usuarios SET 
+                    nombre_completo = ?, 
+                    nombre_usuario = ?,
+                    correo = ?,
+                    fecha_nacimiento = ?,
+                    telefono = ?,
+                    ciudad = ?,
+                    pais = ?,
+                    codigo_postal = ?,
+                    genero = ?,
+                    trabajo = ?,
+                    bio = ?, 
+                    contraseña = ?,
+                    foto = ?
+                WHERE id_usuario = ?`;
+                connection.query(sql_update, params, (err) => {
+                    connection.release();
+                    if (err) {
+                        console.error('Error al ejecutar la consulta:', err);
+                        return res.status(500).send('Error al actualizar los datos del usuario');
+                    }
+                    res.redirect('/user/perfilUsuario/' + usuarioId);
+                });
+            }
+        }); 
     });
 };
 
@@ -251,6 +282,7 @@ const postEditarPerfilEmpresa = (req, res) => {
         foto: fotoNueva
     };
 
+    // Comprobar si hay errores de validación
     if (!errors.isEmpty()) {
         return res.status(400).render('editarPerfilEmpresa', {
             empresa: empresaActual,
@@ -263,93 +295,148 @@ const postEditarPerfilEmpresa = (req, res) => {
     const empresaId = parseInt(req.params.id, 10);
 
     pool.getConnection((err, connection) => {
+        // Comprobar errores de conexión
         if (err) {
             console.error('Error al obtener la conexión a la base de datos:', err);
             return res.status(500).send('Error al obtener la conexión a la base de datos');
         }
 
-        // 1. Comprobar correo
-        connection.query('SELECT id_empresa FROM empresas WHERE correo = ? AND id_empresa != ?', [email, empresaId], (err, results) => {
+        // 0. Comprobar si la empresa existe y está activa
+        connection.query('SELECT * FROM empresas WHERE id_empresa = ?', [empresaId], (err, results) => {
             if (err) {
                 connection.release();
-                return res.status(500).send('Error al verificar el correo');
+                console.error('Error al ejecutar la consulta:', err);
+                return res.status(500).send('Error al recuperar los datos de la empresa');
             }
-            if (results.length > 0) {
+            if (results.length === 0) {
                 connection.release();
-                return res.status(400).render('editarPerfilEmpresa', {
-                    empresa: empresaActual,
-                    error: 'El correo electrónico ya está en uso',
-                    errores: []
-                });
+                return res.status(404).send('Empresa no encontrada');
+            } else if (results[0].activo === 0) {
+                connection.release();
+                return res.status(403).send('Cuenta de empresa inactiva');
             }
 
-            // 2. Comprobar CIF
-            connection.query('SELECT id_empresa FROM empresas WHERE cif = ? AND id_empresa != ?', [cif, empresaId], (err, results) => {
+            // 1. Comprobar correo
+            connection.query('SELECT id_empresa FROM empresas WHERE correo = ? AND id_empresa != ?', [email, empresaId], (err, results) => {
                 if (err) {
                     connection.release();
-                    return res.status(500).send('Error al verificar el CIF');
+                    return res.status(500).send('Error al verificar el correo');
                 }
                 if (results.length > 0) {
                     connection.release();
                     return res.status(400).render('editarPerfilEmpresa', {
                         empresa: empresaActual,
-                        error: 'El CIF ya está registrado',
+                        error: 'El correo electrónico ya está en uso',
                         errores: []
                     });
                 }
 
-                // 3. Recuperar contraseña y foto actual
-                connection.query('SELECT contraseña, foto FROM empresas WHERE id_empresa = ?', [empresaId], (err, results) => {
+                // 2. Comprobar CIF
+                connection.query('SELECT id_empresa FROM empresas WHERE cif = ? AND id_empresa != ?', [cif, empresaId], (err, results) => {
                     if (err) {
                         connection.release();
-                        return res.status(500).send('Error al obtener los datos de la empresa');
+                        return res.status(500).send('Error al verificar el CIF');
                     }
-
-                    const contrasenhaFinal = password_nueva
-                        ? (results[0].contraseña !== password_actual
-                            ? null  // contraseña incorrecta, se gestiona abajo
-                            : password_nueva)
-                        : results[0].contraseña;
-
-                    if (password_nueva && results[0].contraseña !== password_actual) {
+                    if (results.length > 0) {
                         connection.release();
                         return res.status(400).render('editarPerfilEmpresa', {
                             empresa: empresaActual,
-                            error: 'La contraseña actual no es correcta',
+                            error: 'El CIF ya está registrado',
                             errores: []
                         });
                     }
 
-                    const fotoFinal = fotoNueva || results[0].foto;
+                    // 3. Recuperar contraseña y foto actual
+                    connection.query('SELECT contraseña, foto FROM empresas WHERE id_empresa = ?', [empresaId], (err, results) => {
+                        if (err) {
+                            connection.release();
+                            return res.status(500).send('Error al obtener los datos de la empresa');
+                        }
 
-                    ejecutarUpdate(connection, [nombre_empresa, email, telefono, cif, tipo_empresa, ubicacion, descripcion, contrasenhaFinal, fotoFinal, empresaId], res, empresaId);
+                        const contrasenhaFinal = password_nueva
+                            ? (results[0].contraseña !== password_actual
+                                ? null  // contraseña incorrecta, se gestiona abajo
+                                : password_nueva)
+                            : results[0].contraseña;
+
+                        if (password_nueva && results[0].contraseña !== password_actual) {
+                            connection.release();
+                            return res.status(400).render('editarPerfilEmpresa', {
+                                empresa: empresaActual,
+                                error: 'La contraseña actual no es correcta',
+                                errores: []
+                            });
+                        }
+
+                        const fotoFinal = fotoNueva || results[0].foto;
+
+                        ejecutarUpdate(connection, [nombre_empresa, email, telefono, cif, tipo_empresa, ubicacion, descripcion, contrasenhaFinal, fotoFinal, empresaId], res, empresaId);
+                    });
                 });
             });
-        });
 
-        function ejecutarUpdate(connection, params, res, empresaId) {
-            const sql_update = `UPDATE empresas SET
-                nombre = ?,
-                correo = ?,
-                telefono_contacto = ?,
-                CIF = ?,
-                tipo = ?,
-                ubicacion = ?,
-                descripcion = ?,
-                contraseña = ?,
-                foto = ?
-            WHERE id_empresa = ?`;
-            connection.query(sql_update, params, (err) => {
-                connection.release();
-                if (err) {
-                    console.error('Error al ejecutar la consulta:', err);
-                    return res.status(500).send('Error al actualizar los datos de la empresa');
-                }
-                res.redirect('/user/perfilEmpresa/' + empresaId);
-            });
-        }
+            function ejecutarUpdate(connection, params, res, empresaId) {
+                const sql_update = `UPDATE empresas SET
+                    nombre = ?,
+                    correo = ?,
+                    telefono_contacto = ?,
+                    CIF = ?,
+                    tipo = ?,
+                    ubicacion = ?,
+                    descripcion = ?,
+                    contraseña = ?,
+                    foto = ?
+                WHERE id_empresa = ?`;
+                connection.query(sql_update, params, (err) => {
+                    connection.release();
+                    if (err) {
+                        console.error('Error al ejecutar la consulta:', err);
+                        return res.status(500).send('Error al actualizar los datos de la empresa');
+                    }
+                    res.redirect('/user/perfilEmpresa/' + empresaId);
+                });
+            }
+        }); 
     });
 };
+
+const postEliminarCuentaUsuario = (req, res) => {
+    const usuarioId = parseInt(req.params.id, 10);
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al obtener la conexión a la base de datos:', err);
+            return res.status(500).send('Error al obtener la conexión a la base de datos');
+        }
+        connection.query('UPDATE usuarios SET activo = 0 WHERE id_usuario = ?', [usuarioId], (err) => {
+            connection.release();
+            if (err) {
+                console.error('Error al eliminar la cuenta del usuario:', err);
+                return res.status(500).send('Error al eliminar la cuenta del usuario');
+            }
+            res.redirect('/auth/logout');
+        });
+    });
+};
+
+const postEliminarCuentaEmpresa = (req, res) => {
+    const empresaId = parseInt(req.params.id, 10);
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al obtener la conexión a la base de datos:', err);
+            return res.status(500).send('Error al obtener la conexión a la base de datos');
+        }
+        connection.query('UPDATE empresas SET activo = 0 WHERE id_empresa = ?', [empresaId], (err) => {
+            connection.release();
+            if (err) {
+                console.error('Error al eliminar la cuenta de la empresa:', err);
+                return res.status(500).send('Error al eliminar la cuenta de la empresa');
+            }
+            res.redirect('/auth/logout');
+        });
+    });
+}
 
 module.exports = {
     getPerfilUsuario,
@@ -357,5 +444,7 @@ module.exports = {
     getEditarPerfilUsuario, 
     getEditarPerfilEmpresa, 
     postEditarPerfilUsuario, 
-    postEditarPerfilEmpresa
+    postEditarPerfilEmpresa, 
+    postEliminarCuentaUsuario,
+    postEliminarCuentaEmpresa
 };

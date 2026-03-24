@@ -3,6 +3,8 @@
 const { validationResult } = require('express-validator');
 const pool = require('../db'); 
 
+// TODO: Queda pendiente verificación de cuentas inactivas y doble factor para cuentas inactivas. También queda pendiente recuperar contraseña.
+
 const getRegister = (req, res) => {
     res.render('register', { 
         error: null, 
@@ -217,18 +219,24 @@ const postLoginClient = (req, res) => {
         const query = "SELECT * FROM usuarios WHERE correo = ? OR telefono = ? OR nombre_usuario = ?";
         connection.query(query, [login_input, login_input, login_input], (err, results) => {
             connection.release();
+            // Comprobar errores en la consulta
             if (err) {
                 console.error("Error al ejecutar la consulta de login:", err);
                 return res.status(500).render('error500', { mensaje: "Error al ejecutar la consulta de login" });
             }
 
-            console.log(results); // <-- Añade este log para ver qué devuelve la consulta
-            
-            // 1. Comprobar si se encontró un usuario con ese correo, teléfono o nombre de usuario
+            // 1. Comprobar si la cuenta existe y está activa
             if (results.length === 0) {
                 return res.render('login', { 
                     error: 'Datos del formulario incorrectos', 
                     errores: [], 
+                    formData: req.body,
+                    formType: 'client' 
+                });
+            } else if (results[0].activo === 0) {
+                return res.render('login', { 
+                    error: 'Cuenta inactiva. Por favor, contacta con soporte.',
+                    errores: [],
                     formData: req.body,
                     formType: 'client' 
                 });
@@ -276,11 +284,18 @@ const postLoginBusiness = (req, res) => {
 
             console.log(results); // <-- Añade este log para ver qué devuelve la consulta
 
-            // 1. Comprobar si se encontró una empresa con ese correo
+            // 1. Comprobar si existe la cuenta y está activa
             if (results.length === 0) {
                 return res.render('login', { 
                     error: 'Datos del formulario incorrectos', 
                     errores: [], 
+                    formData: req.body,
+                    formType: 'business' 
+                });
+            } else if (results[0].activo === 0) {
+                return res.render('login', { 
+                    error: 'Cuenta inactiva. Por favor, contacta con soporte.',
+                    errores: [],
                     formData: req.body,
                     formType: 'business' 
                 });

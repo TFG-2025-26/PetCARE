@@ -172,7 +172,7 @@
       <div class="perfil-section perfil-danger-zone">
         <h2>Zona de peligro</h2>
         <p>Una vez elimines tu cuenta no hay vuelta atrás.</p>
-        <a href="/perfil/eliminar" class="btn-perfil-danger">Eliminar cuenta</a>
+        <a href="#" onclick="confirmarEliminar()" class="btn-perfil-danger">Eliminar cuenta</a>
       </div>
       <% } %>
 
@@ -180,9 +180,18 @@
 
   </main>
 
+  <%- include('plantillas/modalEliminarCuenta', { usuario: empresa, tipo: 'empresa' }) %>
   <%- include('plantillas/footer') %>
   <%- include('plantillas/modalErrores', { error: typeof error !== 'undefined' ? error : null, errores: typeof errores !== 'undefined' ? errores : [] }) %>
+  <script>
+    function confirmarEliminar() {
+      document.getElementById('modalEliminar').style.display = 'flex';
+    }
 
+    function cerrarModalEliminar() {
+        document.getElementById('modalEliminar').style.display = 'none';
+    }
+  </script>
 
 </body>
 </html>
