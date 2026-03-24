@@ -1614,7 +1614,7 @@ footer {
   gap: 1rem;
   grid-template-areas: "foto info boton";
   background-color: white;
-  margin: 4rem;
+  margin: 2rem 4rem;
   border-radius: 12px;
   border: 1px solid #e0e0e0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -1706,10 +1706,14 @@ footer {
   border-radius: 24px;
   border: 1px solid #e0e0e0;
   padding: 0.8rem;
-
 }
 
-@media (max-width: 600px){
+.boton-editar-mascota:hover {
+  background-color: #5a7d51;
+  box-shadow: 0 4px 20px rgba(74,103,65,0.3);
+}
+
+@media (max-width: 750px){
   .pet-profile-info{
     grid-template-columns: 1fr;
     grid-template-areas:
@@ -1724,8 +1728,100 @@ footer {
 }
 
 .pet-clinic{
-  flex: 1;
-  background-color: #4f7c42;
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  margin: 0rem 4rem;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cartilla-nav{
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: var(--brown);
+  border-radius: 12px;
+  border: 1px solid var(--brown);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.boton-cartilla{
+  color: white;
+  text-decoration: none;
+  background-color: transparent;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+}
+
+.boton-cartilla:hover {
+  background-color: white;
+  color: black;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(74,103,65,0.3);
+}
+
+.boton-cartilla.activa{
+  background-color: white;
+  color: black;
+  border-radius: 12px;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(74,103,65,0.3);
+}
+
+#añadir-registro-cartilla{
+  margin-left: auto;
+  padding: 0.5rem;
+  background: var(--green);
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  border: none;
+  border-radius: 50px;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(74,103,65,0.3);
+  cursor: pointer;
+}
+
+
+.pet-clinic table {
+  width: 100%;
+  table-layout: fixed;
+  background-color: var(--warm);
+  border-radius: 15px;
+  padding: 0.5rem;
+}
+
+.pet-clinic thead {
+  background-color: var(--warm);
+}
+
+.pet-clinic th, td{
+  overflow-wrap: break-word;
+}
+
+.pet-clinic td{
+  padding: 1rem;
+  text-align: left;
+  vertical-align: middle;
+  border-radius: 10px;
+}
+
+.pet-clinic tbody tr:nth-child(odd)  { background-color: white; }
+.pet-clinic tbody tr:nth-child(even) { background-color: var(--cream); }
+
+.cartilla-vacia{
+  text-align: center;
+  padding: 1.5rem;
+  border-radius: 12px;
+  max-width: 500px;
+  margin: 0.5rem auto;
 }
 
 .seccion-cartilla{
@@ -1746,7 +1842,7 @@ footer {
   display: block;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 750px) {
 
   /* Ocultamos la nav de tabs */
   .cartilla-nav {
@@ -1778,7 +1874,7 @@ footer {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 1rem;
+  padding: 2rem;
 }
 
 .boton-eliminar-mascota{
@@ -1790,6 +1886,10 @@ footer {
   overflow-wrap: break-word;
   word-wrap: break-all;
   max-width: 100%;
+}
+
+.boton-eliminar-mascota:hover {
+  box-shadow: 0 4px 20px rgba(74,103,65,0.3);
 }
 
 /*Modal de confirmacion de eliminación*/
