@@ -330,6 +330,14 @@ const logout = (req, res) => {
     });
 };
 
+const getRecuperarContrasena = (req, res) => {
+    res.render('recuperarContrasena', {
+        error: null,
+        errores: [],
+        formData: null,
+        formType: null
+    });
+}; 
 
 module.exports = {
     getRegister,
@@ -338,5 +346,6 @@ module.exports = {
     postRegisterBusiness, 
     postLoginClient,
     postLoginBusiness,
-    logout
+    logout, 
+    getRecuperarContrasena
 };

@@ -1910,3 +1910,82 @@ footer {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── RECUPERAR CONTRASEÑA ── */
+.recovery-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 1.5rem 3rem;
+}
+
+.recovery-box {
+  background: #fff;
+  border-radius: 28px;
+  box-shadow: 0 20px 60px rgba(61,43,31,0.1);
+  padding: 3rem;
+  width: 100%;
+  max-width: 420px;
+  animation: fadeUp 0.5s ease both;
+}
+
+.recovery-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.recovery-icon {
+  font-size: 2.8rem;
+  margin-bottom: 1rem;
+}
+
+.recovery-box h1 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--brown);
+  letter-spacing: -0.03em;
+  margin-bottom: 0.6rem;
+}
+
+.recovery-desc {
+  font-size: 0.95rem;
+  color: var(--muted);
+  font-weight: 300;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.recovery-form {
+  width: 100%;
+  text-align: left;
+}
+
+.input-codigo {
+  text-align: center;
+  font-family: 'Fraunces', serif;
+  font-size: 1.8rem;
+  font-weight: 600;
+  letter-spacing: 0.4em;
+  color: var(--brown);
+}
+
+.recovery-footer {
+  margin-top: 1.5rem;
+  font-size: 0.88rem;
+}
+
+.recovery-footer a {
+  color: var(--amber);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.recovery-footer a:hover { text-decoration: underline; }
+
+@media (max-width: 768px) {
+  .recovery-box { padding: 2rem 1.5rem; }
+}

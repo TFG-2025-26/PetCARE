@@ -85,5 +85,6 @@ router.post('/register/business', validarRegistroBusiness, authController.postRe
 router.post('/login/client', authController.postLoginClient);
 router.post('/login/business', authController.postLoginBusiness);
 router.get('/logout', authController.logout);
+router.get('/recuperarContrasena', authController.getRecuperarContrasena); 
 
 module.exports = router; 

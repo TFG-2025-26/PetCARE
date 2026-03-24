@@ -30,6 +30,9 @@
         <button type="submit" class="btn-submit">Login</button>
       </form>
       <div class="register-footer">
+        He olvidado mi contraseña. <a href="/auth/recuperarContrasena">Recuperar</a><br>
+      </div>
+      <div class="register-footer">
         No tienes cuenta. <a href="/auth/register">Regístrate</a>
       </div>
     </div>
@@ -51,6 +54,9 @@
         <button type="submit" class="btn-submit-green">Login</button>
       </form>
       <div class="register-footer">
+        He olvidado mi contraseña. <a href="/auth/recuperarContrasena">Recuperar</a><br>
+      </div>
+      <div class="register-footer">
         No tienes cuenta. <a href="/auth/register">Únete</a>
       </div>
     </div>
@@ -58,5 +64,6 @@
   </main>
 
   <%- include('plantillas/modalErrores', { error: error, errores: errores }) %>
+  <%- include('plantillas/footer') %>
 </body>
 </html>
