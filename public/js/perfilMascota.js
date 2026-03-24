@@ -24,9 +24,30 @@ acordeones.forEach(titulo => {
 });
 
 
-const esMovil = window.matchMedia('(max-width: 600px)');
+const esMovil = window.matchMedia('(max-width: 750px)');
+
+function actualizarFormatoCartilla() {
+    const desktopViews = document.querySelectorAll('.js-desktop-view');
+    const mobileViews = document.querySelectorAll('.js-mobile-view');
+    const anadirRegistroMovil = document.querySelector('.añadir_registro_movil');
+
+    desktopViews.forEach((view) => {
+        view.hidden = esMovil.matches;
+    });
+
+    mobileViews.forEach((view) => {
+        view.hidden = !esMovil.matches;
+    });
+
+    if (anadirRegistroMovil) {
+        anadirRegistroMovil.hidden = !esMovil.matches;
+    }
+}
+
+actualizarFormatoCartilla();
 
 esMovil.addEventListener('change', () => {
+    actualizarFormatoCartilla();
     if (!esMovil.matches) {
         document.querySelectorAll('.seccion-cartilla').forEach(s => s.classList.remove('abierta'));
         botonesCartilla[0].click();

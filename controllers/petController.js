@@ -56,28 +56,112 @@ const postRegisterPet = (req, res) => {
     }
 }
 
-const getPetProfile = (req, res) => {
+const getPetProfile = async (req, res) => {
+    // ID de la mascota que llega por la URL: /pets/profile/:id
     const petId = req.params.id;
+    // Guardaremos aquí la conexión para poder cerrarla en finally, haya éxito o error.
+    let connection;
 
-    pool.getConnection((err, connection) => {
-        if(err){
-            console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render("error500", {mensaje: "Error al conectar a la base de datos"});
+    // Convierte pool.getConnection (callback) en una Promise para poder usar await.
+    // resolve(conn) = conexión obtenida correctamente.
+    // reject(err) = error al conectar.
+    const getConnectionAsync = () => {
+        return new Promise((resolve, reject) => {
+            pool.getConnection((err, conn) => {
+                if (err) {
+                    // Añadimos una marca para saber en el catch que el error fue en la conexión.
+                    err.queryStep = "connection";
+                    return reject(err);
+                }
+                resolve(conn);
+            });
+        });
+    };
+
+    // Convierte connection.query (callback) en una Promise para poder usar await.
+    // Así evitamos anidar callbacks y el código queda más lineal.
+    const queryAsync = (conn, query, params = []) => {
+        return new Promise((resolve, reject) => {
+            conn.query(query, params, (err, results) => {
+                if (err) {
+                    // Marca de error para identificar que falló una consulta SQL.
+                    err.queryStep = "query";
+                    return reject(err);
+                }
+                // Devolvemos el array de filas resultante de la consulta.
+                resolve(results);
+            });
+        });
+    };
+
+    try {
+        // 1) Abrimos conexión a BD.
+        connection = await getConnectionAsync();
+
+        // 2) Traemos datos base: mascota + id_cartilla (si existe cartilla médica).
+        // await "pausa" esta función hasta tener el resultado.
+        const results = await queryAsync(
+            connection,
+            "SELECT m.*, cm.id_cartilla FROM mascotas m LEFT JOIN cartilla_medica cm ON cm.id_mascota = m.id_mascota WHERE m.id_mascota = ?",
+            [petId]
+        );
+
+        // Si no existe la mascota, devolvemos 404.
+        if (results.length === 0) {
+            return res.status(404).render("error404");
         }
-        connection.query("SELECT * FROM mascotas WHERE id_mascota = ?", [petId], (err, results) => {
+
+        // Tomamos la primera fila (solo debería haber una mascota con ese id).
+        const pet = results[0];
+        // Formateamos la fecha para mostrarla en formato español en la vista.
+        pet.fecha_nacimiento = new Date(pet.fecha_nacimiento).toLocaleDateString('es-ES');
+        const id_cartilla = pet.id_cartilla;
+
+        // Si la mascota no tiene cartilla creada, enviamos arrays vacíos para evitar errores en EJS.
+        if (!id_cartilla) {
+            return res.render("perfilMascota", {
+                pet,
+                condiciones: [],
+                vacunas: [],
+                tratamientos: [],
+                citas: []
+            });
+        }
+
+        // 3) Ejecutamos las 4 consultas en paralelo con Promise.all.
+        // Ventaja: es más rápido que lanzarlas una detrás de otra.
+        // Promise.all devuelve un array con los resultados en el mismo orden en que pasamos las promesas.
+        const [condiciones, vacunas, tratamientos, citas] = await Promise.all([
+            queryAsync(connection, "SELECT * FROM condicion_medica WHERE id_cartilla = ? ORDER BY fecha_diagnostico DESC", [id_cartilla]),
+            queryAsync(connection, "SELECT * FROM vacunas WHERE id_cartilla = ? ORDER BY fecha_administracion DESC", [id_cartilla]),
+            queryAsync(connection, "SELECT * FROM tratamientos WHERE id_cartilla = ? ORDER BY fecha_inicio DESC", [id_cartilla]),
+            queryAsync(connection, "SELECT * FROM cita_veterinaria WHERE id_cartilla = ? ORDER BY fecha DESC", [id_cartilla])
+        ]);
+
+        // 4) Render final: enviamos objetos separados a la vista.
+        return res.render("perfilMascota", {
+            pet,
+            condiciones,
+            vacunas,
+            tratamientos,
+            citas
+        });
+    } catch (err) {
+        // Si falló abrir conexión, mostramos mensaje específico.
+        if (err.queryStep === "connection") {
+            console.error("Error al conectar a la base de datos:", err);
+            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+        }
+        // Cualquier otro error (consultas) cae aquí.
+        console.error("Error al obtener los datos de la mascota:", err);
+        return res.status(500).render("error500", { mensaje: "Error al obtener los datos de la mascota" });
+    } finally {
+        // finally se ejecuta SIEMPRE: haya ido bien o mal.
+        // Cerramos la conexión para no dejar conexiones abiertas (fugas de conexión).
+        if (connection) {
             connection.release();
-            if(err){
-                console.error("Error al obtener los datos de la mascota:", err);
-                return res.status(500).render("error500", {mensaje: "Error al obtener los datos de la mascota"});
-            }
-            if(results.lenght === 0){
-                return res.status(404).render("error404");
-            }
-            const pet = results[0];
-            pet.fecha_nacimiento = new Date(pet.fecha_nacimiento).toLocaleDateString('es-ES');
-            res.render("perfilMascota", {pet: pet});
-        })
-    })
+        }
+    }
 }
 
 const postEliminarMascota = (req, res) =>{
