@@ -1,8 +1,6 @@
 "use strict"; 
 
 document.addEventListener('DOMContentLoaded', function() {
-
-    console.log('JS cargado');
     
     // Seleccion de formulario
     const form = document.getElementById('editarPerfilUsuarioForm'); 
@@ -270,22 +268,6 @@ document.addEventListener('DOMContentLoaded', function() {
         let isPasswordNuevaValid     = validarPassword(PasswordInput,     ErrorPassword);
         let isPasswordConfirmarValid = validarPassword(ConfirmPasswordInput, ErrorConfirmPassword);
         let isPasswordConjuntoValid  = validarPasswordsConjunto();
-
-        console.log({
-            isNombreValid,
-            isUsuarioValid,
-            isEmailValid,
-            isTelefonoValid,
-            isFechaValid,
-            isCiudadValid,
-            isPaisValid,
-            isCodigoPostalValid,
-            isTrabajoValid,
-            isBioValid,
-            isPasswordNuevaValid,
-            isPasswordConfirmarValid,
-            isPasswordConjuntoValid
-        });
 
         if (!isNombreValid || !isUsuarioValid || !isEmailValid || !isTelefonoValid || !isFechaValid || !isCiudadValid || !isPaisValid || !isCodigoPostalValid || !isTrabajoValid || !isBioValid || !isPasswordNuevaValid || !isPasswordConfirmarValid || !isPasswordConjuntoValid) {
             event.preventDefault();

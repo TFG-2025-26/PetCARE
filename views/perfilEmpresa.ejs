@@ -59,7 +59,7 @@
 
       <!-- Acciones -->
       <div class="perfil-actions">
-        <a href="/user/perfilEmpresa/<%= usuario.id %>/editar" class="btn-perfil-edit">Editar perfil</a>
+        <a href="/user/perfilEmpresa/<%= empresa.id_empresa %>/editar" class="btn-perfil-edit">Editar perfil</a>
         <a href="/logout" class="btn-perfil-danger">Cerrar sesión</a>
       </div>
 
@@ -74,7 +74,7 @@
         <div class="perfil-section-header">
             <h2>Sobre nosotros</h2>
             <% if (esPropia) { %>
-            <a href="/user/perfilEmpresa/<%= usuario.id %>/editar" class="btn-section-add">Editar</a>
+            <a href="/user/perfilEmpresa/<%= empresa.id_empresa %>/editar" class="btn-section-add">Editar</a>
             <% } %>
         </div>
         <p class="empresa-descripcion"><%= empresa.descripcion %></p>
@@ -83,7 +83,7 @@
         <div class="perfil-section">
         <div class="perfil-section-header">
             <h2>Sobre nosotros</h2>
-            <a href="/user/perfilEmpresa/<%= usuario.id %>/editar" class="btn-section-add">Editar</a>
+            <a href="/user/perfilEmpresa/<%= empresa.id_empresa %>/editar" class="btn-section-add">Editar</a>
         </div>
         <div class="perfil-empty" style="padding: 1.5rem;">
             <span class="perfil-empty-icon">📝</span>
@@ -110,7 +110,7 @@
             <span class="perfil-empty-icon">📍</span>
             <p>Esta empresa aún no ha añadido su ubicación.</p>
             <% if (esPropia) { %>
-              <a href="/user/perfilEmpresa/<%= usuario.id %>/editar" class="btn-submit" style="display:inline-block; width:auto; padding: 0.6rem 1.5rem;">Añadir ubicación</a>
+              <a href="/user/perfilEmpresa/<%= empresa.id_empresa %>/editar" class="btn-submit" style="display:inline-block; width:auto; padding: 0.6rem 1.5rem;">Añadir ubicación</a>
             <% } %>
           </div>
         <% } %>
