@@ -177,5 +177,7 @@ router.get('/perfilUsuario/:id/editar', userController.getEditarPerfilUsuario);
 router.get('/perfilEmpresa/:id/editar', userController.getEditarPerfilEmpresa);
 router.post('/perfilUsuario/:id/editar', upload.single('foto'), validarEdicionUsuario, userController.postEditarPerfilUsuario); 
 router.post('/perfilEmpresa/:id/editar', upload.single('foto'), validarEdicionEmpresa, userController.postEditarPerfilEmpresa);
+router.get('/eliminarCuentaUsuario/:id', userController.postEliminarCuentaUsuario);
+router.get('/eliminarCuentaEmpresa/:id', userController.postEliminarCuentaEmpresa);
 
 module.exports = router; 

@@ -351,11 +351,51 @@ const postEditarPerfilEmpresa = (req, res) => {
     });
 };
 
+const postEliminarCuentaUsuario = (req, res) => {
+    const usuarioId = parseInt(req.params.id, 10);
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al obtener la conexión a la base de datos:', err);
+            return res.status(500).send('Error al obtener la conexión a la base de datos');
+        }
+        connection.query('UPDATE usuarios SET activo = 0 WHERE id_usuario = ?', [usuarioId], (err) => {
+            connection.release();
+            if (err) {
+                console.error('Error al eliminar la cuenta del usuario:', err);
+                return res.status(500).send('Error al eliminar la cuenta del usuario');
+            }
+            res.redirect('/auth/logout');
+        });
+    });
+};
+
+const postEliminarCuentaEmpresa = (req, res) => {
+    const empresaId = parseInt(req.params.id, 10);
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al obtener la conexión a la base de datos:', err);
+            return res.status(500).send('Error al obtener la conexión a la base de datos');
+        }
+        connection.query('UPDATE empresas SET activo = 0 WHERE id_empresa = ?', [empresaId], (err) => {
+            connection.release();
+            if (err) {
+                console.error('Error al eliminar la cuenta de la empresa:', err);
+                return res.status(500).send('Error al eliminar la cuenta de la empresa');
+            }
+            res.redirect('/auth/logout');
+        });
+    });
+}
+
 module.exports = {
     getPerfilUsuario,
     getPerfilEmpresa, 
     getEditarPerfilUsuario, 
     getEditarPerfilEmpresa, 
     postEditarPerfilUsuario, 
-    postEditarPerfilEmpresa
+    postEditarPerfilEmpresa, 
+    postEliminarCuentaUsuario,
+    postEliminarCuentaEmpresa
 };
