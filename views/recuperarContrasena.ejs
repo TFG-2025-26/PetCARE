@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recuperar contraseña — PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <%- include('plantillas/navbar') %>
+
+  <main class="recovery-page">
+    <div class="recovery-box">
+
+      <!-- PASO 1: Introducir correo -->
+      <div class="recovery-step" id="step-email">
+        <div class="recovery-icon">🔑</div>
+        <h1>Recuperar contraseña</h1>
+        <p class="recovery-desc">Introduce tu correo electrónico y te enviaremos un código de verificación.</p>
+        <form action="/auth/recuperar/enviar" method="POST" class="recovery-form">
+          <div class="form-group">
+            <label for="email">Correo electrónico</label>
+            <input type="email" id="email" name="email" placeholder="tu@correo.com" value="<%= typeof formEmail !== 'undefined' ? formEmail : '' %>">
+            <span id="error-email" class="error"></span>
+          </div>
+          <button type="submit" class="btn-submit">Enviar código</button>
+        </form>
+        <div class="recovery-footer">
+          <a href="/auth/login">← Volver al inicio de sesión</a>
+        </div>
+      </div>
+
+      <!-- PASO 2: Introducir código -->
+      <div class="recovery-step" id="step-codigo" style="display:none;">
+        <div class="recovery-icon">📩</div>
+        <h1>Revisa tu correo</h1>
+        <p class="recovery-desc">Hemos enviado un código de 6 dígitos a <strong id="correo-enviado"></strong>. Puede tardar unos segundos.</p>
+        <form action="/auth/recuperar/verificar" method="POST" class="recovery-form">
+          <input type="hidden" name="email" id="hidden-email">
+          <div class="form-group">
+            <label for="codigo">Código de verificación</label>
+            <input type="text" id="codigo" name="codigo" placeholder="123456" maxlength="6" class="input-codigo">
+            <span id="error-codigo" class="error"></span>
+          </div>
+          <button type="submit" class="btn-submit">Verificar código</button>
+        </form>
+        <div class="recovery-footer">
+          <a href="#" onclick="volverAlCorreo()">← Cambiar correo</a>
+        </div>
+      </div>
+
+      <!-- PASO 3: Nueva contraseña -->
+      <div class="recovery-step" id="step-password" style="display:none;">
+        <div class="recovery-icon">🔒</div>
+        <h1>Nueva contraseña</h1>
+        <p class="recovery-desc">Elige una contraseña segura para tu cuenta.</p>
+        <form action="/auth/recuperar/cambiar" method="POST" class="recovery-form">
+          <input type="hidden" name="email" id="hidden-email-password">
+          <input type="hidden" name="codigo" id="hidden-codigo">
+          <div class="form-group">
+            <label for="password_nueva">Nueva contraseña</label>
+            <input type="password" id="password_nueva" name="password_nueva" placeholder="••••••••">
+            <span id="error-password_nueva" class="error"></span>
+          </div>
+          <div class="form-group">
+            <label for="password_confirmar">Confirmar contraseña</label>
+            <input type="password" id="password_confirmar" name="password_confirmar" placeholder="••••••••">
+            <span id="error-password_confirmar" class="error"></span>
+          </div>
+          <button type="submit" class="btn-submit">Cambiar contraseña</button>
+        </form>
+      </div>
+
+    </div>
+  </main>
+
+  <% if (typeof paso !== 'undefined' && paso === 2) { %>
+    <script>
+      document.getElementById('step-email').style.display = 'none';
+      document.getElementById('step-codigo').style.display = 'block';
+      document.getElementById('correo-enviado').textContent = '<%= email %>';
+      document.getElementById('hidden-email').value = '<%= email %>';
+    </script>
+  <% } %>
+
+  <% if (typeof paso !== 'undefined' && paso === 3) { %>
+    <script>
+      document.getElementById('step-email').style.display = 'none';
+      document.getElementById('step-password').style.display = 'block';
+      document.getElementById('hidden-email-password').value = '<%= email %>';
+      document.getElementById('hidden-codigo').value = '<%= codigo %>';
+    </script>
+  <% } %>
+
+  <script>
+    function volverAlCorreo() {
+      document.getElementById('step-codigo').style.display = 'none';
+      document.getElementById('step-email').style.display = 'block';
+    }
+  </script>
+
+  <%- include('plantillas/footer') %>
+  <%- include('plantillas/modalErrores', { error: typeof error !== 'undefined' ? error : null, errores: typeof errores !== 'undefined' ? errores : [] }) %>
+
+</body>
+</html>
