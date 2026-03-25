@@ -50,7 +50,7 @@ app.get('/', (req, res) => {
 
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
-app.use('/pets', petRoutes);
+app.use('/pets', isAuthenticated, petRoutes);
 
 
 

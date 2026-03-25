@@ -11,6 +11,12 @@
     <!-- NAV -->
     <%- include('plantillas/navbar') %> 
 
+        <%
+            const textValue = (value) => (value === null || value === undefined || value === '' ? '-' : value);
+            const formatDate = (value) => (value ? new Date(value).toLocaleDateString('es-ES') : '-');
+            const formatDateTime = (value) => (value ? new Date(value).toLocaleString('es-ES') : '-');
+        %>
+
     <main class="pet-main">
         <section class="pet-profile-info">
             <div class="pet-foto">
@@ -44,50 +50,216 @@
                 <button data-seccion-cartilla="vacunas" class="boton-cartilla">Vacunas</button>
                 <button data-seccion-cartilla="tratamientos" class="boton-cartilla">Tratamientos</button>
                 <button data-seccion-cartilla="patologias" class="boton-cartilla">Patologías</button>
-                <button id="añadir_registro_cartilla">+ Añadir registro</button>
+                <button id="añadir-registro-cartilla">+ Añadir registro</button>
             </div>
 
             <div class="cartilla-contenido">
                 <div class="seccion-cartilla activa" id="citas">
                     <button class="acordeon-titulo">Citas</button>
                     <div class="acordeon-contenido">
-                        <ul>
-                            <li>28/03/2025 — Revisión anual — Dra. García</li>
-                            <li>10/01/2025 — Desparasitación — Dr. Martínez</li>
-                            <li>15/09/2024 — Otitis leve — Dra. García</li>
-                        </ul>
+                        <% if (citas && citas.length > 0) { %>
+                            <div class="js-desktop-view">
+                                <table>
+                                    <colgroup>
+                                        <col style="width: 20%">
+                                        <col style="width: 30%">
+                                        <col style="width: 20%">
+                                        <col style="width: 30%">
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th>Clinica</th>
+                                            <th>Observaciones</th>
+                                            <th>Fecha y hora</th>
+                                            <th>Diagnóstico</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% citas.forEach((cita) => { %>
+                                            <tr>
+                                                <td><%= textValue(cita.clinica) %></td>
+                                                <td><%= textValue(cita.observaciones) %></td>
+                                                <td><%= formatDateTime(cita.fecha) %></td>
+                                                <td><%= textValue(cita.diagnostico) %></td>
+                                            </tr>
+                                        <% }) %>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="js-mobile-view" hidden>
+                                <% citas.forEach((cita) => { %>
+                                    <div>
+                                        <p><strong>Clinica:</strong> <%= textValue(cita.clinica) %></p>
+                                        <p><strong>Observaciones:</strong> <%= textValue(cita.observaciones) %></p>
+                                        <p><strong>Fecha y hora:</strong> <%= formatDateTime(cita.fecha) %></p>
+                                        <p><strong>Diagnóstico:</strong> <%= textValue(cita.diagnostico) %></p>
+                                        <hr>
+                                    </div>
+                                <% }) %>
+                            </div>
+                        <% } else { %>
+                            <p class="cartilla-vacia">No hay citas registradas.</p>
+                        <% } %>
                     </div>
                 </div>
                 <div class="seccion-cartilla" id="vacunas">
                     <button class="acordeon-titulo">Vacunas</button>
                     <div class="acordeon-contenido">
-                        <ul>
-                            <li>Polivalente — 12/03/2024 — Próxima: 12/03/2025</li>
-                            <li>Rabia — 05/01/2024 — Próxima: 05/01/2025</li>
-                            <li>Leishmaniosis — 20/06/2023 — Próxima: 20/06/2024</li>
-                        </ul>
+                        <% if (vacunas && vacunas.length > 0) { %>
+                            <div class="js-desktop-view">
+                                <table>
+                                    <colgroup>
+                                        <col style="width: 25%">
+                                        <col style="width: 25%">
+                                        <col style="width: 50%">
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Fecha de administración</th>
+                                            <th>Observaciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% vacunas.forEach((vacuna) => { %>
+                                            <tr>
+                                                <td><%= textValue(vacuna.nombre) %></td>
+                                                <td><%= formatDate(vacuna.fecha_administracion) %></td>
+                                                <td><%= textValue(vacuna.observaciones) %></td>
+                                            </tr>
+                                        <% }) %>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="js-mobile-view" hidden>
+                                <% vacunas.forEach((vacuna) => { %>
+                                    <div>
+                                        <p><strong>Nombre:</strong> <%= textValue(vacuna.nombre) %></p>
+                                        <p><strong>Fecha de administración:</strong> <%= formatDate(vacuna.fecha_administracion) %></p>
+                                        <p><strong>Observaciones:</strong> <%= textValue(vacuna.observaciones) %></p>
+                                        <hr>
+                                    </div>
+                                <% }) %>
+                            </div>
+                        <% } else { %>
+                            <p class="cartilla-vacia">No hay vacunas registradas.</p>
+                        <% } %>
                     </div>
                 </div>
                 <div class="seccion-cartilla" id="tratamientos">
                     <button class="acordeon-titulo">Tratamientos</button>
                     <div class="acordeon-contenido">
-                        <ul>
-                            <li>Nexgard — 1 comprimido al mes — Activo</li>
-                            <li>Otomax gotas — 5 gotas cada 12h — Finalizado</li>
-                        </ul>
+                        <% if (tratamientos && tratamientos.length > 0) { %>
+                            <div class="js-desktop-view">
+                                <table>
+                                    <colgroup>
+                                        <col style="width: 20%">
+                                        <col style="width: 10%">
+                                        <col style="width: 15%">
+                                        <col style="width: 15%">
+                                        <col style="width: 15%">
+                                        <col style="width: 25%">
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th>Medicamento</th>
+                                            <th>Dosis</th>
+                                            <th>Frecuencia</th>
+                                            <th>Fecha de inicio</th>
+                                            <th>Fecha de fin</th>
+                                            <th>Observaciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% tratamientos.forEach((tratamiento) => { %>
+                                            <tr>
+                                                <td><%= textValue(tratamiento.medicamento) %></td>
+                                                <td><%= textValue(tratamiento.dosis) %></td>
+                                                <td><%= textValue(tratamiento.frecuencia) %></td>
+                                                <td><%= formatDateTime(tratamiento.fecha_inicio) %></td>
+                                                <td><%= formatDateTime(tratamiento.fecha_fin) %></td>
+                                                <td><%= textValue(tratamiento.observaciones) %></td>
+                                            </tr>
+                                        <% }) %>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="js-mobile-view" hidden>
+                                <% tratamientos.forEach((tratamiento) => { %>
+                                    <div>
+                                        <p><strong>Medicamento:</strong> <%= textValue(tratamiento.medicamento) %></p>
+                                        <p><strong>Dosis:</strong> <%= textValue(tratamiento.dosis) %></p>
+                                        <p><strong>Frecuencia:</strong> <%= textValue(tratamiento.frecuencia) %></p>
+                                        <p><strong>Fecha de inicio:</strong> <%= formatDateTime(tratamiento.fecha_inicio) %></p>
+                                        <p><strong>Fecha de fin:</strong> <%= formatDateTime(tratamiento.fecha_fin) %></p>
+                                        <p><strong>Observaciones:</strong> <%= textValue(tratamiento.observaciones) %></p>
+                                        <hr>
+                                    </div>
+                                <% }) %>
+                            </div>
+                        <% } else { %>
+                            <p class="cartilla-vacia">No hay tratamientos registrados.</p>
+                        <% } %>
                     </div>
                 </div>
                 <div class="seccion-cartilla" id="patologias">
                     <button class="acordeon-titulo">Patologías</button>
                     <div class="acordeon-contenido">
-                        <ul>
-                            <li>Displasia de cadera leve — Crónica — Desde 03/2022</li>
-                            <li>Alergia alimentaria — Controlada — Desde 07/2023</li>
-                        </ul>
+                        <% if (condiciones && condiciones.length > 0) { %>
+                            <div class="js-desktop-view">
+                                <table>
+                                    <colgroup>
+                                        <col style="width: 20%">
+                                        <col style="width: 15%">
+                                        <col style="width: 20%">
+                                        <col style="width: 30%">
+                                        <col style="width: 15%">
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Tipo</th>
+                                            <th>Fecha de diagnóstico</th>
+                                            <th>Descripción</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% condiciones.forEach((condicion) => { %>
+                                            <tr>
+                                                <td><%= textValue(condicion.nombre) %></td>
+                                                <td><%= textValue(condicion.tipo) %></td>
+                                                <td><%= formatDate(condicion.fecha_diagnostico) %></td>
+                                                <td><%= textValue(condicion.descripcion) %></td>
+                                                <td><%= textValue(condicion.estado) %></td>
+                                            </tr>
+                                        <% }) %>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="js-mobile-view" hidden>
+                                <% condiciones.forEach((condicion) => { %>
+                                    <div>
+                                        <p><strong>Nombre:</strong> <%= textValue(condicion.nombre) %></p>
+                                        <p><strong>Tipo:</strong> <%= textValue(condicion.tipo) %></p>
+                                        <p><strong>Fecha de diagnóstico:</strong> <%= formatDate(condicion.fecha_diagnostico) %></p>
+                                        <p><strong>Descripción:</strong> <%= textValue(condicion.descripcion) %></p>
+                                        <p><strong>Estado:</strong> <%= textValue(condicion.estado) %></p>
+                                        <hr>
+                                    </div>
+                                <% }) %>
+                            </div>
+                        <% } else { %>
+                            <p class="cartilla-vacia">No hay patologías registradas.</p>
+                        <% } %>
                     </div>
                 </div>
             </div>
-            <div class="añadir_registro_movil">
+            <div class="añadir_registro_movil" hidden>
                 <button id="añadir_registro_cartilla_movil">+ Añadir registro</button>
             </div>
         </section>
