@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Foros — PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+    <%- include('plantillas/navbar') %>
+
+    <main class="foros-page">
+
+    <!-- CABECERA -->
+    <div class="foros-header">
+      <div>
+        <h1>Foros</h1>
+        <p class="foros-subtitle">Comparte experiencias y resuelve dudas con la comunidad</p>
+      </div>
+      <% if (typeof usuario !== 'undefined' && usuario) { %>
+        <a href="/content/crearForo" class="btn-large">+ Nuevo foro</a>
+      <% } %>
+    </div>
+
+    <!-- FILTROS -->
+    <form action="/content/foros/filtrar" method="GET" class="foros-filtros">
+      <div class="filtro-group">
+        <label for="categoria">Categoría</label>
+        <select id="categoria" name="categoria">
+          <option value="">Todas</option>
+          <option value="salud"       <%= typeof filtros !== 'undefined' && filtros.categoria === 'salud'       ? 'selected' : '' %>>Salud y veterinaria</option>
+          <option value="alimentacion" <%= typeof filtros !== 'undefined' && filtros.categoria === 'alimentacion' ? 'selected' : '' %>>Alimentación</option>
+          <option value="adopcion"    <%= typeof filtros !== 'undefined' && filtros.categoria === 'adopcion'    ? 'selected' : '' %>>Adopción</option>
+          <option value="educacion"   <%= typeof filtros !== 'undefined' && filtros.categoria === 'educacion'   ? 'selected' : '' %>>Educación y comportamiento</option>
+          <option value="accesorios"  <%= typeof filtros !== 'undefined' && filtros.categoria === 'accesorios'  ? 'selected' : '' %>>Accesorios y productos</option>
+          <option value="general"     <%= typeof filtros !== 'undefined' && filtros.categoria === 'general'     ? 'selected' : '' %>>General</option>
+        </select>
+      </div>
+      <div class="filtro-group filtro-keyword">
+        <label for="keyword">Palabra clave</label>
+        <input type="text" id="keyword" name="keyword" placeholder="Buscar en foros..." value="<%= typeof filtros !== 'undefined' && filtros.keyword ? filtros.keyword : '' %>">
+      </div>
+      <button type="submit" class="btn-filtro">Buscar</button>
+      <a href="/content/foros" class="btn-filtro-reset">Limpiar</a>
+    </form>
+
+    <!-- RESULTADOS -->
+    <% if (typeof foros !== 'undefined' && foros.length > 0) { %>
+
+      <div class="foros-info">
+        <span><%= total %> resultado<%= total !== 1 ? 's' : '' %></span>
+      </div>
+
+      <div class="foros-list">
+        <% foros.forEach(function(foro) { %>
+          <div class="foro-card" onclick="abrirForo(<%= foro.id_foro %>)">
+            <div class="foro-card-left">
+              <span class="foro-categoria"><%= foro.categoría %></span>
+              <h2 class="foro-titulo"><%= foro.titulo %></h2>
+              <p class="foro-desc"><%= foro.descripcion %></p>
+            </div>
+            <div class="foro-card-right">
+              <div class="foro-meta">
+                <span class="foro-autor">@<%= foro.nombre_usuario %></span>
+                <span class="foro-fecha"><%= new Date(foro.fecha_creacion).toLocaleDateString('es-ES') %></span>
+              </div>
+              <div class="foro-stats">
+                <span class="foro-stat">💬 <%= foro.num_respuestas || 0 %></span>
+                <span class="foro-stat">👁 <%= foro.num_visitas || 0 %></span>
+              </div>
+            </div>
+        </div>
+        <% }) %>
+      </div>
+
+      <!-- PAGINACIÓN -->
+      <% if (totalPaginas > 1) { %>
+        <nav class="foros-paginacion">
+          <% if (paginaActual > 1) { %>
+            <a href="/content/foros?pagina=<%= paginaActual - 1 %>&categoria=<%= typeof filtros !== 'undefined' ? filtros.categoria || '' : '' %>&keyword=<%= typeof filtros !== 'undefined' ? filtros.keyword || '' : '' %>" class="pag-btn">←</a>
+          <% } %>
+
+          <% for (let i = 1; i <= totalPaginas; i++) { %>
+            <% if (i === 1 || i === totalPaginas || (i >= paginaActual - 2 && i <= paginaActual + 2)) { %>
+              <a href="/content/foros?pagina=<%= i %>&categoria=<%= typeof filtros !== 'undefined' ? filtros.categoria || '' : '' %>&keyword=<%= typeof filtros !== 'undefined' ? filtros.keyword || '' : '' %>"
+                class="pag-btn <%= i === paginaActual ? 'pag-active' : '' %>"><%= i %></a>
+            <% } else if (i === paginaActual - 3 || i === paginaActual + 3) { %>
+              <span class="pag-dots">…</span>
+            <% } %>
+          <% } %>
+
+          <% if (paginaActual < totalPaginas) { %>
+            <a href="/content/foros?pagina=<%= paginaActual + 1 %>&categoria=<%= typeof filtros !== 'undefined' ? filtros.categoria || '' : '' %>&keyword=<%= typeof filtros !== 'undefined' ? filtros.keyword || '' : '' %>" class="pag-btn">→</a>
+          <% } %>
+        </nav>
+      <% } %>
+
+    <% } else { %>
+      <div class="foros-empty">
+        <span class="foros-empty-icon">💬</span>
+        <p>No se encontraron foros con esos criterios.</p>
+        <a href="/content/foros" class="btn-outline-large">Ver todos los foros</a>
+      </div>
+    <% } %>
+
+    </main>
+
+    <!-- Modal foro -->
+    <div id="modalForo" style="display:none;">
+        <div id="modalForo-contenido">
+        </div>
+    </div>
+  <%- include('plantillas/modalErrores', { error: typeof error !== 'undefined' ? error : null, errores: typeof errores !== 'undefined' ? errores : [] }) %>
+
+  <script>
+    async function abrirForo(id) {
+        const response = await fetch('/content/foros/' + id);
+        const html = await response.text();
+        document.getElementById('modalForo-contenido').innerHTML = html;
+        document.getElementById('modalForo').style.display = 'flex';
+    }
+
+    document.getElementById('modalForo').addEventListener('click', function(e) {
+        if (e.target === this) this.style.display = 'none';
+    });
+  </script>
+</body>
+</html>
