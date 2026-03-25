@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 19-03-2026 a las 13:20:40
+-- Tiempo de generación: 25-03-2026 a las 01:18:05
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -401,6 +401,7 @@ ALTER TABLE `comentarios`
 -- Indices de la tabla `condicion_medica`
 --
 ALTER TABLE `condicion_medica`
+  ADD PRIMARY KEY (`id_condicion`),
   ADD KEY `id_cartilla` (`id_cartilla`);
 
 --
@@ -540,6 +541,12 @@ ALTER TABLE `cita_veterinaria`
 --
 ALTER TABLE `comentarios`
   MODIFY `id_comentario` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `condicion_medica`
+--
+ALTER TABLE `condicion_medica`
+  MODIFY `id_condicion` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `disponibilidad`
