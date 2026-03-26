@@ -57,7 +57,8 @@
 
         <section class="pet-clinic">
             <div class="cartilla-nav">
-                <button data-seccion-cartilla="citas" class="boton-cartilla activa">Citas</button>
+                <button data-seccion-cartilla="todos" class="boton-cartilla activa">Todos</button>
+                <button data-seccion-cartilla="citas" class="boton-cartilla">Citas</button>
                 <button data-seccion-cartilla="vacunas" class="boton-cartilla">Vacunas</button>
                 <button data-seccion-cartilla="tratamientos" class="boton-cartilla">Tratamientos</button>
                 <button data-seccion-cartilla="patologias" class="boton-cartilla">Patologías</button>
@@ -70,6 +71,7 @@
                     <div class="acordeon-contenido">
                         <% if (citas && citas.length > 0) { %>
                             <div class="js-desktop-view">
+                                <h3 class="titulo-tabla-cartilla">Citas</h3>
                                 <table>
                                     <colgroup>
                                         <col style="width: 16%">
@@ -141,11 +143,12 @@
                         <% } %>
                     </div>
                 </div>
-                <div class="seccion-cartilla" id="vacunas">
+                <div class="seccion-cartilla activa" id="vacunas">
                     <button class="acordeon-titulo">Vacunas</button>
                     <div class="acordeon-contenido">
                         <% if (vacunas && vacunas.length > 0) { %>
                             <div class="js-desktop-view">
+                                <h3 class="titulo-tabla-cartilla">Vacunas</h3>
                                 <table>
                                     <colgroup>
                                         <col style="width: 20%">
@@ -213,11 +216,12 @@
                         <% } %>
                     </div>
                 </div>
-                <div class="seccion-cartilla" id="tratamientos">
+                <div class="seccion-cartilla activa" id="tratamientos">
                     <button class="acordeon-titulo">Tratamientos</button>
                     <div class="acordeon-contenido">
                         <% if (tratamientos && tratamientos.length > 0) { %>
                             <div class="js-desktop-view">
+                                <h3 class="titulo-tabla-cartilla">Tratamientos</h3>
                                 <table>
                                     <colgroup>
                                         <col style="width: 18%">
@@ -297,11 +301,12 @@
                         <% } %>
                     </div>
                 </div>
-                <div class="seccion-cartilla" id="patologias">
+                <div class="seccion-cartilla activa" id="patologias">
                     <button class="acordeon-titulo">Patologías</button>
                     <div class="acordeon-contenido">
                         <% if (condiciones && condiciones.length > 0) { %>
                             <div class="js-desktop-view">
+                                <h3 class="titulo-tabla-cartilla">Patologías</h3>
                                 <table>
                                     <colgroup>
                                         <col style="width: 16%">
