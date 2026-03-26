@@ -43,21 +43,27 @@ app.locals.db = db;
 const authRoutes = require('./routes/authRouter');
 const userRoutes = require('./routes/userRouter');
 const petRoutes = require('./routes/petRouter');
+const contentRoutes = require('./routes/contentRouter');
 
 app.get('/', (req, res) => {
     res.render('inicio');
 });
 
+app.get('/servicios', (req, res) => {
+    res.render('servicios');
+});
+
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
 app.use('/pets', isAuthenticated, petRoutes);
-
-
+app.use('/content', isAuthenticated, contentRoutes);
 
 // Manejo de errores
 app.use((req, res) => {
     res.status(404).render('error404');
 });
+
+// TODO: Me gustaría añadir aquí el error 400 y 403
 
 app.use((err, req, res, next) => {
     console.error(err.stack);

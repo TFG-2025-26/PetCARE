@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Servicios — PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <%- include('plantillas/navbar') %>
+
+  <main class="servicios-page">
+    <div class="servicios-escena">
+
+      <!-- Burbuja central -->
+      <div class="burbuja burbuja-central">
+        <span class="burbuja-icon">🐾</span>
+        <span class="burbuja-label">Mis<br>Animales</span>
+      </div>
+
+      <!-- Burbujas satélite -->
+      <a href="/veterinarios" class="burbuja burbuja-satelite" style="--angulo: 0deg;">
+        <span class="burbuja-icon">🩺</span>
+        <span class="burbuja-label">Veterinarios</span>
+      </a>
+
+      <a href="/hoteles" class="burbuja burbuja-satelite" style="--angulo: 51.4deg;">
+        <span class="burbuja-icon">🏨</span>
+        <span class="burbuja-label">Hoteles</span>
+      </a>
+
+      <a href="/entrenadores" class="burbuja burbuja-satelite" style="--angulo: 102.8deg;">
+        <span class="burbuja-icon">🎾</span>
+        <span class="burbuja-label">Entrenadores</span>
+      </a>
+
+      <a href="/articulos" class="burbuja burbuja-satelite" style="--angulo: 154.2deg;">
+        <span class="burbuja-icon">📦</span>
+        <span class="burbuja-label">Artículos</span>
+      </a>
+
+      <a href="/content/foros" class="burbuja burbuja-satelite" style="--angulo: 205.7deg;">
+        <span class="burbuja-icon">💬</span>
+        <span class="burbuja-label">Foros</span>
+      </a>
+
+      <a href="/transporte" class="burbuja burbuja-satelite" style="--angulo: 257.1deg;">
+        <span class="burbuja-icon">🚗</span>
+        <span class="burbuja-label">Transporte</span>
+      </a>
+
+      <a href="/cuidadores" class="burbuja burbuja-satelite" style="--angulo: 308.5deg;">
+        <span class="burbuja-icon">🤝</span>
+        <span class="burbuja-label">Cuidadores</span>
+      </a>
+
+    </div>
+
+  
+  </main>
+  <%- include('plantillas/footer') %>
+
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .servicios-page {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .servicios-escena {
+      position: relative;
+      width: 600px;
+      height: 600px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    /* ── LÍNEAS SVG ── */
+    .servicios-lineas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .linea-satelite {
+      stroke: var(--warm);
+      stroke-width: 2;
+      stroke-dasharray: 5 5;
+    }
+
+    /* ── BURBUJAS ── */
+    .burbuja {
+      position: absolute;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
+      text-decoration: none;
+      cursor: pointer;
+      z-index: 1;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
+      user-select: none;
+    }
+
+    .burbuja-icon {
+      font-size: 1.6rem;
+      line-height: 1;
+    }
+
+    .burbuja-label {
+      font-family: 'Fraunces', serif;
+      font-weight: 600;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    /* ── BURBUJA CENTRAL ── */
+    .burbuja-central {
+      width: 150px;
+      height: 150px;
+      background: var(--brown);
+      box-shadow: 0 8px 32px rgba(61,43,31,0.25);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: pulso 3s ease-in-out infinite;
+    }
+
+    .burbuja-central .burbuja-icon { font-size: 2rem; }
+
+    .burbuja-central .burbuja-label {
+      color: #fff;
+      font-size: 1rem;
+    }
+
+    /* ── BURBUJAS SATÉLITE ── */
+    .burbuja-satelite {
+      width: 100px;
+      height: 100px;
+      background: #fff;
+      border: 2px solid var(--warm);
+      box-shadow: 0 4px 16px rgba(61,43,31,0.08);
+      /* Posición con CSS custom property --angulo */
+      top: calc(50% + sin(var(--angulo)) * -190px - 50px);
+      left: calc(50% + cos(var(--angulo)) * -190px - 50px);
+      animation: aparecer 0.5s ease both;
+    }
+
+    /* Stagger de aparición */
+    .burbuja-satelite:nth-child(2) { animation-delay: 0.05s; }
+    .burbuja-satelite:nth-child(3) { animation-delay: 0.10s; }
+    .burbuja-satelite:nth-child(4) { animation-delay: 0.15s; }
+    .burbuja-satelite:nth-child(5) { animation-delay: 0.20s; }
+    .burbuja-satelite:nth-child(6) { animation-delay: 0.25s; }
+    .burbuja-satelite:nth-child(7) { animation-delay: 0.30s; }
+    .burbuja-satelite:nth-child(8) { animation-delay: 0.35s; }
+
+    .burbuja-satelite .burbuja-label {
+      color: var(--brown);
+      font-size: 0.72rem;
+    }
+
+    .burbuja-satelite:hover {
+      transform: scale(1.12);
+      border-color: var(--amber);
+      box-shadow: 0 8px 28px rgba(200,135,58,0.25);
+    }
+
+    /* ── ANIMACIONES ── */
+    @keyframes pulso {
+      0%, 100% { box-shadow: 0 8px 32px rgba(61,43,31,0.25); }
+      50%       { box-shadow: 0 8px 48px rgba(61,43,31,0.4), 0 0 0 12px rgba(61,43,31,0.06); }
+    }
+
+    @keyframes aparecer {
+      from { opacity: 0; transform: scale(0.5); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      .servicios-escena { width: 360px; height: 360px; }
+      .burbuja-central  { width: 100px; height: 100px; }
+      .burbuja-central .burbuja-icon { font-size: 1.4rem; }
+      .burbuja-central .burbuja-label { font-size: 0.75rem; }
+      .burbuja-satelite {
+        width: 72px; height: 72px;
+        top: calc(50% + sin(var(--angulo)) * -120px - 36px);
+        left: calc(50% + cos(var(--angulo)) * -120px - 36px);
+      }
+      .burbuja-satelite .burbuja-icon { font-size: 1.1rem; }
+      .burbuja-satelite .burbuja-label { font-size: 0.6rem; }
+    }
+  </style>
+
+  <script>
+    // Posicionamiento preciso con JS para máxima compatibilidad
+    const radio = window.innerWidth <= 640 ? 120 : 190;
+    const satelites = document.querySelectorAll('.burbuja-satelite');
+    const escena = document.querySelector('.servicios-escena');
+    const cx = escena.offsetWidth / 2;
+    const cy = escena.offsetHeight / 2;
+
+    satelites.forEach((burbuja, i) => {
+      const angulo = (i * (360 / satelites.length) - 90) * (Math.PI / 180);
+      const x = cx + Math.cos(angulo) * radio;
+      const y = cy + Math.sin(angulo) * radio;
+      const size = window.innerWidth <= 640 ? 72 : 100;
+      burbuja.style.left = (x - size / 2) + 'px';
+      burbuja.style.top  = (y - size / 2) + 'px';
+    });
+  </script>
+
+</body>
+</html>
