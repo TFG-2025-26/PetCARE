@@ -117,10 +117,10 @@
               <div class="mascota-card">
                 <div class="mascota-emoji"><%= mascota.emoji || '🐾' %></div>
                 <div class="mascota-info">
-                  <span class="mascota-nombre"><%= mascota.nombre %></span>
+                  <span class="mascota-nombre"><%= mascota.mascota_nombre %></span>
                   <span class="mascota-raza"><%= mascota.raza %></span>
                 </div>
-                <a href="/mascotas/<%= mascota.id %>" class="mascota-arrow">→</a>
+                <a href="/pets/profile/<%= mascota.id_mascota %>" class="mascota-arrow">→</a>
               </div>
             <% }) %>
           </div>

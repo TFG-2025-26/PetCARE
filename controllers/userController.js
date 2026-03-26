@@ -13,21 +13,30 @@ const getPerfilUsuario = (req, res) => {
 
         const usuarioId = parseInt(req.params.id, 10); 
         connection.query('SELECT * FROM usuarios WHERE id_usuario = ?', [usuarioId], (err, results) => {
-            connection.release(); 
+            
 
             if (err) { // Comprobar errores de consulta
+                connection.release(); 
                 console.error('Error al ejecutar la consulta:', err); 
                 return res.status(500).send('Error al recuperar los datos del usuario'); 
             }
 
             if (results.length === 0) { // Comprobar si el usuario existe
+                connection.release(); 
                 return res.status(404).send('Usuario no encontrado'); 
             } else if (results[0].activo === 0) { // Comprobar si el usuario está activo
+                connection.release(); 
                 return res.status(403).send('Cuenta de usuario inactiva');
             }
 
-            // TODO: Falta recoger bien las mascotas 
-            res.render('perfilUsuario', { usuario: results[0], mascotas: [] });
+            connection.query('SELECT * FROM mascotas WHERE id_usuario = ?', [usuarioId], (err, mascotas) => {
+                connection.release(); 
+                if (err) {
+                    console.error('Error al recuperar las mascotas del usuario:', err);
+                    return res.status(500).send('Error al recuperar las mascotas del usuario');
+                }
+                res.render('perfilUsuario', { usuario: results[0], mascotas: mascotas });
+            }); 
         })
     })
 };
