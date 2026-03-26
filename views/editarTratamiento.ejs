@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Tratamiento - PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="full-height-layout">
+    <!-- NAV -->
+    <%- include('plantillas/navbar') %>
+
+    <main>
+        <div class="editar-tratamiento-container">
+        <h2>Editar Tratamiento</h2>
+            <form action="/pets/cartilla/editar-tratamiento" method="POST" id="tratamientoEditForm">
+                <div class="form-grid-editar-tratamiento">
+                    <input type="hidden" name="id_tratamiento" value="<%= tratamiento ? tratamiento['id_tratamiento'] : '' %>">
+                    <div class="form-group form-group-medicamento">
+                        <label for="medicamento">Medicamento</label>
+                        <input type="text" id="medicamento" name="medicamento" value="<%= tratamiento ? tratamiento['medicamento'] : '' %>">
+                        <span id="error-medicamento" class="error"></span>
+                    </div>
+                    <div class="form-group form-group-dosis">
+                        <label for="dosis">Dosis</label>
+                        <input type="text" id="dosis" name="dosis" value="<%= tratamiento ? tratamiento['dosis'] : '' %>">
+                        <span id="error-dosis" class="error"></span>
+                    </div>
+                    <div class="form-group form-group-frecuencia">
+                        <label for="frecuencia">Frecuencia</label>
+                        <input type="text" id="frecuencia" name="frecuencia" value="<%= tratamiento ? tratamiento['frecuencia'] : '' %>">
+                        <span id="error-frecuencia" class="error"></span>
+                    </div>
+                    <div class="form-group form-group-fecha-inicio">
+                        <label for="fecha_inicio">Fecha de inicio</label>
+                        <input type="datetime-local" id="fecha_inicio" name="fecha_inicio" value="<%= tratamiento ? tratamiento['fecha_inicio'] : '' %>">
+                        <span id="error-fecha_inicio" class="error"></span>
+                    </div>
+                    <div class="form-group form-group-fecha-fin">
+                        <label for="fecha_fin">Fecha de fin</label>
+                        <input type="datetime-local" id="fecha_fin" name="fecha_fin" value="<%= tratamiento ? tratamiento['fecha_fin'] : '' %>">
+                        <span id="error-fecha_fin" class="error"></span>
+                    </div>
+                    <div class="form-group form-group-observaciones-tratamiento">
+                        <label for="observaciones_tratamiento">Observaciones</label>
+                        <textarea id="observaciones_tratamiento" name="observaciones_tratamiento"><%= tratamiento ? tratamiento['observaciones'] : '' %></textarea>
+                        <span id="error-observaciones_tratamiento" class="error"></span>
+                    </div>
+                    <button type="submit" class="btn-editar-tratamiento">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <%- include ('plantillas/modalErrores.ejs')%>
+
+    <%- include('plantillas/footer') %>
+
+    <script src="/js/validarTratamiento.js"></script>
+
+</body>
+</html>
