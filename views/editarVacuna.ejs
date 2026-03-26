@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Vacuna - PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="full-height-layout">
+    <!-- NAV -->
+    <%- include('plantillas/navbar') %> 
+
+    <main>
+        <div class="editar-vacuna-container">
+        <h2>Editar Vacuna</h2>
+            <form action="/pets/cartilla/editar-vacuna" method="POST" id="vacunaEditForm">
+                   <div class="form-grid-editar-vacuna">
+                        <input type="hidden" name="id_vacuna" value="<%= vacuna ? vacuna['id_vacuna'] : '' %>">
+                        <div class="form-group form-group-nombre-vacuna">
+                           <label for="nombre_vacuna">Nombre de la vacuna</label>
+                           <input type="text" id="nombre_vacuna" name="nombre_vacuna" value="<%= vacuna ? vacuna['nombre'] : '' %>">
+                           <span id="error-nombre_vacuna" class="error"></span>
+                        </div>
+                        <div class="form-group form-group-fecha-administracion">
+                           <label for="fecha_administracion">Fecha de administración</label>
+                           <input type="date" id="fecha_administracion" name="fecha_administracion" value="<%= vacuna ? vacuna['fecha_administracion'] : '' %>">
+                           <span id="error-fecha_administracion" class="error"></span>
+                        </div>
+                        <div class="form-group form-group-observaciones-vacuna">
+                           <label for="observaciones_vacuna">Observaciones</label>
+                           <textarea id="observaciones_vacuna" name="observaciones_vacuna"><%= vacuna ? vacuna['observaciones'] : '' %></textarea>
+                           <span id="error-observaciones_vacuna" class="error"></span>
+                        </div>
+                        <button type="submit" class="btn-editar-vacuna">Guardar Cambios</button>
+                    </div>
+            </form>
+        </div>
+    </main>
+
+    <%- include ('plantillas/modalErrores.ejs')%>
+
+    <%- include('plantillas/footer') %>
+
+    <script src="/js/validarVacuna.js"></script>
+
+</body>
+</html>

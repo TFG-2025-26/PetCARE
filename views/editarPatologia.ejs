@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Patología - PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="full-height-layout">
+    <!-- NAV -->
+    <%- include('plantillas/navbar') %>
+
+    <main>
+        <div class="editar-patologia-container">
+            <h2>Editar Patología</h2>
+            <form action="/pets/cartilla/editar-patologia" method="POST" id="patologiaEditForm">
+                <div class="form-grid-editar-patologia">
+                    <input type="hidden" name="id_condicion" value="<%= patologia ? patologia['id_condicion'] : '' %>">
+
+                    <div class="form-group form-group-nombre-patologia">
+                        <label for="nombre">Nombre</label>
+                        <input type="text" id="nombre" name="nombre" value="<%= patologia ? patologia['nombre'] : '' %>">
+                        <span id="error-nombre" class="error"></span>
+                    </div>
+
+                    <div class="form-group form-group-tipo-patologia">
+                        <label for="tipo">Tipo</label>
+                        <select id="tipo" name="tipo">
+                            <option value="enfermedad" <%= patologia && patologia['tipo'] === 'enfermedad' ? 'selected' : '' %>>Enfermedad</option>
+                            <option value="alergia"    <%= patologia && patologia['tipo'] === 'alergia'    ? 'selected' : '' %>>Alergia</option>
+                            <option value="condicion"  <%= patologia && patologia['tipo'] === 'condicion'  ? 'selected' : '' %>>Condición</option>
+                        </select>
+                        <span id="error-tipo" class="error"></span>
+                    </div>
+
+                    <div class="form-group form-group-estado-patologia">
+                        <label for="estado">Estado</label>
+                        <select id="estado" name="estado">
+                            <option value="activa"   <%= patologia && patologia['estado'] === 'activa'   ? 'selected' : '' %>>Activa</option>
+                            <option value="superada" <%= patologia && patologia['estado'] === 'superada' ? 'selected' : '' %>>Superada</option>
+                        </select>
+                        <span id="error-estado" class="error"></span>
+                    </div>
+
+                    <div class="form-group form-group-fecha-diagnostico">
+                        <label for="fecha_diagnostico">Fecha de diagnóstico</label>
+                        <input type="date" id="fecha_diagnostico" name="fecha_diagnostico" value="<%= patologia ? patologia['fecha_diagnostico'] : '' %>">
+                        <span id="error-fecha_diagnostico" class="error"></span>
+                    </div>
+
+                    <div class="form-group form-group-descripcion-patologia">
+                        <label for="descripcion">Descripción</label>
+                        <textarea id="descripcion" name="descripcion"><%= patologia ? patologia['descripcion'] : '' %></textarea>
+                        <span id="error-descripcion" class="error"></span>
+                    </div>
+
+                    <button type="submit" class="btn-editar-patologia">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <%- include('plantillas/modalErrores.ejs') %>
+
+    <%- include('plantillas/footer') %>
+
+    <script src="/js/validarPatologia.js"></script>
+
+</body>
+</html>

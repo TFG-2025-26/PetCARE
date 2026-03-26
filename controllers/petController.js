@@ -45,12 +45,24 @@ const postRegisterPet = (req, res) => {
             }
             const query = "INSERT INTO mascotas (nombre_mascota, fecha_nacimiento, especie, raza, peso, foto, id_usuario) VALUES (?, ?, ?, ?, ?, ?, ?)";
             connection.query(query, [petName, petBirthday, petSpecies, petBreed, petWeight, imagen, id], (err, results) => {
-                connection.release();
                 if (err) {
+                    connection.release();
                     console.error("Error al ejecutar la consulta:", err);
                     return res.status(500).render('error500', { mensaje: "Error al registrar la mascota" });
                 }
-                res.redirect("/pets/mypets");
+
+                const idMascota = results.insertId;
+                const cartillaQuery = "INSERT INTO cartilla_medica (id_mascota) VALUES (?)";
+
+                connection.query(cartillaQuery, [idMascota], (err) => {
+                    connection.release();
+                    if (err) {
+                        console.error("Error al crear la cartilla médica:", err);
+                        return res.status(500).render('error500', { mensaje: "Error al crear la cartilla médica" });
+                    }
+
+                    return res.redirect("/pets/mypets");
+                });
             });
         });
     }
@@ -183,6 +195,250 @@ const postEliminarMascota = (req, res) =>{
     });
 }
 
+const getAddRegistroCartilla = (req, res) => {
+    const id_cartilla = req.params.id_cartilla || null;
+    res.render("addRegistro", { id_cartilla });
+}
+
+const postAddCita = (req, res) => {
+    const errores = validationResult(req);
+    const { id_cartilla, clinica, fecha, observaciones, diagnostico } = req.body;
+
+    if (!errores.isEmpty()) {
+        return res.status(400).render("addRegistro", {
+            id_cartilla,
+            errores: errores.array(),
+            error: "Por favor, corrige los errores en el formulario."
+        });
+    }
+
+    if (!id_cartilla) {
+        return res.status(400).render("addRegistro", {
+            id_cartilla: null,
+            errores: [{ msg: "No se ha recibido la cartilla médica." }],
+            error: "Por favor, corrige los errores en el formulario."
+        });
+    }
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error("Error al conectar a la base de datos:", err);
+            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+        }
+
+        connection.query(
+            "INSERT INTO cita_veterinaria (clinica, observaciones, fecha, diagnostico, id_cartilla) VALUES (?, ?, ?, ?, ?)",
+            [clinica, observaciones || null, fecha, diagnostico || null, id_cartilla],
+            (err) => {
+                if (err) {
+                    connection.release();
+                    console.error("Error al crear la cita:", err);
+                    return res.status(500).render("error500", { mensaje: "Error al crear la cita" });
+                }
+
+                connection.query(
+                    "SELECT id_mascota FROM cartilla_medica WHERE id_cartilla = ? LIMIT 1",
+                    [id_cartilla],
+                    (err, mascotaResults) => {
+                        connection.release();
+
+                        if (err) {
+                            console.error("Error al obtener la mascota de la cartilla:", err);
+                            return res.status(500).render("error500", { mensaje: "Error al obtener la mascota de la cartilla" });
+                        }
+
+                        if (mascotaResults.length === 0) {
+                            return res.status(404).render("error404");
+                        }
+
+                        return res.redirect(`/pets/profile/${mascotaResults[0].id_mascota}`);
+                    }
+                );
+            }
+        );
+    });
+}
+
+const postAddVacuna = (req, res) => {
+    const errores = validationResult(req);
+    const { id_cartilla, nombre_vacuna, fecha_administracion, observaciones_vacuna } = req.body;
+
+    if (!errores.isEmpty()) {
+        return res.status(400).render("addRegistro", {
+            id_cartilla,
+            errores: errores.array(),
+            error: "Por favor, corrige los errores en el formulario."
+        });
+    }
+
+    if (!id_cartilla) {
+        return res.status(400).render("addRegistro", {
+            id_cartilla: null,
+            errores: [{ msg: "No se ha recibido la cartilla médica." }],
+            error: "Por favor, corrige los errores en el formulario."
+        });
+    }
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error("Error al conectar a la base de datos:", err);
+            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+        }
+
+        connection.query(
+            "INSERT INTO vacunas (nombre, fecha_administracion, observaciones, id_cartilla) VALUES (?, ?, ?, ?)",
+            [nombre_vacuna, fecha_administracion, observaciones_vacuna || null, id_cartilla],
+            (err) => {
+                if (err) {
+                    connection.release();
+                    console.error("Error al crear la vacuna:", err);
+                    return res.status(500).render("error500", { mensaje: "Error al crear la vacuna" });
+                }
+
+                connection.query(
+                    "SELECT id_mascota FROM cartilla_medica WHERE id_cartilla = ? LIMIT 1",
+                    [id_cartilla],
+                    (err, mascotaResults) => {
+                        connection.release();
+
+                        if (err) {
+                            console.error("Error al obtener la mascota de la cartilla:", err);
+                            return res.status(500).render("error500", { mensaje: "Error al obtener la mascota de la cartilla" });
+                        }
+
+                        if (mascotaResults.length === 0) {
+                            return res.status(404).render("error404");
+                        }
+
+                        return res.redirect(`/pets/profile/${mascotaResults[0].id_mascota}`);
+                    }
+                );
+            }
+        );
+    });
+}
+
+const postAddTratamiento = (req, res) => {
+    const errores = validationResult(req);
+    const { id_cartilla, medicamento, dosis, frecuencia, fecha_inicio, fecha_fin, observaciones_tratamiento } = req.body;
+
+    if (!errores.isEmpty()) {
+        return res.status(400).render("addRegistro", {
+            id_cartilla,
+            errores: errores.array(),
+            error: "Por favor, corrige los errores en el formulario."
+        });
+    }
+
+    if (!id_cartilla) {
+        return res.status(400).render("addRegistro", {
+            id_cartilla: null,
+            errores: [{ msg: "No se ha recibido la cartilla médica." }],
+            error: "Por favor, corrige los errores en el formulario."
+        });
+    }
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error("Error al conectar a la base de datos:", err);
+            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+        }
+
+        connection.query(
+            "INSERT INTO tratamientos (medicamento, dosis, frecuencia, fecha_inicio, fecha_fin, observaciones, id_cartilla) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [medicamento, dosis, frecuencia, fecha_inicio, fecha_fin, observaciones_tratamiento || null, id_cartilla],
+            (err) => {
+                if (err) {
+                    connection.release();
+                    console.error("Error al crear el tratamiento:", err);
+                    return res.status(500).render("error500", { mensaje: "Error al crear el tratamiento" });
+                }
+
+                connection.query(
+                    "SELECT id_mascota FROM cartilla_medica WHERE id_cartilla = ? LIMIT 1",
+                    [id_cartilla],
+                    (err, mascotaResults) => {
+                        connection.release();
+
+                        if (err) {
+                            console.error("Error al obtener la mascota de la cartilla:", err);
+                            return res.status(500).render("error500", { mensaje: "Error al obtener la mascota de la cartilla" });
+                        }
+
+                        if (mascotaResults.length === 0) {
+                            return res.status(404).render("error404");
+                        }
+
+                        return res.redirect(`/pets/profile/${mascotaResults[0].id_mascota}`);
+                    }
+                );
+            }
+        );
+    });
+}
+
+const postAddPatologia = (req, res) => {
+    const errores = validationResult(req);
+    const { id_cartilla, nombre, tipo, estado, fecha_diagnostico, descripcion } = req.body;
+
+    if (!errores.isEmpty()) {
+        return res.status(400).render("addRegistro", {
+            id_cartilla,
+            errores: errores.array(),
+            error: "Por favor, corrige los errores en el formulario."
+        });
+    }
+
+    if (!id_cartilla) {
+        return res.status(400).render("addRegistro", {
+            id_cartilla: null,
+            errores: [{ msg: "No se ha recibido la cartilla médica." }],
+            error: "Por favor, corrige los errores en el formulario."
+        });
+    }
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error("Error al conectar a la base de datos:", err);
+            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+        }
+
+        connection.query(
+            "INSERT INTO condicion_medica (nombre, tipo, estado, fecha_diagnostico, descripcion, id_cartilla) VALUES (?, ?, ?, ?, ?, ?)",
+            [nombre, tipo, estado, fecha_diagnostico, descripcion || null, id_cartilla],
+            (err) => {
+                if (err) {
+                    connection.release();
+                    console.error("Error al crear la patología:", err);
+                    return res.status(500).render("error500", { mensaje: "Error al crear la patología" });
+                }
+
+                connection.query(
+                    "SELECT id_mascota FROM cartilla_medica WHERE id_cartilla = ? LIMIT 1",
+                    [id_cartilla],
+                    (err, mascotaResults) => {
+                        connection.release();
+
+                        if (err) {
+                            console.error("Error al obtener la mascota de la cartilla:", err);
+                            return res.status(500).render("error500", { mensaje: "Error al obtener la mascota de la cartilla" });
+                        }
+
+                        if (mascotaResults.length === 0) {
+                            return res.status(404).render("error404");
+                        }
+
+                        return res.redirect(`/pets/profile/${mascotaResults[0].id_mascota}`);
+                    }
+                );
+            }
+        );
+    });
+}
+
+
+
+
 const getEditarMascota = (req, res) => {
     const petId = req.params.id;
 
@@ -247,6 +503,524 @@ const postEditarMascota = (req, res) => {
 }
 
 
+const getEditarCita = (req, res) => {
+    const id_cita = req.params.id;
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error("Error al conectar a la base de datos:", err);
+            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+        }
+        connection.query("SELECT * FROM cita_veterinaria WHERE id_cita = ?", [id_cita], (err, results) => {
+            connection.release();
+            if (err) {
+                console.error("Error al obtener los datos de la cita:", err);
+                return res.status(500).render("error500", { mensaje: "Error al obtener los datos de la cita" });
+            }
+            if (results.length === 0) {
+                return res.status(404).render("error404");
+            }
+            const cita = results[0];
+            cita.fecha = new Date(cita.fecha).toISOString().slice(0, 16);
+            res.render("editarCita", { cita: cita });
+        }
+        );
+    });
+}
+
+const getEditarVacuna = (req, res) => {
+    const id_vacuna = req.params.id;
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error("Error al conectar a la base de datos:", err);
+            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+        }
+        connection.query("SELECT * FROM vacunas WHERE id_vacuna = ?", [id_vacuna], (err, results) => {
+            connection.release();
+            if (err) {
+                console.error("Error al obtener los datos de la vacuna:", err);
+                return res.status(500).render("error500", { mensaje: "Error al obtener los datos de la vacuna" });
+            }
+            if (results.length === 0) {
+                return res.status(404).render("error404");
+            }
+            const vacuna = results[0];
+            vacuna.fecha_administracion = new Date(vacuna.fecha_administracion).toISOString().slice(0, 10);
+            res.render("editarVacuna", { vacuna: vacuna });
+        }
+        );
+    });
+}
+
+
+const getEditarTratamiento = (req, res) => {
+    const id_tratamiento = req.params.id;
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error("Error al conectar a la base de datos:", err);
+            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+        }
+        connection.query("SELECT * FROM tratamientos WHERE id_tratamiento = ?", [id_tratamiento], (err, results) => {
+            connection.release();
+            if (err) {
+                console.error("Error al obtener los datos del tratamiento:", err);
+                return res.status(500).render("error500", { mensaje: "Error al obtener los datos del tratamiento" });
+            }
+            if (results.length === 0) {
+                return res.status(404).render("error404");
+            }
+            const tratamiento = results[0];
+            tratamiento.fecha_inicio = new Date(tratamiento.fecha_inicio).toISOString().slice(0, 16);
+            tratamiento.fecha_fin = new Date(tratamiento.fecha_fin).toISOString().slice(0, 16);
+            res.render("editarTratamiento", { tratamiento: tratamiento });
+        }
+        );
+    });
+}
+
+
+const getEditarPatologia = (req, res) => {
+    const id_patologia = req.params.id;
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error("Error al conectar a la base de datos:", err);
+            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+        }
+        connection.query("SELECT * FROM condicion_medica WHERE id_condicion = ?", [id_patologia], (err, results) => {
+            connection.release();
+            if (err) {
+                console.error("Error al obtener los datos de la patología:", err);
+                return res.status(500).render("error500", { mensaje: "Error al obtener los datos de la patología" });
+            }
+            if (results.length === 0) {
+                return res.status(404).render("error404");
+            }
+            const patologia = results[0];
+            patologia.fecha_diagnostico = new Date(patologia.fecha_diagnostico).toISOString().slice(0, 10);
+            res.render("editarPatologia", { patologia: patologia });
+        }
+        );
+    });
+}
+
+const postEditarCita = (req, res) => {
+    const errores = validationResult(req);
+
+    if (!errores.isEmpty()) {
+        return res.status(400).render("editarCita", {
+            cita: req.body,
+            errores: errores.array(),
+            error: "Por favor, corrige los errores en el formulario."
+        });
+    }
+
+    const { id_cita, clinica, fecha, observaciones, diagnostico } = req.body;
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error("Error al conectar a la base de datos:", err);
+            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+        }
+
+        connection.query(
+            `SELECT cm.id_mascota
+             FROM cita_veterinaria cv
+             INNER JOIN cartilla_medica cm ON cm.id_cartilla = cv.id_cartilla
+             WHERE cv.id_cita = ?
+             LIMIT 1`,
+            [id_cita],
+            (err, mascotaResults) => {
+                if (err) {
+                    connection.release();
+                    console.error("Error al obtener la mascota de la cita:", err);
+                    return res.status(500).render("error500", { mensaje: "Error al obtener la mascota de la cita" });
+                }
+
+                if (mascotaResults.length === 0) {
+                    connection.release();
+                    return res.status(404).render("error404");
+                }
+
+                const idMascota = mascotaResults[0].id_mascota;
+
+                connection.query(
+                    "UPDATE cita_veterinaria SET clinica = ?, fecha = ?, observaciones = ?, diagnostico = ? WHERE id_cita = ?",
+                    [clinica, fecha, observaciones || null, diagnostico || null, id_cita],
+                    (err) => {
+                        connection.release();
+                        if (err) {
+                            console.error("Error al actualizar la cita:", err);
+                            return res.status(500).render("error500", { mensaje: "Error al actualizar la cita" });
+                        }
+
+                        return res.redirect(`/pets/profile/${idMascota}`);
+                    }
+                );
+            }
+        );
+    });
+}
+
+const postEditarVacuna = (req, res) => {
+    const errores = validationResult(req);
+
+    if (!errores.isEmpty()) {
+        return res.status(400).render("editarVacuna", {
+            vacuna: {
+                id_vacuna: req.body.id_vacuna,
+                nombre: req.body.nombre_vacuna,
+                fecha_administracion: req.body.fecha_administracion,
+                observaciones: req.body.observaciones_vacuna
+            },
+            errores: errores.array(),
+            error: "Por favor, corrige los errores en el formulario."
+        });
+    }
+
+    const { id_vacuna, nombre_vacuna, fecha_administracion, observaciones_vacuna } = req.body;
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error("Error al conectar a la base de datos:", err);
+            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+        }
+
+        connection.query(
+            `SELECT cm.id_mascota
+             FROM vacunas v
+             INNER JOIN cartilla_medica cm ON cm.id_cartilla = v.id_cartilla
+             WHERE v.id_vacuna = ?
+             LIMIT 1`,
+            [id_vacuna],
+            (err, mascotaResults) => {
+                if (err) {
+                    connection.release();
+                    console.error("Error al obtener la mascota de la vacuna:", err);
+                    return res.status(500).render("error500", { mensaje: "Error al obtener la mascota de la vacuna" });
+                }
+
+                if (mascotaResults.length === 0) {
+                    connection.release();
+                    return res.status(404).render("error404");
+                }
+
+                const idMascota = mascotaResults[0].id_mascota;
+
+                connection.query(
+                    "UPDATE vacunas SET nombre = ?, fecha_administracion = ?, observaciones = ? WHERE id_vacuna = ?",
+                    [nombre_vacuna, fecha_administracion, observaciones_vacuna || null, id_vacuna],
+                    (err) => {
+                        connection.release();
+                        if (err) {
+                            console.error("Error al actualizar la vacuna:", err);
+                            return res.status(500).render("error500", { mensaje: "Error al actualizar la vacuna" });
+                        }
+
+                        return res.redirect(`/pets/profile/${idMascota}`);
+                    }
+                );
+            }
+        );
+    });
+}
+
+const postEditarTratamiento = (req, res) => {
+    const errores = validationResult(req);
+
+    if (!errores.isEmpty()) {
+        return res.status(400).render("editarTratamiento", {
+            tratamiento: {
+                id_tratamiento: req.body.id_tratamiento,
+                medicamento: req.body.medicamento,
+                dosis: req.body.dosis,
+                frecuencia: req.body.frecuencia,
+                fecha_inicio: req.body.fecha_inicio,
+                fecha_fin: req.body.fecha_fin,
+                observaciones: req.body.observaciones_tratamiento
+            },
+            errores: errores.array(),
+            error: "Por favor, corrige los errores en el formulario."
+        });
+    }
+
+    const { id_tratamiento, medicamento, dosis, frecuencia, fecha_inicio, fecha_fin, observaciones_tratamiento } = req.body;
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error("Error al conectar a la base de datos:", err);
+            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+        }
+
+        connection.query(
+            `SELECT cm.id_mascota
+             FROM tratamientos t
+             INNER JOIN cartilla_medica cm ON cm.id_cartilla = t.id_cartilla
+             WHERE t.id_tratamiento = ?
+             LIMIT 1`,
+            [id_tratamiento],
+            (err, mascotaResults) => {
+                if (err) {
+                    connection.release();
+                    console.error("Error al obtener la mascota del tratamiento:", err);
+                    return res.status(500).render("error500", { mensaje: "Error al obtener la mascota del tratamiento" });
+                }
+
+                if (mascotaResults.length === 0) {
+                    connection.release();
+                    return res.status(404).render("error404");
+                }
+
+                const idMascota = mascotaResults[0].id_mascota;
+
+                connection.query(
+                    "UPDATE tratamientos SET medicamento = ?, dosis = ?, frecuencia = ?, fecha_inicio = ?, fecha_fin = ?, observaciones = ? WHERE id_tratamiento = ?",
+                    [medicamento, dosis, frecuencia, fecha_inicio, fecha_fin, observaciones_tratamiento || null, id_tratamiento],
+                    (err) => {
+                        connection.release();
+                        if (err) {
+                            console.error("Error al actualizar el tratamiento:", err);
+                            return res.status(500).render("error500", { mensaje: "Error al actualizar el tratamiento" });
+                        }
+
+                        return res.redirect(`/pets/profile/${idMascota}`);
+                    }
+                );
+            }
+        );
+    });
+}
+
+const postEditarPatologia = (req, res) => {
+    const errores = validationResult(req);
+
+    if (!errores.isEmpty()) {
+        return res.status(400).render("editarPatologia", {
+            patologia: req.body,
+            errores: errores.array(),
+            error: "Por favor, corrige los errores en el formulario."
+        });
+    }
+
+    const { id_condicion, nombre, tipo, estado, fecha_diagnostico, descripcion } = req.body;
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error("Error al conectar a la base de datos:", err);
+            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+        }
+
+        connection.query(
+            `SELECT cm.id_mascota
+             FROM condicion_medica c
+             INNER JOIN cartilla_medica cm ON cm.id_cartilla = c.id_cartilla
+             WHERE c.id_condicion = ?
+             LIMIT 1`,
+            [id_condicion],
+            (err, mascotaResults) => {
+                if (err) {
+                    connection.release();
+                    console.error("Error al obtener la mascota de la patología:", err);
+                    return res.status(500).render("error500", { mensaje: "Error al obtener la mascota de la patología" });
+                }
+
+                if (mascotaResults.length === 0) {
+                    connection.release();
+                    return res.status(404).render("error404");
+                }
+
+                const idMascota = mascotaResults[0].id_mascota;
+
+                connection.query(
+                    "UPDATE condicion_medica SET nombre = ?, tipo = ?, estado = ?, fecha_diagnostico = ?, descripcion = ? WHERE id_condicion = ?",
+                    [nombre, tipo, estado, fecha_diagnostico, descripcion || null, id_condicion],
+                    (err) => {
+                        connection.release();
+                        if (err) {
+                            console.error("Error al actualizar la patología:", err);
+                            return res.status(500).render("error500", { mensaje: "Error al actualizar la patología" });
+                        }
+
+                        return res.redirect(`/pets/profile/${idMascota}`);
+                    }
+                );
+            }
+        );
+    });
+}
+
+
+
+
+
+
+const eliminarCita = (req, res) => {
+    const id_cita = req.body.id_cita;
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error("Error al conectar a la base de datos:", err);
+            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+        }
+        connection.query(
+            `SELECT cm.id_mascota
+             FROM cita_veterinaria cv
+             INNER JOIN cartilla_medica cm ON cm.id_cartilla = cv.id_cartilla
+             WHERE cv.id_cita = ?
+             LIMIT 1`,
+            [id_cita],
+            (err, mascotaResults) => {
+                if (err) {
+                    connection.release();
+                    console.error("Error al obtener la mascota de la cita:", err);
+                    return res.status(500).render("error500", { mensaje: "Error al obtener la mascota de la cita" });
+                }
+
+                if (mascotaResults.length === 0) {
+                    connection.release();
+                    return res.status(404).render("error404");
+                }
+
+                const idMascota = mascotaResults[0].id_mascota;
+
+                connection.query("DELETE FROM cita_veterinaria WHERE id_cita = ?", [id_cita], (err) => {
+                    connection.release();
+                    if (err) {
+                        console.error("Error al eliminar la cita:", err);
+                        return res.status(500).render("error500", { mensaje: "Error al eliminar la cita" });
+                    }
+
+                    return res.redirect(`/pets/profile/${idMascota}`);
+                });
+            }
+        );
+    });
+}
+
+const eliminarVacuna = (req, res) => {
+    const id_vacuna = req.body.id_vacuna;
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error("Error al conectar a la base de datos:", err);
+            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+        }
+        connection.query(
+            `SELECT cm.id_mascota
+             FROM vacunas v
+                INNER JOIN cartilla_medica cm ON cm.id_cartilla = v.id_cartilla
+                WHERE v.id_vacuna = ?
+                LIMIT 1`,
+            [id_vacuna],
+            (err, mascotaResults) => {
+                if (err) {
+                    connection.release();
+                    console.error("Error al obtener la mascota de la vacuna:", err);
+                    return res.status(500).render("error500", { mensaje: "Error al obtener la mascota de la vacuna" });
+                }
+
+                if (mascotaResults.length === 0) {
+                    connection.release();
+                    return res.status(404).render("error404");
+                }
+
+                const idMascota = mascotaResults[0].id_mascota;
+
+                connection.query("DELETE FROM vacunas WHERE id_vacuna = ?", [id_vacuna], (err) => {
+                    connection.release();
+                    if (err) {
+                        console.error("Error al eliminar la vacuna:", err);
+                        return res.status(500).render("error500", { mensaje: "Error al eliminar la vacuna" });
+                    }
+
+                    return res.redirect(`/pets/profile/${idMascota}`);
+                });
+            }
+        );
+    });
+}
+
+const eliminarTratamiento = (req, res) => {
+    const id_tratamiento = req.body.id_tratamiento;
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error("Error al conectar a la base de datos:", err);
+            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+        }
+        connection.query(
+            `SELECT cm.id_mascota
+             FROM tratamientos t
+                INNER JOIN cartilla_medica cm ON cm.id_cartilla = t.id_cartilla
+                WHERE t.id_tratamiento = ?
+                LIMIT 1`,
+            [id_tratamiento],
+            (err, mascotaResults) => {
+                if (err) {
+                    connection.release();
+                    console.error("Error al obtener la mascota del tratamiento:", err);
+                    return res.status(500).render("error500", { mensaje: "Error al obtener la mascota del tratamiento" });
+                }
+
+                if (mascotaResults.length === 0) {
+                    connection.release();
+                    return res.status(404).render("error404");
+                }
+
+                const idMascota = mascotaResults[0].id_mascota;
+
+                connection.query("DELETE FROM tratamientos WHERE id_tratamiento = ?", [id_tratamiento], (err) => {
+                    connection.release();
+                    if (err) {
+                        console.error("Error al eliminar el tratamiento:", err);
+                        return res.status(500).render("error500", { mensaje: "Error al eliminar el tratamiento" });
+                    }
+
+                    return res.redirect(`/pets/profile/${idMascota}`);
+                });
+            }
+        );
+    });
+}
+
+const eliminarPatologia = (req, res) => {
+    const id_patologia = req.body.id_patologia;
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error("Error al conectar a la base de datos:", err);
+            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+        }
+        connection.query(
+            `SELECT cm.id_mascota
+             FROM condicion_medica c
+                INNER JOIN cartilla_medica cm ON cm.id_cartilla = c.id_cartilla
+                WHERE c.id_condicion = ?
+                LIMIT 1`,
+            [id_patologia],
+            (err, mascotaResults) => {
+                if (err) {
+                    connection.release();
+                    console.error("Error al obtener la mascota de la patología:", err);
+                    return res.status(500).render("error500", { mensaje: "Error al obtener la mascota de la patología" });
+                }
+
+                if (mascotaResults.length === 0) {
+                    connection.release();
+                    return res.status(404).render("error404");
+                }
+
+                const idMascota = mascotaResults[0].id_mascota;
+
+                connection.query("DELETE FROM condicion_medica WHERE id_condicion = ?", [id_patologia], (err) => {
+                    connection.release();
+                    if (err) {
+                        console.error("Error al eliminar la patología:", err);
+                        return res.status(500).render("error500", { mensaje: "Error al eliminar la patología" });
+                    }
+
+                    return res.redirect(`/pets/profile/${idMascota}`);
+                });
+            }
+        );
+    });
+}
+
 module.exports = {
     getMyPets,
     getRegisterPet,
@@ -254,5 +1028,22 @@ module.exports = {
     getPetProfile,
     postEliminarMascota,
     getEditarMascota,
-    postEditarMascota
+    postEditarMascota,
+    postEditarCita,
+    postEditarVacuna,
+    postEditarTratamiento,
+    postEditarPatologia,
+    eliminarCita,
+    eliminarVacuna,
+    eliminarTratamiento,
+    eliminarPatologia,
+    getEditarCita,
+    getEditarVacuna,
+    getEditarTratamiento,
+    getEditarPatologia,
+    getAddRegistroCartilla,
+    postAddCita,
+    postAddVacuna,
+    postAddTratamiento,
+    postAddPatologia
 };

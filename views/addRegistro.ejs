@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agregar Registro - PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="full-height-layout">
+    <!-- NAV -->
+    <%- include('plantillas/navbar') %> 
+
+    <main>
+        <!-- Sección de selección de tipo de registro -->
+        <section class="add-registro-selection" id="seleccionRegistro">
+            <h2>¿Qué deseas agregar?</h2>
+            <div class="registro-buttons-grid">
+                <button class="registro-button" data-tipo="cita">
+                    <svg viewBox="0 0 24 24" class="registro-button-icon">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                    </svg>
+                    <span>Cita</span>
+                </button>
+
+                <button class="registro-button" data-tipo="vacuna">
+                    <svg viewBox="-0.5 0 25 25" fill="none" class="registro-button-icon" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7.98999 13.93L14.7 7.21999C14.9 7.01999 15.21 7.01999 15.41 7.21999L17.28 9.08999C17.48 9.28999 17.48 9.59999 17.28 9.79999L10.57 16.51" stroke="currentColor" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M17.64 6.87L21.5 3" stroke="currentColor" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M4.76001 19.74L6.70001 17.8" stroke="currentColor" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M5.73999 14.25L10.25 18.76" stroke="currentColor" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2.5 20.07L4.44 22" stroke="currentColor" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Vacuna</span>
+                </button>
+
+                <button class="registro-button" data-tipo="tratamiento">
+                    <svg viewBox="0 0 24 24" class="registro-button-icon" fill="currentColor">
+                        <path d="M19 3H5C3.9 3 3 3.9 3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+                    </svg>
+                    <span>Tratamiento</span>
+                </button>
+
+                <button class="registro-button" data-tipo="patologia">
+                    <svg viewBox="0 0 24 24" class="registro-button-icon">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    </svg>
+                    <span>Patología</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Formulario Cita -->
+        <div class="form-container" id="formCita" style="display: none;">
+            <div class="editar-cita-container">
+                <h2>Agregar Cita</h2>
+                <form action="/pets/cartilla/add-cita" method="POST" id="citaAddForm">
+                    <input type="hidden" name="tipo" value="cita">
+                    <input type="hidden" name="id_cartilla" value="<%= id_cartilla || '' %>">
+                    <div class="form-grid-editar-cita">
+                        <div class="form-group form-group-clinica">
+                            <label for="clinica-add">Clínica veterinaria</label>
+                            <input type="text" id="clinica-add" name="clinica">
+                            <span id="error-clinica-add" class="error"></span>
+                        </div>
+                        <div class="form-group form-group-fecha">
+                            <label for="fecha-add">Fecha de la cita</label>
+                            <input type="datetime-local" id="fecha-add" name="fecha">
+                            <span id="error-fecha-add" class="error"></span>
+                        </div>
+                        <div class="form-group form-group-observaciones">
+                            <label for="observaciones-add">Observaciones</label>
+                            <textarea id="observaciones-add" name="observaciones"></textarea>
+                            <span id="error-observaciones-add" class="error"></span>
+                        </div>
+                        <div class="form-group form-group-diagnostico">
+                            <label for="diagnostico-add">Diagnóstico</label>
+                            <textarea id="diagnostico-add" name="diagnostico"></textarea>
+                            <span id="error-diagnostico-add" class="error"></span>
+                        </div>
+                        <div class="form-buttons">
+                            <button type="button" class="btn-volver-atras">
+                                <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                            </button>
+                            <button type="submit" class="btn-editar-cita">Guardar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Formulario Vacuna -->
+        <div class="form-container" id="formVacuna" style="display: none;">
+            <div class="editar-vacuna-container">
+                <h2>Agregar Vacuna</h2>
+                <form action="/pets/cartilla/add-vacuna" method="POST" id="vacunaAddForm">
+                    <input type="hidden" name="tipo" value="vacuna">
+                    <input type="hidden" name="id_cartilla" value="<%= id_cartilla || '' %>">
+                    <div class="form-grid-editar-vacuna">
+                        <div class="form-group form-group-nombre-vacuna">
+                            <label for="nombre-vacuna-add">Nombre de la vacuna</label>
+                            <input type="text" id="nombre-vacuna-add" name="nombre_vacuna">
+                            <span id="error-nombre-vacuna-add" class="error"></span>
+                        </div>
+                        <div class="form-group form-group-fecha-administracion">
+                            <label for="fecha-administracion-add">Fecha de administración</label>
+                            <input type="date" id="fecha-administracion-add" name="fecha_administracion">
+                            <span id="error-fecha-administracion-add" class="error"></span>
+                        </div>
+                        <div class="form-group form-group-observaciones-vacuna">
+                            <label for="observaciones-vacuna-add">Observaciones</label>
+                            <textarea id="observaciones-vacuna-add" name="observaciones_vacuna"></textarea>
+                            <span id="error-observaciones-vacuna-add" class="error"></span>
+                        </div>
+                        <div class="form-buttons">
+                            <button type="button" class="btn-volver-atras">
+                                <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                            </button>
+                            <button type="submit" class="btn-editar-vacuna">Guardar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Formulario Tratamiento -->
+        <div class="form-container" id="formTratamiento" style="display: none;">
+            <div class="editar-tratamiento-container">
+                <h2>Agregar Tratamiento</h2>
+                <form action="/pets/cartilla/add-tratamiento" method="POST" id="tratamientoAddForm">
+                    <input type="hidden" name="tipo" value="tratamiento">
+                    <input type="hidden" name="id_cartilla" value="<%= id_cartilla || '' %>">
+                    <div class="form-grid-editar-tratamiento">
+                        <div class="form-group form-group-medicamento">
+                            <label for="medicamento-add">Medicamento</label>
+                            <input type="text" id="medicamento-add" name="medicamento">
+                            <span id="error-medicamento-add" class="error"></span>
+                        </div>
+                        <div class="form-group form-group-dosis">
+                            <label for="dosis-add">Dosis</label>
+                            <input type="text" id="dosis-add" name="dosis">
+                            <span id="error-dosis-add" class="error"></span>
+                        </div>
+                        <div class="form-group form-group-frecuencia">
+                            <label for="frecuencia-add">Frecuencia</label>
+                            <input type="text" id="frecuencia-add" name="frecuencia">
+                            <span id="error-frecuencia-add" class="error"></span>
+                        </div>
+                        <div class="form-group form-group-fecha-inicio">
+                            <label for="fecha-inicio-add">Fecha de inicio</label>
+                            <input type="datetime-local" id="fecha-inicio-add" name="fecha_inicio">
+                            <span id="error-fecha-inicio-add" class="error"></span>
+                        </div>
+                        <div class="form-group form-group-fecha-fin">
+                            <label for="fecha-fin-add">Fecha de fin</label>
+                            <input type="datetime-local" id="fecha-fin-add" name="fecha_fin">
+                            <span id="error-fecha-fin-add" class="error"></span>
+                        </div>
+                        <div class="form-group form-group-observaciones-tratamiento">
+                            <label for="observaciones-tratamiento-add">Observaciones</label>
+                            <textarea id="observaciones-tratamiento-add" name="observaciones_tratamiento"></textarea>
+                            <span id="error-observaciones-tratamiento-add" class="error"></span>
+                        </div>
+                        <div class="form-buttons">
+                            <button type="button" class="btn-volver-atras">
+                                <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                            </button>
+                            <button type="submit" class="btn-editar-tratamiento">Guardar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Formulario Patología -->
+        <div class="form-container" id="formPatologia" style="display: none;">
+            <div class="editar-patologia-container">
+                <h2>Agregar Patología</h2>
+                <form action="/pets/cartilla/add-patologia" method="POST" id="patologiaAddForm">
+                    <input type="hidden" name="tipo" value="patologia">
+                    <input type="hidden" name="id_cartilla" value="<%= id_cartilla || '' %>">
+                    <div class="form-grid-editar-patologia">
+                        <div class="form-group form-group-nombre-patologia">
+                            <label for="nombre-patologia-add">Nombre</label>
+                            <input type="text" id="nombre-patologia-add" name="nombre">
+                            <span id="error-nombre-patologia-add" class="error"></span>
+                        </div>
+                        <div class="form-group form-group-tipo-patologia">
+                            <label for="tipo-patologia-add">Tipo</label>
+                            <select id="tipo-patologia-add" name="tipo">
+                                <option value="">Selecciona un tipo</option>
+                                <option value="enfermedad">Enfermedad</option>
+                                <option value="alergia">Alergia</option>
+                                <option value="condicion">Condición</option>
+                            </select>
+                            <span id="error-tipo-patologia-add" class="error"></span>
+                        </div>
+                        <div class="form-group form-group-estado-patologia">
+                            <label for="estado-patologia-add">Estado</label>
+                            <select id="estado-patologia-add" name="estado">
+                                <option value="">Selecciona un estado</option>
+                                <option value="activa">Activa</option>
+                                <option value="superada">Superada</option>
+                            </select>
+                            <span id="error-estado-patologia-add" class="error"></span>
+                        </div>
+                        <div class="form-group form-group-fecha-diagnostico">
+                            <label for="fecha-diagnostico-add">Fecha de diagnóstico</label>
+                            <input type="date" id="fecha-diagnostico-add" name="fecha_diagnostico">
+                            <span id="error-fecha-diagnostico-add" class="error"></span>
+                        </div>
+                        <div class="form-group form-group-descripcion-patologia">
+                            <label for="descripcion-patologia-add">Descripción</label>
+                            <textarea id="descripcion-patologia-add" name="descripcion"></textarea>
+                            <span id="error-descripcion-patologia-add" class="error"></span>
+                        </div>
+                        <div class="form-buttons">
+                            <button type="button" class="btn-volver-atras">
+                                <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                            </button>
+                            <button type="submit" class="btn-editar-patologia">Guardar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+
+    <%- include ('plantillas/modalErrores.ejs')%>
+
+    <%- include('plantillas/footer') %>
+
+    <script src="/js/addRegistro.js"></script>
+    <script src="/js/validarCita.js"></script>
+    <script src="/js/validarVacuna.js"></script>
+    <script src="/js/validarTratamiento.js"></script>
+    <script src="/js/validarPatologia.js"></script>
+
+</body>
+</html>

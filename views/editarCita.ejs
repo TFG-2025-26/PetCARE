@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Cita - PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="full-height-layout">
+    <!-- NAV -->
+    <%- include('plantillas/navbar') %> 
+
+    <main>
+        <div class="editar-cita-container">
+        <h2>Editar Cita</h2>
+            <form action="/pets/cartilla/editar-cita" method="POST" id="citaEditForm">
+                   <div class="form-grid-editar-cita">
+                        <input type="hidden" name="id_cita" value="<%= cita ? cita['id_cita'] : '' %>">
+                                <div class="form-group form-group-clinica">
+                           <label for="clinica">Clínica veterinaria</label>
+                           <input type="text" id="clinica" name="clinica" value="<%= cita ? cita['clinica'] : '' %>">
+                           <span id="error-clinica" class="error"></span>
+                        </div>
+                                <div class="form-group form-group-fecha">
+                           <label for="fecha">Fecha de la cita</label>
+                           <input type="datetime-local" id="fecha" name="fecha" value="<%= cita ? cita['fecha'] : '' %>">
+                           <span id="error-fecha" class="error"></span>
+                        </div>
+                                <div class="form-group form-group-observaciones">
+                           <label for="observaciones">Observaciones</label>
+                           <textarea id="observaciones" name="observaciones"><%= cita ? cita['observaciones'] : '' %></textarea>
+                           <span id="error-observaciones" class="error"></span>
+                        </div>
+                                <div class="form-group form-group-diagnostico">
+                            <label for="diagnostico">Diagnóstico</label>
+                            <textarea id="diagnostico" name="diagnostico"><%= cita ? cita['diagnostico'] : '' %></textarea>
+                            <span id="error-diagnostico" class="error"></span>
+                        </div>
+                                <button type="submit" class="btn-editar-cita">Guardar Cambios</button>
+                          </div>
+            </form>
+        </div>
+    </main>
+
+
+    <%- include ('plantillas/modalErrores.ejs')%>
+
+    <%- include('plantillas/footer') %>
+
+    <script src="/js/validarCita.js"></script>
+
+</body>
+</html>
