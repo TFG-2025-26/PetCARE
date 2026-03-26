@@ -100,7 +100,7 @@ CREATE TABLE `chat_usuario` (
 CREATE TABLE `cita_veterinaria` (
   `id_cita` int(11) NOT NULL,
   `clinica` varchar(100) NOT NULL,
-  `observaciones` text NOT NULL,
+  `observaciones` text DEFAULT NULL,
   `fecha` datetime NOT NULL,
   `diagnostico` text DEFAULT NULL,
   `id_cartilla` int(11) NOT NULL
