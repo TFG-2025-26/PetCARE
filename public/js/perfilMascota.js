@@ -2,15 +2,31 @@
 
 const botonesCartilla = document.querySelectorAll('[data-seccion-cartilla]');
 const seccionesCartilla = document.querySelectorAll('.seccion-cartilla');
+const cartillaContenido = document.querySelector('.cartilla-contenido');
+
+function activarSeccionCartilla(seccionId) {
+    botonesCartilla.forEach(btn => {
+        btn.classList.toggle('activa', btn.getAttribute('data-seccion-cartilla') === seccionId);
+    });
+
+    if (cartillaContenido) {
+        cartillaContenido.classList.toggle('mostrando-todos', seccionId === 'todos');
+    }
+
+    if (seccionId === 'todos') {
+        seccionesCartilla.forEach(seccion => seccion.classList.add('activa'));
+        return;
+    }
+
+    seccionesCartilla.forEach(seccion => {
+        seccion.classList.toggle('activa', seccion.id === seccionId);
+    });
+}
 
 botonesCartilla.forEach(boton =>{
     boton.addEventListener('click', () =>{
-        botonesCartilla.forEach(btn => btn.classList.remove('activa'));
-        seccionesCartilla.forEach(seccion => seccion.classList.remove('activa'));
-
         const seccionId = boton.getAttribute('data-seccion-cartilla');
-        document.getElementById(seccionId).classList.add('activa');
-        boton.classList.add('activa');
+        activarSeccionCartilla(seccionId);
     })
 })
 
@@ -45,12 +61,15 @@ function actualizarFormatoCartilla() {
 }
 
 actualizarFormatoCartilla();
+if (!esMovil.matches) {
+    activarSeccionCartilla('todos');
+}
 
 esMovil.addEventListener('change', () => {
     actualizarFormatoCartilla();
     if (!esMovil.matches) {
         document.querySelectorAll('.seccion-cartilla').forEach(s => s.classList.remove('abierta'));
-        botonesCartilla[0].click();
+        activarSeccionCartilla('todos');
     }
 });
 
