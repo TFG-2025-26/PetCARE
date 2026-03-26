@@ -20,7 +20,7 @@
         <p class="foros-subtitle">Comparte experiencias y resuelve dudas con la comunidad</p>
       </div>
       <% if (typeof usuario !== 'undefined' && usuario) { %>
-        <a href="/content/crearForo" class="btn-large">+ Nuevo foro</a>
+        <div class="btn-large" onclick="crearForo()">+ Nuevo foro</div>
       <% } %>
     </div>
 
@@ -114,12 +114,21 @@
     </div>
   <%- include('plantillas/modalErrores', { error: typeof error !== 'undefined' ? error : null, errores: typeof errores !== 'undefined' ? errores : [] }) %>
 
+  <script src="/js/validacionCrearForo.js"></script>
   <script>
     async function abrirForo(id) {
         const response = await fetch('/content/foros/' + id);
         const html = await response.text();
         document.getElementById('modalForo-contenido').innerHTML = html;
         document.getElementById('modalForo').style.display = 'flex';
+    }
+
+    async function crearForo() {
+        const response = await fetch('/content/foros/crearForo');
+        const html = await response.text();
+        document.getElementById('modalForo-contenido').innerHTML = html;
+        document.getElementById('modalForo').style.display = 'flex';
+        initValidacionCrearForo(); 
     }
 
     document.getElementById('modalForo').addEventListener('click', function(e) {

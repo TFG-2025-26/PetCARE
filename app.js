@@ -49,12 +49,14 @@ app.get('/', (req, res) => {
     res.render('inicio');
 });
 
+app.get('/servicios', (req, res) => {
+    res.render('servicios');
+});
+
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
 app.use('/pets', isAuthenticated, petRoutes);
 app.use('/content', isAuthenticated, contentRoutes);
-
-
 
 // Manejo de errores
 app.use((req, res) => {

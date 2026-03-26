@@ -1,0 +1,35 @@
+<div class="foro-detalle-header">
+  <div class="foro-detalle-top">
+    <h2 class="foro-detalle-titulo">Crear foro</h2>
+    <button class="foro-detalle-cerrar" onclick="document.getElementById('modalForo').style.display='none'">✕</button>
+  </div>
+</div>
+
+<form action="/content/foros/crearForo" id="crearForoForm" method="POST">
+  <div class="form-group">
+    <label for="crear-titulo">Título</label>
+    <input type="text" id="crear-titulo" name="titulo" placeholder="Ej: ¿Qué alimentación recomendáis para cachorros?">
+    <span id="error-titulo" class="error"></span>
+  </div>
+  <div class="form-group">
+    <label for="crear-categoria">Categoría</label>
+    <select id="crear-categoria" name="categoría">
+      <option value="" disabled selected>Selecciona una categoría</option>
+      <option value="salud">Salud y veterinaria</option>
+      <option value="alimentacion">Alimentación</option>
+      <option value="adopcion">Adopción</option>
+      <option value="educacion">Educación y comportamiento</option>
+      <option value="accesorios">Accesorios y productos</option>
+      <option value="general">General</option>
+    </select>
+    <span id="error-categoria" class="error"></span>
+  </div>
+  <div class="form-group">
+    <label for="crear-descripcion">Descripción</label>
+    <textarea id="crear-descripcion" name="descripcion" rows="5" placeholder="Explica el tema del foro con detalle..."></textarea>
+    <span id="error-descripcion" class="error"></span>
+  </div>
+  <div class="foro-comentario-actions" style="margin-top: 1rem;">
+    <button type="submit" class="btn-submit" style="width:auto; padding: 0.6rem 1.5rem;">Publicar foro</button>
+  </div>
+</form> 

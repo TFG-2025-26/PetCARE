@@ -5,17 +5,30 @@ const router = express.Router();
 const { body } = require('express-validator');
 const contentController = require('../controllers/contentController');
 
-router.get('/crearForo', contentController.getCrearForo); 
-router.post('/crearForo', contentController.postCrearForo);
+const validarCreacionForo = [
+    body('titulo')
+        .notEmpty().withMessage('El título es obligatorio')
+        .isLength({ max: 100 }).withMessage('El título no puede exceder los 100 caracteres'),
+    body('descripcion')
+        .notEmpty().withMessage('La descripción es obligatoria')
+        .isLength({ max: 500 }).withMessage('La descripción no puede exceder los 500 caracteres'),
+    body('categoría')
+        .notEmpty().withMessage('La categoría es obligatoria')
+];
+
+
 router.get('/foros', contentController.verForos);
-router.get('/foros/:id', contentController.verForo);
+router.get('/foros/filtrar', contentController.filtrarForos);
 router.post('/foros/filtrar', contentController.filtrarForos);
-router.get('/foro/:id/editar', contentController.getEditarForo);
-router.post('/foro/:id/editar', contentController.postEditarForo);
-router.get('/foro/:id/eliminar', contentController.eliminarForo);
-router.post('/foro/:id/comentario', contentController.comentarForo);
-router.get('/foro/:id/comentario/:id_comentario/eliminar', contentController.eliminarComentario);
-router.get('/foro/:id/comentario/:id_comentario/editar', contentController.getEditarComentario);
-router.post('/foro/:id/comentario/:id_comentario/editar', contentController.postEditarComentario);
+router.get('/foros/crearForo', contentController.getCrearForo); 
+router.post('/foros/crearForo', validarCreacionForo, contentController.postCrearForo);
+router.get('/foros/:id', contentController.verForo);
+router.get('/foros/:id/editar', contentController.getEditarForo);
+router.post('/foros/:id/editar', contentController.postEditarForo);
+router.get('/foros/:id/eliminar', contentController.eliminarForo);
+router.post('/foros/:id/comentario', contentController.comentarForo);
+router.get('/foros/:id/comentario/:id_comentario/eliminar', contentController.eliminarComentario);
+router.get('/foros/:id/comentario/:id_comentario/editar', contentController.getEditarComentario);
+router.post('/foros/:id/comentario/:id_comentario/editar', contentController.postEditarComentario);
 
 module.exports = router;
