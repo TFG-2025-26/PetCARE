@@ -1290,6 +1290,8 @@ footer {
   padding: 2rem;
   font-family: 'Fraunces', serif;
   margin-bottom: 1rem;
+  opacity: 0;
+  animation: title-enter 0.6s ease-out forwards;
 }
 
 .pets-container {
@@ -1301,10 +1303,80 @@ footer {
   width: 100%;
 }
 
+@keyframes title-enter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes profile-enter {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes clinic-enter {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes button-enter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pet-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .pet-card-wrapper {
   position: relative;
   width: 325px;
+  opacity: 0;
+  animation: pet-card-enter 0.45s ease-out forwards;
 }
+
+.pets-container .pet-card-link:nth-child(1) .pet-card-wrapper { animation-delay: 0s; }
+.pets-container .pet-card-link:nth-child(2) .pet-card-wrapper { animation-delay: 0.06s; }
+.pets-container .pet-card-link:nth-child(3) .pet-card-wrapper { animation-delay: 0.12s; }
+.pets-container .pet-card-link:nth-child(4) .pet-card-wrapper { animation-delay: 0.18s; }
+.pets-container .pet-card-link:nth-child(5) .pet-card-wrapper { animation-delay: 0.24s; }
+.pets-container .pet-card-link:nth-child(6) .pet-card-wrapper { animation-delay: 0.30s; }
+.pets-container .pet-card-link:nth-child(7) .pet-card-wrapper { animation-delay: 0.36s; }
+.pets-container .pet-card-link:nth-child(8) .pet-card-wrapper { animation-delay: 0.42s; }
+.pets-container .pet-card-link:nth-child(9) .pet-card-wrapper { animation-delay: 0.48s; }
+.pets-container .pet-card-link:nth-child(10) .pet-card-wrapper { animation-delay: 0.54s; }
+.pets-container .pet-card-link:nth-child(11) .pet-card-wrapper { animation-delay: 0.60s; }
+.pets-container .pet-card-link:nth-child(12) .pet-card-wrapper { animation-delay: 0.66s; }
 
 .pet-card-back {
   position: absolute;
@@ -1614,13 +1686,15 @@ footer {
   gap: 1rem;
   grid-template-areas: "foto info boton";
   background-color: white;
-  margin: 2rem 4rem;
+  margin: 2rem 1rem;
   border-radius: 12px;
   border: 1px solid #e0e0e0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 1rem;
   max-height: fit-content;
   max-width: fit-content;
+  opacity: 0;
+  animation: profile-enter 0.6s ease-out forwards;
 }
 
 .pet-foto{
@@ -1710,7 +1784,8 @@ footer {
 
 .boton-editar-mascota:hover {
   background-color: #5a7d51;
-  box-shadow: 0 4px 20px rgba(74,103,65,0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(74,103,65,0.4);
 }
 
 @media (max-width: 750px){
@@ -1728,15 +1803,20 @@ footer {
   }
 }
 
+
+/*----- Historial médico Mascota -----*/
 .pet-clinic{
   display: flex;
   flex-direction: column;
   background-color: white;
-  margin: 0rem 4rem;
+  margin: 0rem 1rem;
   padding: 1rem;
   border-radius: 12px;
   border: 1px solid #e0e0e0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  animation: clinic-enter 0.6s ease-out forwards;
+  animation-delay: 0.2s;
 }
 
 .cartilla-nav{
@@ -1756,6 +1836,7 @@ footer {
   border: none;
   padding: 0.5rem 1rem;
   font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
   font-weight: 500;
   color: #fff;
   cursor: pointer;
@@ -1778,16 +1859,26 @@ footer {
 
 #añadir-registro-cartilla{
   margin-left: auto;
+  display: inline-flex;
+  align-items: center;
   padding: 0.5rem;
   background: var(--green);
   color: #fff;
+  text-decoration: none;
   font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
   font-weight: 500;
   border: none;
   border-radius: 50px;
   transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
   box-shadow: 0 4px 20px rgba(74,103,65,0.3);
   cursor: pointer;
+}
+
+#añadir-registro-cartilla:hover {
+  background: #5a7d51;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(74,103,65,0.4);
 }
 
 
@@ -1816,6 +1907,52 @@ footer {
 
 .pet-clinic tbody tr:nth-child(odd)  { background-color: white; }
 .pet-clinic tbody tr:nth-child(even) { background-color: var(--cream); }
+
+.tabla-acciones{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.boton-accion-editar{
+  color: white;
+  text-decoration: none;
+  background-color: var(--green);
+  border-radius: 999px;
+  width: 2.2rem;
+  height: 2.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.boton-accion-eliminar{
+  color: white;
+  text-decoration: none;
+  background-color: var(--amber);
+  border-radius: 999px;
+  width: 2.2rem;
+  height: 2.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icono-accion{
+  width: 1.1rem;
+  height: 1.1rem;
+  display: block;
+  fill: currentColor;
+  overflow: visible;
+}
+
+.boton-accion-editar:hover,
+.boton-accion-eliminar:hover{
+  transform: translateY(-1px);
+}
 
 .cartilla-vacia{
   text-align: center;
@@ -1849,6 +1986,10 @@ footer {
 }
 
 #añadir_registro_cartilla_movil{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
   width: 100%;
   padding: 0.5rem;
   background: var(--green);
@@ -1861,6 +2002,12 @@ footer {
   cursor: pointer;
   transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
   box-shadow: 0 4px 20px rgba(74,103,65,0.3);
+}
+
+#añadir_registro_cartilla_movil:hover {
+  background: #5a7d51;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(74,103,65,0.4);
 }
 
 @media (max-width: 750px) {
@@ -1934,14 +2081,49 @@ footer {
     gap: 1rem;
   }
 
-  .seccion-cartilla.abierta .js-mobile-view div{
+  .seccion-cartilla.abierta .js-mobile-view > div{
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    padding: 0.8rem;
+    border-radius: 10px;
+    border: 1px solid rgba(61, 43, 31, 0.08);
+    box-shadow: 0 6px 14px rgba(61, 43, 31, 0.08), 0 1px 2px rgba(61, 43, 31, 0.05);
+  }
+
+  .seccion-cartilla.abierta .js-mobile-view > div:nth-child(odd){
+    background-color: var(--cream);
+  }
+
+  .seccion-cartilla.abierta .js-mobile-view > div:nth-child(even){
+    background-color: white;
   }
 
   .seccion-cartilla.abierta .js-mobile-view p{
     overflow-wrap: break-word;
+  }
+
+  /* Estilos para los botones de acciones en móvil */
+  .tabla-acciones {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 2rem;
+    margin-top: 1rem;
+  }
+
+  .boton-accion-editar,
+  .boton-accion-eliminar {
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .icono-accion {
+    width: 1.2rem;
+    height: 1.2rem;
   }
 
   .cartilla-contenido{
@@ -1951,11 +2133,476 @@ footer {
   }
 }
 
+
+/* ---- ADD REGISTRO ---- */
+
+.add-registro-selection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  min-height: 70vh;
+}
+
+.add-registro-selection h2 {
+  font-family: 'Fraunces', serif;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--brown);
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+.registro-buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  max-width: 800px;
+  width: 100%;
+}
+
+.registro-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2.5rem;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: var(--brown);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.registro-button:hover {
+  border-color: var(--green);
+  background: var(--green);
+  color: white;
+  box-shadow: 0 8px 24px rgba(79, 124, 66, 0.3);
+  transform: translateY(-4px);
+}
+
+.registro-button-icon {
+  width: 48px;
+  height: 48px;
+  fill: currentColor;
+}
+
+.form-container {
+  animation: fadeUp 0.5s ease both;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 1rem;
+  grid-column: 1 / -1;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn-volver-atras {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background-color: var(--muted);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.btn-volver-atras:hover {
+  background-color: #6b4d42;
+  transform: translateY(-2px);
+}
+
+.btn-volver-atras svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+
+.form-buttons .btn-editar-cita,
+.form-buttons .btn-editar-vacuna,
+.form-buttons .btn-editar-tratamiento,
+.form-buttons .btn-editar-patologia {
+  margin-top: 0;
+}
+
+@media (max-width: 600px) {
+  .registro-buttons-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .registro-button {
+    padding: 2rem;
+  }
+
+  .add-registro-selection h2 {
+    font-size: 2rem;
+  }
+}
+
+
+/*---- EDITAR HISTORIAL MÉDICO -----*/
+
+.editar-cita-container h2,
+.editar-vacuna-container h2,
+.editar-tratamiento-container h2,
+.editar-patologia-container h2 {
+  padding-bottom: 1rem;
+}
+
+/*---- Editar cita -----*/
+
+.editar-cita-container{
+  background: #fff;
+  border-radius: 28px;
+  box-shadow: 0 20px 60px rgba(61,43,31,0.1);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 760px;
+  margin: 1rem auto;
+  animation: fadeUp 0.5s ease both;
+  border-top: 4px solid var(--green);
+}
+
+.form-grid-editar-cita {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    "clinica  fecha"
+    "observ   diag"
+    "boton    boton";
+  gap: 1rem;
+}
+
+.form-grid-editar-cita .form-group-clinica       { grid-area: clinica; }
+.form-grid-editar-cita .form-group-fecha         { grid-area: fecha; }
+.form-grid-editar-cita .form-group-observaciones { grid-area: observ; }
+.form-grid-editar-cita .form-group-diagnostico   { grid-area: diag; }
+.form-grid-editar-cita .btn-editar-cita          { grid-area: boton; }
+
+@media (max-width: 600px) {
+  .form-grid-editar-cita {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "clinica"
+      "observ"
+      "fecha"
+      "diag"
+      "boton";
+  }
+}
+
+.btn-editar-cita{
+  width: 100%;
+  padding: 0.9rem;
+  background: var(--green);
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(74,103,65,0.3);
+  text-decoration: none;
+}
+
+.btn-editar-cita:hover {
+  background: #5a7d51;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(74,103,65,0.4);
+}
+
+.editar-cita-container textarea{
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--warm);
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  color: var(--text);
+  background: var(--cream);
+  outline: none;
+  min-height: 140px;
+  resize: vertical;
+}
+
+
+/*--- Editar vacuna ----*/
+
+.editar-vacuna-container{
+  background: #fff;
+  border-radius: 28px;
+  box-shadow: 0 20px 60px rgba(61,43,31,0.1);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 760px;
+  margin: 1rem auto;
+  animation: fadeUp 0.5s ease both;
+  border-top: 4px solid var(--green);
+}
+
+.form-grid-editar-vacuna {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    "nombre   fecha"
+    "observ   observ"
+    "boton    boton";
+  gap: 1rem;
+}
+
+.form-grid-editar-vacuna .form-group-nombre-vacuna              { grid-area: nombre; }
+.form-grid-editar-vacuna .form-group-fecha-administracion       { grid-area: fecha; }
+.form-grid-editar-vacuna .form-group-observaciones-vacuna       { grid-area: observ; }
+.form-grid-editar-vacuna .btn-editar-vacuna                     { grid-area: boton; }
+
+@media (max-width: 600px) {
+  .form-grid-editar-vacuna {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "nombre"
+      "fecha"
+      "observ"
+      "boton";
+  }
+}
+
+.btn-editar-vacuna{
+  width: 100%;
+  padding: 0.9rem;
+  background: var(--green);
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(74,103,65,0.3);
+  text-decoration: none;
+}
+
+.btn-editar-vacuna:hover {
+  background: #5a7d51;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(74,103,65,0.4);
+}
+
+.editar-vacuna-container textarea{
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--warm);
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  color: var(--text);
+  background: var(--cream);
+  outline: none;
+  min-height: 140px;
+  resize: vertical;
+}
+
+
+/*--- Editar Tratamiento ----*/
+
+.editar-tratamiento-container{
+  background: #fff;
+  border-radius: 28px;
+  box-shadow: 0 20px 60px rgba(61,43,31,0.1);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 760px;
+  margin: 1rem auto;
+  animation: fadeUp 0.5s ease both;
+  border-top: 4px solid var(--green);
+}
+
+.form-grid-editar-tratamiento {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    "medic        medic"
+    "dosis        frecuencia"
+    "fecha-inicio fecha-fin"
+    "observ       observ"
+    "boton        boton";
+  gap: 1rem;
+}
+
+.form-grid-editar-tratamiento .form-group-medicamento              { grid-area: medic; }
+.form-grid-editar-tratamiento .form-group-dosis                    { grid-area: dosis; }
+.form-grid-editar-tratamiento .form-group-frecuencia               { grid-area: frecuencia; }
+.form-grid-editar-tratamiento .form-group-fecha-inicio             { grid-area: fecha-inicio; }
+.form-grid-editar-tratamiento .form-group-fecha-fin                { grid-area: fecha-fin; }
+.form-grid-editar-tratamiento .form-group-observaciones-tratamiento{ grid-area: observ; }
+.form-grid-editar-tratamiento .btn-editar-tratamiento              { grid-area: boton; }
+
+@media (max-width: 600px) {
+  .form-grid-editar-tratamiento {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "medic"
+      "dosis"
+      "frecuencia"
+      "fecha-inicio"
+      "fecha-fin"
+      "observ"
+      "boton";
+  }
+}
+
+.btn-editar-tratamiento{
+  width: 100%;
+  padding: 0.9rem;
+  background: var(--green);
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(74,103,65,0.3);
+  text-decoration: none;
+}
+
+.btn-editar-tratamiento:hover {
+  background: #5a7d51;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(74,103,65,0.4);
+}
+
+.editar-tratamiento-container textarea{
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--warm);
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  color: var(--text);
+  background: var(--cream);
+  outline: none;
+  min-height: 140px;
+  resize: vertical;
+}
+
+
+/*--- Editar Patología ----*/
+
+.editar-patologia-container {
+  background: #fff;
+  border-radius: 28px;
+  box-shadow: 0 20px 60px rgba(61,43,31,0.1);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 760px;
+  margin: 1rem auto;
+  animation: fadeUp 0.5s ease both;
+  border-top: 4px solid var(--green);
+}
+
+.form-grid-editar-patologia {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    "nombre      nombre"
+    "tipo        estado"
+    "fecha-diag  fecha-diag"
+    "descrip     descrip"
+    "boton       boton";
+  gap: 1rem;
+}
+
+.form-grid-editar-patologia .form-group-nombre-patologia    { grid-area: nombre; }
+.form-grid-editar-patologia .form-group-tipo-patologia      { grid-area: tipo; }
+.form-grid-editar-patologia .form-group-estado-patologia    { grid-area: estado; }
+.form-grid-editar-patologia .form-group-fecha-diagnostico   { grid-area: fecha-diag; }
+.form-grid-editar-patologia .form-group-descripcion-patologia { grid-area: descrip; }
+.form-grid-editar-patologia .btn-editar-patologia           { grid-area: boton; }
+
+@media (max-width: 600px) {
+  .form-grid-editar-patologia {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "nombre"
+      "tipo"
+      "estado"
+      "fecha-diag"
+      "descrip"
+      "boton";
+  }
+}
+
+.btn-editar-patologia {
+  width: 100%;
+  padding: 0.9rem;
+  background: var(--green);
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(74,103,65,0.3);
+  text-decoration: none;
+}
+
+.btn-editar-patologia:hover {
+  background: #5a7d51;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(74,103,65,0.4);
+}
+
+.editar-patologia-container textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--warm);
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  color: var(--text);
+  background: var(--cream);
+  outline: none;
+  min-height: 100px;
+  resize: vertical;
+}
+
+
+/*----- Eliminar Mascota -----*/
 .eliminar-mascota-boton{
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 2rem;
+  opacity: 0;
+  animation: button-enter 0.6s ease-out forwards;
+  animation-delay: 0.4s;
 }
 
 .boton-eliminar-mascota{
@@ -1967,10 +2614,13 @@ footer {
   overflow-wrap: break-word;
   word-wrap: break-all;
   max-width: 100%;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
 }
 
 .boton-eliminar-mascota:hover {
-  box-shadow: 0 4px 20px rgba(74,103,65,0.3);
+  background: #b9772e;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(74,103,65,0.4);
 }
 
 /*Modal de confirmacion de eliminación*/
@@ -2035,6 +2685,10 @@ footer {
 
 #cancelar-eliminar-mascota{
   background-color:#c8b0a2
+}
+
+#cancelar-eliminar-registro{
+  background-color:#c8b0a2;
 }
 
 
