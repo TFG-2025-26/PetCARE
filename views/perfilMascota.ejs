@@ -15,6 +15,17 @@
             const textValue = (value) => (value === null || value === undefined || value === '' ? '-' : value);
             const formatDate = (value) => (value ? new Date(value).toLocaleDateString('es-ES') : '-');
             const formatDateTime = (value) => (value ? new Date(value).toLocaleString('es-ES') : '-');
+            const formatPatologiaLabel = (value) => {
+                if (value === null || value === undefined || value === '') return '-';
+                const labels = {
+                    enfermedad: 'Enfermedad',
+                    alergia: 'Alergia',
+                    condicion: 'Condición',
+                    activa: 'Activa',
+                    superada: 'Superada'
+                };
+                return labels[value] || (String(value).charAt(0).toUpperCase() + String(value).slice(1));
+            };
         %>
 
     <main class="pet-main">
@@ -50,7 +61,7 @@
                 <button data-seccion-cartilla="vacunas" class="boton-cartilla">Vacunas</button>
                 <button data-seccion-cartilla="tratamientos" class="boton-cartilla">Tratamientos</button>
                 <button data-seccion-cartilla="patologias" class="boton-cartilla">Patologías</button>
-                <button id="añadir-registro-cartilla">+ Añadir registro</button>
+                <a id="añadir-registro-cartilla" href="/pets/cartilla/add-registro/<%= pet.id_cartilla %>">+ Añadir registro</a>
             </div>
 
             <div class="cartilla-contenido">
@@ -61,10 +72,11 @@
                             <div class="js-desktop-view">
                                 <table>
                                     <colgroup>
-                                        <col style="width: 20%">
-                                        <col style="width: 30%">
-                                        <col style="width: 20%">
-                                        <col style="width: 30%">
+                                        <col style="width: 16%">
+                                        <col style="width: 26%">
+                                        <col style="width: 18%">
+                                        <col style="width: 26%">
+                                        <col style="width: 14%">
                                     </colgroup>
                                     <thead>
                                         <tr>
@@ -72,6 +84,7 @@
                                             <th>Observaciones</th>
                                             <th>Fecha y hora</th>
                                             <th>Diagnóstico</th>
+                                            <th>Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -81,6 +94,20 @@
                                                 <td><%= textValue(cita.observaciones) %></td>
                                                 <td><%= formatDateTime(cita.fecha) %></td>
                                                 <td><%= textValue(cita.diagnostico) %></td>
+                                                <td>
+                                                    <div class="tabla-acciones">
+                                                        <a href="/pets/cartilla/editar-cita/<%= cita.id_cita %>" class="boton-accion-editar" aria-label="Editar cita" title="Editar cita">
+                                                            <svg viewBox="0 0 24 24" aria-hidden="true" class="icono-accion">
+                                                                <path d="M16.862 4.487a2.625 2.625 0 0 1 3.712 3.713l-9.193 9.193a4.5 4.5 0 0 1-1.897 1.13l-2.685.671a.75.75 0 0 1-.91-.91l.67-2.685a4.5 4.5 0 0 1 1.13-1.897l9.173-9.215Z"/>
+                                                            </svg>
+                                                        </a>
+                                                        <a href="/pets/cartilla/eliminar-cita" class="boton-accion-eliminar js-abrir-modal-eliminar-registro" aria-label="Eliminar cita" title="Eliminar cita" data-tipo-registro="cita" data-id-registro="<%= cita.id_cita %>" data-id-name="id_cita">
+                                                            <svg viewBox="0 0 24 24" aria-hidden="true" class="icono-accion">
+                                                                <path d="M9 3.75h6a.75.75 0 0 1 .75.75V6h4.5a.75.75 0 0 1 0 1.5h-.638l-.577 10.094A2.25 2.25 0 0 1 16.789 19.5H7.21a2.25 2.25 0 0 1-2.246-1.906L4.387 7.5H3.75a.75.75 0 0 1 0-1.5h4.5V4.5A.75.75 0 0 1 9 3.75Zm1.5 3.75a.75.75 0 0 0-1.5 0v7.5a.75.75 0 0 0 1.5 0V7.5Zm4.5 0a.75.75 0 0 0-1.5 0v7.5a.75.75 0 0 0 1.5 0V7.5Z"/>
+                                                            </svg>
+                                                        </a>
+                                                    </div>
+                                                </td>
                                             </tr>
                                         <% }) %>
                                     </tbody>
@@ -94,7 +121,18 @@
                                         <p><strong>Observaciones:</strong> <%= textValue(cita.observaciones) %></p>
                                         <p><strong>Fecha y hora:</strong> <%= formatDateTime(cita.fecha) %></p>
                                         <p><strong>Diagnóstico:</strong> <%= textValue(cita.diagnostico) %></p>
-                                        <hr>
+                                        <div class="tabla-acciones">
+                                            <a href="/pets/cartilla/editar-cita/<%= cita.id_cita %>" class="boton-accion-editar" aria-label="Editar cita" title="Editar cita">
+                                                <svg viewBox="0 0 24 24" aria-hidden="true" class="icono-accion">
+                                                    <path d="M16.862 4.487a2.625 2.625 0 0 1 3.712 3.713l-9.193 9.193a4.5 4.5 0 0 1-1.897 1.13l-2.685.671a.75.75 0 0 1-.91-.91l.67-2.685a4.5 4.5 0 0 1 1.13-1.897l9.173-9.215Z"/>
+                                                </svg>
+                                            </a>
+                                            <a href="/pets/cartilla/eliminar-cita" class="boton-accion-eliminar js-abrir-modal-eliminar-registro" aria-label="Eliminar cita" title="Eliminar cita" data-tipo-registro="cita" data-id-registro="<%= cita.id_cita %>" data-id-name="id_cita">
+                                                <svg viewBox="0 0 24 24" aria-hidden="true" class="icono-accion">
+                                                    <path d="M9 3.75h6a.75.75 0 0 1 .75.75V6h4.5a.75.75 0 0 1 0 1.5h-.638l-.577 10.094A2.25 2.25 0 0 1 16.789 19.5H7.21a2.25 2.25 0 0 1-2.246-1.906L4.387 7.5H3.75a.75.75 0 0 1 0-1.5h4.5V4.5A.75.75 0 0 1 9 3.75Zm1.5 3.75a.75.75 0 0 0-1.5 0v7.5a.75.75 0 0 0 1.5 0V7.5Zm4.5 0a.75.75 0 0 0-1.5 0v7.5a.75.75 0 0 0 1.5 0V7.5Z"/>
+                                                </svg>
+                                            </a>
+                                        </div>
                                     </div>
                                 <% }) %>
                             </div>
@@ -110,15 +148,17 @@
                             <div class="js-desktop-view">
                                 <table>
                                     <colgroup>
-                                        <col style="width: 25%">
-                                        <col style="width: 25%">
-                                        <col style="width: 50%">
+                                        <col style="width: 20%">
+                                        <col style="width: 22%">
+                                        <col style="width: 44%">
+                                        <col style="width: 14%">
                                     </colgroup>
                                     <thead>
                                         <tr>
                                             <th>Nombre</th>
                                             <th>Fecha de administración</th>
                                             <th>Observaciones</th>
+                                            <th>Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -127,6 +167,20 @@
                                                 <td><%= textValue(vacuna.nombre) %></td>
                                                 <td><%= formatDate(vacuna.fecha_administracion) %></td>
                                                 <td><%= textValue(vacuna.observaciones) %></td>
+                                                <td>
+                                                    <div class="tabla-acciones">
+                                                        <a href="/pets/cartilla/editar-vacuna/<%= vacuna.id_vacuna %>" class="boton-accion-editar" aria-label="Editar vacuna" title="Editar vacuna">
+                                                            <svg viewBox="0 0 24 24" aria-hidden="true" class="icono-accion">
+                                                                <path d="M16.862 4.487a2.625 2.625 0 0 1 3.712 3.713l-9.193 9.193a4.5 4.5 0 0 1-1.897 1.13l-2.685.671a.75.75 0 0 1-.91-.91l.67-2.685a4.5 4.5 0 0 1 1.13-1.897l9.173-9.215Z"/>
+                                                            </svg>
+                                                        </a>
+                                                        <a href="/pets/cartilla/eliminar-vacuna" class="boton-accion-eliminar js-abrir-modal-eliminar-registro" aria-label="Eliminar vacuna" title="Eliminar vacuna" data-tipo-registro="vacuna" data-id-registro="<%= vacuna.id_vacuna %>" data-id-name="id_vacuna">
+                                                            <svg viewBox="0 0 24 24" aria-hidden="true" class="icono-accion">
+                                                                <path d="M9 3.75h6a.75.75 0 0 1 .75.75V6h4.5a.75.75 0 0 1 0 1.5h-.638l-.577 10.094A2.25 2.25 0 0 1 16.789 19.5H7.21a2.25 2.25 0 0 1-2.246-1.906L4.387 7.5H3.75a.75.75 0 0 1 0-1.5h4.5V4.5A.75.75 0 0 1 9 3.75Zm1.5 3.75a.75.75 0 0 0-1.5 0v7.5a.75.75 0 0 0 1.5 0V7.5Zm4.5 0a.75.75 0 0 0-1.5 0v7.5a.75.75 0 0 0 1.5 0V7.5Z"/>
+                                                            </svg>
+                                                        </a>
+                                                    </div>
+                                                </td>
                                             </tr>
                                         <% }) %>
                                     </tbody>
@@ -139,7 +193,18 @@
                                         <p><strong>Nombre:</strong> <%= textValue(vacuna.nombre) %></p>
                                         <p><strong>Fecha de administración:</strong> <%= formatDate(vacuna.fecha_administracion) %></p>
                                         <p><strong>Observaciones:</strong> <%= textValue(vacuna.observaciones) %></p>
-                                        <hr>
+                                        <div class="tabla-acciones">
+                                            <a href="/pets/cartilla/editar-vacuna/<%= vacuna.id_vacuna %>" class="boton-accion-editar" aria-label="Editar vacuna" title="Editar vacuna">
+                                                <svg viewBox="0 0 24 24" aria-hidden="true" class="icono-accion">
+                                                    <path d="M16.862 4.487a2.625 2.625 0 0 1 3.712 3.713l-9.193 9.193a4.5 4.5 0 0 1-1.897 1.13l-2.685.671a.75.75 0 0 1-.91-.91l.67-2.685a4.5 4.5 0 0 1 1.13-1.897l9.173-9.215Z"/>
+                                                </svg>
+                                            </a>
+                                            <a href="/pets/cartilla/eliminar-vacuna" class="boton-accion-eliminar js-abrir-modal-eliminar-registro" aria-label="Eliminar vacuna" title="Eliminar vacuna" data-tipo-registro="vacuna" data-id-registro="<%= vacuna.id_vacuna %>" data-id-name="id_vacuna">
+                                                <svg viewBox="0 0 24 24" aria-hidden="true" class="icono-accion">
+                                                    <path d="M9 3.75h6a.75.75 0 0 1 .75.75V6h4.5a.75.75 0 0 1 0 1.5h-.638l-.577 10.094A2.25 2.25 0 0 1 16.789 19.5H7.21a2.25 2.25 0 0 1-2.246-1.906L4.387 7.5H3.75a.75.75 0 0 1 0-1.5h4.5V4.5A.75.75 0 0 1 9 3.75Zm1.5 3.75a.75.75 0 0 0-1.5 0v7.5a.75.75 0 0 0 1.5 0V7.5Zm4.5 0a.75.75 0 0 0-1.5 0v7.5a.75.75 0 0 0 1.5 0V7.5Z"/>
+                                                </svg>
+                                            </a>
+                                        </div>
                                     </div>
                                 <% }) %>
                             </div>
@@ -155,12 +220,13 @@
                             <div class="js-desktop-view">
                                 <table>
                                     <colgroup>
-                                        <col style="width: 20%">
+                                        <col style="width: 18%">
                                         <col style="width: 10%">
-                                        <col style="width: 15%">
-                                        <col style="width: 15%">
-                                        <col style="width: 15%">
-                                        <col style="width: 25%">
+                                        <col style="width: 13%">
+                                        <col style="width: 14%">
+                                        <col style="width: 14%">
+                                        <col style="width: 21%">
+                                        <col style="width: 10%">
                                     </colgroup>
                                     <thead>
                                         <tr>
@@ -170,6 +236,7 @@
                                             <th>Fecha de inicio</th>
                                             <th>Fecha de fin</th>
                                             <th>Observaciones</th>
+                                            <th>Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -181,6 +248,20 @@
                                                 <td><%= formatDateTime(tratamiento.fecha_inicio) %></td>
                                                 <td><%= formatDateTime(tratamiento.fecha_fin) %></td>
                                                 <td><%= textValue(tratamiento.observaciones) %></td>
+                                                <td>
+                                                    <div class="tabla-acciones">
+                                                        <a href="/pets/cartilla/editar-tratamiento/<%= tratamiento.id_tratamiento %>" class="boton-accion-editar" aria-label="Editar tratamiento" title="Editar tratamiento">
+                                                            <svg viewBox="0 0 24 24" aria-hidden="true" class="icono-accion">
+                                                                <path d="M16.862 4.487a2.625 2.625 0 0 1 3.712 3.713l-9.193 9.193a4.5 4.5 0 0 1-1.897 1.13l-2.685.671a.75.75 0 0 1-.91-.91l.67-2.685a4.5 4.5 0 0 1 1.13-1.897l9.173-9.215Z"/>
+                                                            </svg>
+                                                        </a>
+                                                        <a href="/pets/cartilla/eliminar-tratamiento" class="boton-accion-eliminar js-abrir-modal-eliminar-registro" aria-label="Eliminar tratamiento" title="Eliminar tratamiento" data-tipo-registro="tratamiento" data-id-registro="<%= tratamiento.id_tratamiento %>" data-id-name="id_tratamiento">
+                                                            <svg viewBox="0 0 24 24" aria-hidden="true" class="icono-accion">
+                                                                <path d="M9 3.75h6a.75.75 0 0 1 .75.75V6h4.5a.75.75 0 0 1 0 1.5h-.638l-.577 10.094A2.25 2.25 0 0 1 16.789 19.5H7.21a2.25 2.25 0 0 1-2.246-1.906L4.387 7.5H3.75a.75.75 0 0 1 0-1.5h4.5V4.5A.75.75 0 0 1 9 3.75Zm1.5 3.75a.75.75 0 0 0-1.5 0v7.5a.75.75 0 0 0 1.5 0V7.5Zm4.5 0a.75.75 0 0 0-1.5 0v7.5a.75.75 0 0 0 1.5 0V7.5Z"/>
+                                                            </svg>
+                                                        </a>
+                                                    </div>
+                                                </td>
                                             </tr>
                                         <% }) %>
                                     </tbody>
@@ -196,7 +277,18 @@
                                         <p><strong>Fecha de inicio:</strong> <%= formatDateTime(tratamiento.fecha_inicio) %></p>
                                         <p><strong>Fecha de fin:</strong> <%= formatDateTime(tratamiento.fecha_fin) %></p>
                                         <p><strong>Observaciones:</strong> <%= textValue(tratamiento.observaciones) %></p>
-                                        <hr>
+                                        <div class="tabla-acciones">
+                                            <a href="/pets/cartilla/editar-tratamiento/<%= tratamiento.id_tratamiento %>" class="boton-accion-editar" aria-label="Editar tratamiento" title="Editar tratamiento">
+                                                <svg viewBox="0 0 24 24" aria-hidden="true" class="icono-accion">
+                                                    <path d="M16.862 4.487a2.625 2.625 0 0 1 3.712 3.713l-9.193 9.193a4.5 4.5 0 0 1-1.897 1.13l-2.685.671a.75.75 0 0 1-.91-.91l.67-2.685a4.5 4.5 0 0 1 1.13-1.897l9.173-9.215Z"/>
+                                                </svg>
+                                            </a>
+                                            <a href="/pets/cartilla/eliminar-tratamiento" class="boton-accion-eliminar js-abrir-modal-eliminar-registro" aria-label="Eliminar tratamiento" title="Eliminar tratamiento" data-tipo-registro="tratamiento" data-id-registro="<%= tratamiento.id_tratamiento %>" data-id-name="id_tratamiento">
+                                                <svg viewBox="0 0 24 24" aria-hidden="true" class="icono-accion">
+                                                    <path d="M9 3.75h6a.75.75 0 0 1 .75.75V6h4.5a.75.75 0 0 1 0 1.5h-.638l-.577 10.094A2.25 2.25 0 0 1 16.789 19.5H7.21a2.25 2.25 0 0 1-2.246-1.906L4.387 7.5H3.75a.75.75 0 0 1 0-1.5h4.5V4.5A.75.75 0 0 1 9 3.75Zm1.5 3.75a.75.75 0 0 0-1.5 0v7.5a.75.75 0 0 0 1.5 0V7.5Zm4.5 0a.75.75 0 0 0-1.5 0v7.5a.75.75 0 0 0 1.5 0V7.5Z"/>
+                                                </svg>
+                                            </a>
+                                        </div>
                                     </div>
                                 <% }) %>
                             </div>
@@ -212,11 +304,12 @@
                             <div class="js-desktop-view">
                                 <table>
                                     <colgroup>
-                                        <col style="width: 20%">
-                                        <col style="width: 15%">
-                                        <col style="width: 20%">
+                                        <col style="width: 16%">
+                                        <col style="width: 12%">
+                                        <col style="width: 18%">
                                         <col style="width: 30%">
-                                        <col style="width: 15%">
+                                        <col style="width: 12%">
+                                        <col style="width: 12%">
                                     </colgroup>
                                     <thead>
                                         <tr>
@@ -225,16 +318,31 @@
                                             <th>Fecha de diagnóstico</th>
                                             <th>Descripción</th>
                                             <th>Estado</th>
+                                            <th>Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <% condiciones.forEach((condicion) => { %>
                                             <tr>
                                                 <td><%= textValue(condicion.nombre) %></td>
-                                                <td><%= textValue(condicion.tipo) %></td>
+                                                <td><%= formatPatologiaLabel(condicion.tipo) %></td>
                                                 <td><%= formatDate(condicion.fecha_diagnostico) %></td>
                                                 <td><%= textValue(condicion.descripcion) %></td>
-                                                <td><%= textValue(condicion.estado) %></td>
+                                                <td><%= formatPatologiaLabel(condicion.estado) %></td>
+                                                <td>
+                                                    <div class="tabla-acciones">
+                                                        <a href="/pets/cartilla/editar-patologia/<%= condicion.id_condicion %>" class="boton-accion-editar" aria-label="Editar patologia" title="Editar patologia">
+                                                            <svg viewBox="0 0 24 24" aria-hidden="true" class="icono-accion">
+                                                                <path d="M16.862 4.487a2.625 2.625 0 0 1 3.712 3.713l-9.193 9.193a4.5 4.5 0 0 1-1.897 1.13l-2.685.671a.75.75 0 0 1-.91-.91l.67-2.685a4.5 4.5 0 0 1 1.13-1.897l9.173-9.215Z"/>
+                                                            </svg>
+                                                        </a>
+                                                        <a href="/pets/cartilla/eliminar-patologia" class="boton-accion-eliminar js-abrir-modal-eliminar-registro" aria-label="Eliminar patologia" title="Eliminar patologia" data-tipo-registro="patologia" data-id-registro="<%= condicion.id_condicion %>" data-id-name="id_condicion">
+                                                            <svg viewBox="0 0 24 24" aria-hidden="true" class="icono-accion">
+                                                                <path d="M9 3.75h6a.75.75 0 0 1 .75.75V6h4.5a.75.75 0 0 1 0 1.5h-.638l-.577 10.094A2.25 2.25 0 0 1 16.789 19.5H7.21a2.25 2.25 0 0 1-2.246-1.906L4.387 7.5H3.75a.75.75 0 0 1 0-1.5h4.5V4.5A.75.75 0 0 1 9 3.75Zm1.5 3.75a.75.75 0 0 0-1.5 0v7.5a.75.75 0 0 0 1.5 0V7.5Zm4.5 0a.75.75 0 0 0-1.5 0v7.5a.75.75 0 0 0 1.5 0V7.5Z"/>
+                                                            </svg>
+                                                        </a>
+                                                    </div>
+                                                </td>
                                             </tr>
                                         <% }) %>
                                     </tbody>
@@ -245,11 +353,22 @@
                                 <% condiciones.forEach((condicion) => { %>
                                     <div>
                                         <p><strong>Nombre:</strong> <%= textValue(condicion.nombre) %></p>
-                                        <p><strong>Tipo:</strong> <%= textValue(condicion.tipo) %></p>
+                                        <p><strong>Tipo:</strong> <%= formatPatologiaLabel(condicion.tipo) %></p>
                                         <p><strong>Fecha de diagnóstico:</strong> <%= formatDate(condicion.fecha_diagnostico) %></p>
                                         <p><strong>Descripción:</strong> <%= textValue(condicion.descripcion) %></p>
-                                        <p><strong>Estado:</strong> <%= textValue(condicion.estado) %></p>
-                                        <hr>
+                                        <p><strong>Estado:</strong> <%= formatPatologiaLabel(condicion.estado) %></p>
+                                        <div class="tabla-acciones">
+                                            <a href="/pets/cartilla/editar-patologia/<%= condicion.id_condicion %>" class="boton-accion-editar" aria-label="Editar patologia" title="Editar patologia">
+                                                <svg viewBox="0 0 24 24" aria-hidden="true" class="icono-accion">
+                                                    <path d="M16.862 4.487a2.625 2.625 0 0 1 3.712 3.713l-9.193 9.193a4.5 4.5 0 0 1-1.897 1.13l-2.685.671a.75.75 0 0 1-.91-.91l.67-2.685a4.5 4.5 0 0 1 1.13-1.897l9.173-9.215Z"/>
+                                                </svg>
+                                            </a>
+                                            <a href="/pets/cartilla/eliminar-patologia" class="boton-accion-eliminar js-abrir-modal-eliminar-registro" aria-label="Eliminar patologia" title="Eliminar patologia" data-tipo-registro="patologia" data-id-registro="<%= condicion.id_condicion %>" data-id-name="id_condicion">
+                                                <svg viewBox="0 0 24 24" aria-hidden="true" class="icono-accion">
+                                                    <path d="M9 3.75h6a.75.75 0 0 1 .75.75V6h4.5a.75.75 0 0 1 0 1.5h-.638l-.577 10.094A2.25 2.25 0 0 1 16.789 19.5H7.21a2.25 2.25 0 0 1-2.246-1.906L4.387 7.5H3.75a.75.75 0 0 1 0-1.5h4.5V4.5A.75.75 0 0 1 9 3.75Zm1.5 3.75a.75.75 0 0 0-1.5 0v7.5a.75.75 0 0 0 1.5 0V7.5Zm4.5 0a.75.75 0 0 0-1.5 0v7.5a.75.75 0 0 0 1.5 0V7.5Z"/>
+                                                </svg>
+                                            </a>
+                                        </div>
                                     </div>
                                 <% }) %>
                             </div>
@@ -260,14 +379,14 @@
                 </div>
             </div>
             <div class="añadir_registro_movil" hidden>
-                <button id="añadir_registro_cartilla_movil">+ Añadir registro</button>
+                <a id="añadir_registro_cartilla_movil" href="/pets/cartilla/add-registro/<%= pet.id_cartilla %>">+ Añadir registro</a>
             </div>
         </section>
         <section class="eliminar-mascota-boton">
             <a href="#" onclick="abrirModal(event)" class="boton-eliminar-mascota">Dejar a <%= pet.nombre_mascota %> en libertad</a>
         </section>
 
-        <!-- Modal -->
+        <!-- Modal eliminar mascota -->
         <div id="modal" class="overlay">
         <div class="modal">
             <h3>¿Seguro que quieres dejar a <%= pet.nombre_mascota%> en libertad?</h3>
@@ -281,6 +400,22 @@
             </div>
         </div>
         </div>
+
+        <!-- Modal eliminar registro -->
+        <div id="modal-eliminar-registro" class="overlay">
+        <div class="modal">
+            <h3>¿Seguro que quieres eliminar <span id="frase-registro-modal">este registro</span>?</h3>
+            <p>Esta acción no se puede deshacer.</p>
+            <div class="botones-modal">
+            <button onclick="cerrarModalEliminarRegistro()" id="cancelar-eliminar-registro">Cancelar</button>
+            <form id="form-eliminar-registro" action="" method="POST">
+                <input type="hidden" id="input-id-eliminar-registro" name="id" value="">
+                <button type="submit">Confirmar</button>
+            </form>
+            </div>
+        </div>
+        </div>
+
 
     </main>
 

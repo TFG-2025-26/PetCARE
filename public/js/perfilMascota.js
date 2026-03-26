@@ -64,12 +64,64 @@ function cerrarModal(){
     document.getElementById('modal').classList.remove('activo');
 }
 
-function confirmar(){
-    //TODO logica de confirmar la eliminación
-    cerrarModal();
+
+
+// Abre el modal de eliminación de un registro de la cartilla y carga dinámicamente el tipo, id y acción del registro seleccionado.
+function abrirModalEliminarRegistro(enlace) {
+    const modal = document.getElementById('modal-eliminar-registro');
+    const formEliminarRegistro = document.getElementById('form-eliminar-registro');
+    const inputIdEliminarRegistro = document.getElementById('input-id-eliminar-registro');
+    const fraseRegistroModal = document.getElementById('frase-registro-modal');
+
+    if (!modal || !formEliminarRegistro || !inputIdEliminarRegistro || !fraseRegistroModal) {
+        return;
+    }
+
+    const tipoRegistro = enlace.dataset.tipoRegistro || 'registro';
+    const idRegistro = enlace.dataset.idRegistro || '';
+    const idName = enlace.dataset.idName || 'id';
+
+    const etiquetasRegistro = {
+        cita: { articulo: 'esta', nombre: 'cita' },
+        vacuna: { articulo: 'esta', nombre: 'vacuna' },
+        tratamiento: { articulo: 'este', nombre: 'tratamiento' },
+        patologia: { articulo: 'esta', nombre: 'patología' }
+    };
+
+    const etiqueta = etiquetasRegistro[tipoRegistro] || { articulo: 'este', nombre: tipoRegistro };
+
+    formEliminarRegistro.action = enlace.getAttribute('href') || '';
+    inputIdEliminarRegistro.name = idName;
+    inputIdEliminarRegistro.value = idRegistro;
+    fraseRegistroModal.textContent = `${etiqueta.articulo} ${etiqueta.nombre}`;
+
+    modal.classList.add('activo');
 }
+
+function cerrarModalEliminarRegistro() {
+    const modal = document.getElementById('modal-eliminar-registro');
+
+    if (modal) {
+        modal.classList.remove('activo');
+    }
+}
+
+// Selecciona todos los botones de eliminar de la cartilla.
+const botonesEliminarRegistro = document.querySelectorAll('.js-abrir-modal-eliminar-registro');
+
+botonesEliminarRegistro.forEach((enlace) => {
+    enlace.addEventListener('click', (event) => {
+        event.preventDefault();
+        // Abre el modal con los datos del registro seleccionado.
+        abrirModalEliminarRegistro(enlace);
+    });
+});
 
 //Cerrar el modal cuando se hace click fuera
 document.getElementById('modal').addEventListener('click', function(e){
     if (e.target === this) cerrarModal();
+});
+
+document.getElementById('modal-eliminar-registro').addEventListener('click', function(e){
+    if (e.target === this) cerrarModalEliminarRegistro();
 });
