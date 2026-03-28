@@ -55,7 +55,7 @@
 
       <div class="foros-list">
         <% foros.forEach(function(foro) { %>
-          <div class="foro-card" onclick="abrirForo(<%= foro.id_foro %>)">
+          <a class="foro-card" href="/content/foros/<%= foro.id_foro %>">
             <div class="foro-card-left">
               <span class="foro-categoria"><%= foro.categoría %></span>
               <h2 class="foro-titulo"><%= foro.titulo %></h2>
@@ -71,7 +71,7 @@
                 <span class="foro-stat">👁 <%= foro.num_visitas || 0 %></span>
               </div>
             </div>
-        </div>
+        </a>
         <% }) %>
       </div>
 
@@ -116,13 +116,6 @@
 
   <script src="/js/validacionCrearForo.js"></script>
   <script>
-    async function abrirForo(id) {
-        const response = await fetch('/content/foros/' + id);
-        const html = await response.text();
-        document.getElementById('modalForo-contenido').innerHTML = html;
-        document.getElementById('modalForo').style.display = 'flex';
-    }
-
     async function crearForo() {
         const response = await fetch('/content/foros/crearForo');
         const html = await response.text();

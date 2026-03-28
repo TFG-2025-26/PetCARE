@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= foro.titulo %> — PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <%- include('plantillas/navbar') %>
+
+  <main class="foro-detalle-page">
+
+    <!-- CABECERA DEL FORO -->
+    <div class="foro-detalle-header">
+      <a href="/content/foros" class="editar-back">← Volver a los foros</a>
+      <h1 class="foro-detalle-titulo"><%= foro.titulo %></h1>
+      <div class="foro-detalle-meta">
+        <span class="foro-detalle-autor">@<%= foro.nombre_usuario %></span>
+        <span class="foro-detalle-sep">·</span>
+        <span class="foro-detalle-fecha"><%= new Date(foro.fecha_creacion).toLocaleDateString('es-ES') %></span>
+        <span class="foro-detalle-sep">·</span>
+        <span class="foro-detalle-categoria"><%= foro.categoría %></span>
+        
+        <% if (usuarioSesion && usuarioSesion.id === foro.id_usuario) { %>
+          <span class="foro-detalle-sep">·</span>
+          <a href="#" class="foro-detalle-eliminar" onclick="abrirModalEliminarForo(event)">Eliminar foro</a>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- DESCRIPCIÓN -->
+    <div class="foro-detalle-body">
+      <p class="foro-detalle-desc"><%= foro.descripcion %></p>
+    </div>
+
+    <div class="foro-detalle-divider"></div>
+
+    <!-- COMENTARIOS -->
+    <div class="foro-detalle-comentarios">
+      <h2 class="foro-comentarios-titulo">
+        Comentarios
+        <span class="foro-comentarios-count"><%= comentarios.length %></span>
+      </h2>
+
+      <!-- FORMULARIO COMENTARIO -->
+      <form action="/foros/<%= foro.id_foro %>/comentarios" method="POST">
+        <label for="contenido">Añadir comentario</label>
+        <textarea id="contenido" name="contenido" rows="3" placeholder="Escribe tu comentario..."></textarea>
+        <div class="foro-comentario-actions">
+          <button type="submit" class="btn-submit" style="width:auto; padding: 0.6rem 1.5rem;">Publicar</button>
+        </div>
+      </form>
+
+      <% if (comentarios.length > 0) { %>
+        <div class="foro-comentarios-list">
+          <% comentarios.forEach(function(c) { %>
+            <div class="comentario-card">
+              <div class="comentario-header">
+                <div class="comentario-info">
+                  <span class="comentario-autor">@<%= c.nombre_usuario %></span>
+                  <span class="comentario-fecha"><%= new Date(c.fecha_publicacion).toLocaleDateString('es-ES') %></span>
+                </div>
+                <% if (usuarioSesion.id === c.id_usuario) { %>
+                  <a href="/foros/<%= foro.id_foro %>/comentarios/<%= c.id_comentario %>/eliminar"
+                    class="comentario-eliminar"
+                    onclick="return confirm('¿Seguro que quieres eliminar este comentario?')">✕</a>
+                <% } %>
+              </div>
+              <p class="comentario-contenido"><%= c.contenido %></p>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="foro-comentarios-empty">
+          <span>🐾</span>
+          <p>¡Sé el primer animalito en pasear por este foro!</p>
+        </div>
+      <% } %>
+    </div>
+
+    <div class="foro-detalle-divider"></div>
+
+  </main>
+
+  <%- include('plantillas/modalConfirmarEliminarForo', { foro: foro, usuarioSesion: usuarioSesion }) %>
+  <%- include('plantillas/modalErrores', { error: typeof error !== 'undefined' ? error : null, errores: typeof errores !== 'undefined' ? errores : [] }) %>
+
+  <script>
+    function abrirModalEliminarForo(event) {
+      event.preventDefault();
+      document.getElementById('modalEliminarForo').style.display = 'flex';
+    }
+
+    function cerrarModalEliminarForo() {
+      document.getElementById('modalEliminarForo').style.display = 'none';
+    }
+
+    document.getElementById('modalEliminarForo').addEventListener('click', function (event) {
+      if (event.target === this) {
+        cerrarModalEliminarForo();
+      }
+    });
+  </script>
+
+</body>
+</html>

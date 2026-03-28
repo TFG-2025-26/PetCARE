@@ -28,7 +28,7 @@ const verForo = (req, res) => {
             if (results.length === 0) {
                 return res.status(404).send('Foro no encontrado');
             }
-            res.render('plantillas/foroDetalle', { 
+            res.render('foroDetalle', { 
                 foro: results[0],
                 comentarios: [], // Aquí se pueden cargar los comentarios del foro si es necesario
                 usuarioSesion: req.session.usuario || null
@@ -90,8 +90,8 @@ const filtrarForos = (req, res) => {
     const categoria = req.query.categoria || '';
     const keyword = req.query.keyword || '';
 
-    let condiciones = [];
-    let params = [];
+    let condiciones = ['f.activo = ?'];
+    let params = [1];
 
     if (categoria) {
         condiciones.push('f.categoría = ?');
@@ -189,13 +189,32 @@ const postEditarForo = (req, res) => {};
 
 const eliminarForo = (req, res) => {
     const foroId = parseInt(req.params.id, 10);
+    const usuarioId = parseInt(req.params.id_usuario, 10);
+    const usuarioSesion = req.session.usuario;
 
-    // TODO: Hay que ver si lo eliminamos o lo ponemos a inactivo.
-    pool.query('DELETE FROM foros WHERE id_foro = ?', [foroId], (err, result) => {
+    if (Number.isNaN(foroId) || Number.isNaN(usuarioId)) {
+        return res.status(400).send('Parámetros inválidos');
+    }
+
+    if (!usuarioSesion) {
+        return res.status(401).send('Debes iniciar sesión para realizar esta acción');
+    }
+
+    // Comprobación adicional: el id de usuario del enlace debe coincidir con la sesión activa.
+    if (usuarioSesion.id !== usuarioId) {
+        return res.status(403).send('No tienes permiso para eliminar este foro');
+    }
+
+    pool.query('UPDATE foros SET activo = 0 WHERE id_foro = ? AND id_usuario = ? AND activo = 1', [foroId, usuarioId], (err, result) => {
         if (err) {
             console.error('Error al eliminar el foro:', err);
             return res.status(500).send('Error al eliminar el foro');
         }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).send('Foro no encontrado o sin permisos para eliminarlo');
+        }
+
         res.redirect('/content/foros');
     });
 };
