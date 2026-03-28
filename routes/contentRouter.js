@@ -26,7 +26,7 @@ router.get('/foros/:id', contentController.verForo);
 router.get('/foros/:id/editar', contentController.getEditarForo);
 router.post('/foros/:id/editar', contentController.postEditarForo);
 router.get('/foros/:id/usuario/:id_usuario/eliminar', contentController.eliminarForo);
-router.post('/foros/:id/comentario', contentController.comentarForo);
+router.post('/foros/:id/usuario/:id_usuario/comentario', contentController.comentarForo);
 router.get('/foros/:id/comentario/:id_comentario/eliminar', contentController.eliminarComentario);
 router.get('/foros/:id/comentario/:id_comentario/editar', contentController.getEditarComentario);
 router.post('/foros/:id/comentario/:id_comentario/editar', contentController.postEditarComentario);

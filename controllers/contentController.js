@@ -14,27 +14,46 @@ const verForo = (req, res) => {
         return res.status(400).send('ID de foro inválido');
     }
 
-    pool.query(
-        `SELECT f.*, u.nombre_usuario 
-         FROM foros f 
-         JOIN usuarios u ON f.id_usuario = u.id_usuario 
-         WHERE f.id_foro = ?`,
-        [foroId],
-        (err, results) => {
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al conectar a la base de datos:', err);
+            return res.status(500).send('Error al conectar a la base de datos');
+        }
+
+        const sql_foro = `SELECT f.*, u.nombre_usuario 
+                                  FROM foros f 
+                                  JOIN usuarios u ON f.id_usuario = u.id_usuario 
+                                  WHERE f.id_foro = ?`;
+
+        connection.query(sql_foro, [foroId], (err, results) => {
+            connection.release();
             if (err) {
                 console.error('Error al obtener el foro:', err);
                 return res.status(500).send('Error al obtener el foro');
-            }
-            if (results.length === 0) {
+            } else if (results.length === 0) {
                 return res.status(404).send('Foro no encontrado');
-            }
-            res.render('foroDetalle', { 
-                foro: results[0],
-                comentarios: [], // Aquí se pueden cargar los comentarios del foro si es necesario
-                usuarioSesion: req.session.usuario || null
-            });
-        }
-    );
+            } else {
+                const sql_comentarios = `SELECT c.*, u.nombre_usuario 
+                                        FROM comentarios c 
+                                        JOIN usuarios u ON c.id_usuario = u.id_usuario
+                                        WHERE c.id_foro = ? 
+                                        ORDER BY c.fecha_publicacion ASC`;
+                
+                connection.query(sql_comentarios, [foroId], (err, commentResults) => {
+                    if (err) {
+                        console.error('Error al obtener los comentarios:', err);
+                        return res.status(500).send('Error al obtener los comentarios');
+                    }
+
+                    res.render('foroDetalle', { 
+                        foro: results[0],
+                        comentarios: commentResults, 
+                        usuarioSesion: req.session.usuario || null
+                    }); 
+                }); 
+            }   
+        }); 
+    }); 
 };
 
 const getCrearForo = (req, res) => {
@@ -79,6 +98,7 @@ const postCrearForo = (req, res) => {
             }
             
             res.redirect('/content/foros');
+            connection.release();
         });
     }); 
 };
@@ -122,9 +142,14 @@ const filtrarForos = (req, res) => {
 
             // 2. Obtener foros de la página actual
             connection.query(
-                `SELECT f.*, u.nombre_usuario 
+                `SELECT f.*, u.nombre_usuario, COALESCE(c.num_respuestas, 0) AS num_respuestas
                  FROM foros f 
                  JOIN usuarios u ON f.id_usuario = u.id_usuario 
+                 LEFT JOIN (
+                     SELECT id_foro, COUNT(*) AS num_respuestas
+                     FROM comentarios
+                     GROUP BY id_foro
+                 ) c ON c.id_foro = f.id_foro
                  ${where} 
                  LIMIT ? OFFSET ?`,
                 [...params, limite, offset],
@@ -154,7 +179,7 @@ const filtrarForos = (req, res) => {
 const getEditarForo = (req, res) => {
     const foroId = parseInt(req.params.id, 10);
     const usuarioSesion = req.session.usuario;
-    pool.connection((err, connection) => {
+    pool.getConnection((err, connection) => {
         // Comprobar si hubo un error al conectar a la base de datos
         if (err) {
             console.error('Error al conectar a la base de datos:', err);
@@ -205,21 +230,64 @@ const eliminarForo = (req, res) => {
         return res.status(403).send('No tienes permiso para eliminar este foro');
     }
 
-    pool.query('UPDATE foros SET activo = 0 WHERE id_foro = ? AND id_usuario = ? AND activo = 1', [foroId, usuarioId], (err, result) => {
+    pool.getConnection((err, connection) => {
         if (err) {
-            console.error('Error al eliminar el foro:', err);
-            return res.status(500).send('Error al eliminar el foro');
+            console.error('Error al conectar a la base de datos:', err);
+            return res.status(500).send('Error al conectar a la base de datos');
         }
+        connection.query('UPDATE foros SET activo = 0 WHERE id_foro = ? AND id_usuario = ? AND activo = 1', [foroId, usuarioId], (err, result) => {
+            connection.release();
+            if (err) {
+                console.error('Error al eliminar el foro:', err);
+                return res.status(500).send('Error al eliminar el foro');
+            }
 
-        if (result.affectedRows === 0) {
-            return res.status(404).send('Foro no encontrado o sin permisos para eliminarlo');
-        }
+            if (result.affectedRows === 0) {
+                return res.status(404).send('Foro no encontrado o sin permisos para eliminarlo');
+            }
 
-        res.redirect('/content/foros');
+            res.redirect('/content/foros');
+        });
     });
 };
 
-const comentarForo = (req, res) => {};
+const comentarForo = (req, res) => {
+    const foroId = parseInt(req.params.id, 10);
+    const usuarioId = parseInt(req.params.id_usuario, 10);
+    const { contenido } = req.body;
+    const usuarioSesion = req.session.usuario;
+
+    if (Number.isNaN(foroId) || Number.isNaN(usuarioId)) {
+        return res.status(400).send('Parámetros inválidos');
+    }
+
+    if (contenido.trim() === '') {
+        return res.status(400).send('El contenido del comentario no puede estar vacío');
+    }
+
+    // Comprobación adicional: el id de usuario del enlace debe coincidir con la sesión activa.
+    if (usuarioSesion.id !== usuarioId) {
+        return res.status(403).send('No tienes permiso para comentar en este foro');
+    }
+
+    // Aquí iría la lógica para insertar el comentario en la base de datos
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al conectar a la base de datos:', err);
+            return res.status(500).send('Error al conectar a la base de datos');
+        }
+        const sql_insert_comentario = 'INSERT INTO comentarios (contenido, id_usuario, id_foro, fecha_publicacion) VALUES (?, ?, ?, NOW())';
+        connection.query(sql_insert_comentario, [contenido, usuarioId, foroId], (err, result) => {
+            connection.release();
+            if (err) {
+                console.error('Error al insertar el comentario:', err);
+                return res.status(500).send('Error al insertar el comentario');
+            }
+            res.redirect(`/content/foros/${foroId}`);
+        });
+    });
+
+};
 
 const eliminarComentario = (req, res) => {};
 

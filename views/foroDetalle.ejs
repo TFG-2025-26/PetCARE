@@ -46,11 +46,10 @@
       </h2>
 
       <!-- FORMULARIO COMENTARIO -->
-      <form action="/foros/<%= foro.id_foro %>/comentarios" method="POST">
-        <label for="contenido">Añadir comentario</label>
-        <textarea id="contenido" name="contenido" rows="3" placeholder="Escribe tu comentario..."></textarea>
+      <form action="/content/foros/<%= foro.id_foro %>/usuario/<%= usuarioSesion.id %>/comentario" method="POST" id="comentarForoForm">
+        <textarea id="contenido" name="contenido" rows="3" placeholder="Añade tu comentario..."></textarea>
         <div class="foro-comentario-actions">
-          <button type="submit" class="btn-submit" style="width:auto; padding: 0.6rem 1.5rem;">Publicar</button>
+          <button type="submit" class="btn-submit" style="width:auto; padding: 0.6rem 1.5rem; margin-bottom: 1rem;">Publicar</button>
         </div>
       </form>
 
@@ -64,9 +63,9 @@
                   <span class="comentario-fecha"><%= new Date(c.fecha_publicacion).toLocaleDateString('es-ES') %></span>
                 </div>
                 <% if (usuarioSesion.id === c.id_usuario) { %>
-                  <a href="/foros/<%= foro.id_foro %>/comentarios/<%= c.id_comentario %>/eliminar"
+                  <a href="/content/foros/<%= foro.id_foro %>/usuario/<%= usuarioSesion.id %>/comentario/<%= c.id_comentario %>/eliminar"
                     class="comentario-eliminar"
-                    onclick="return confirm('¿Seguro que quieres eliminar este comentario?')">✕</a>
+                    onclick="return confirm('¿Seguro que quieres eliminar este comentario?')">Eliminar ✕</a>
                 <% } %>
               </div>
               <p class="comentario-contenido"><%= c.contenido %></p>
@@ -81,14 +80,21 @@
       <% } %>
     </div>
 
-    <div class="foro-detalle-divider"></div>
-
   </main>
 
+  <%- include('plantillas/footer') %>
   <%- include('plantillas/modalConfirmarEliminarForo', { foro: foro, usuarioSesion: usuarioSesion }) %>
   <%- include('plantillas/modalErrores', { error: typeof error !== 'undefined' ? error : null, errores: typeof errores !== 'undefined' ? errores : [] }) %>
 
   <script>
+    const comentarForm = document.getElementById('comentarForoForm');
+    comentarForm.addEventListener('submit', function (event) {
+      const contenido = document.getElementById('contenido').value.trim();
+      if (!contenido) {
+        event.preventDefault();
+      }
+    });
+
     function abrirModalEliminarForo(event) {
       event.preventDefault();
       document.getElementById('modalEliminarForo').style.display = 'flex';

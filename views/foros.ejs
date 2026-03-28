@@ -68,7 +68,6 @@
               </div>
               <div class="foro-stats">
                 <span class="foro-stat">💬 <%= foro.num_respuestas || 0 %></span>
-                <span class="foro-stat">👁 <%= foro.num_visitas || 0 %></span>
               </div>
             </div>
         </a>
@@ -112,6 +111,7 @@
         <div id="modalForo-contenido">
         </div>
     </div>
+  <%- include('plantillas/footer') %>
   <%- include('plantillas/modalErrores', { error: typeof error !== 'undefined' ? error : null, errores: typeof errores !== 'undefined' ? errores : [] }) %>
 
   <script src="/js/validacionCrearForo.js"></script>
