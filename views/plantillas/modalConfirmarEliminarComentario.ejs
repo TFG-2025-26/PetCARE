@@ -1,0 +1,17 @@
+<div class="modal-overlay" id="modalEliminarComentario" style="display:none;">
+	<div class="modal-box">
+		<div class="modal-header">
+			<h3>¿Eliminar comentario?</h3>
+			<button class="modal-close" type="button" onclick="cerrarModalEliminarComentario()">✕</button>
+		</div>
+		<ul class="modal-list">
+			<li>
+				Esta acción eliminará el comentario y no podrá ser recuperado ni visto por otros usuarios.
+			</li>
+		</ul>
+		<div class="modal-footer" style="gap: 0.8rem;">
+			<button class="btn-outline-large" type="button" onclick="cerrarModalEliminarComentario()">Cancelar</button>
+			<a id="btnEliminarComentario" href="#" class="btn-perfil-danger">Eliminar comentario</a>
+		</div>
+	</div>
+</div>

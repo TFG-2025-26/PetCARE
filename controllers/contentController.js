@@ -289,7 +289,41 @@ const comentarForo = (req, res) => {
 
 };
 
-const eliminarComentario = (req, res) => {};
+const eliminarComentario = (req, res) => {
+    const foroId = parseInt(req.params.id, 10);
+    const usuarioId = parseInt(req.params.id_usuario, 10);
+    const comentarioId = parseInt(req.params.id_comentario, 10);
+    const usuarioSesion = req.session.usuario;
+
+    if (Number.isNaN(foroId) || Number.isNaN(usuarioId) || Number.isNaN(comentarioId)) {
+        return res.status(400).send('Parámetros inválidos');
+    }
+
+    // Comprobación adicional: el id de usuario del enlace debe coincidir con la sesión activa.
+    if (usuarioSesion.id !== usuarioId) {
+        return res.status(403).send('No tienes permiso para eliminar este comentario');
+    }
+
+    // Aquí iría la lógica para eliminar el comentario de la base de datos
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al conectar a la base de datos:', err);
+            return res.status(500).send('Error al conectar a la base de datos');
+        }
+        const sql_eliminar_comentario = 'DELETE FROM comentarios WHERE id_comentario = ? AND id_usuario = ?';
+        connection.query(sql_eliminar_comentario, [comentarioId, usuarioId], (err, result) => {
+            connection.release();
+            if (err) {
+                console.error('Error al eliminar el comentario:', err);
+                return res.status(500).send('Error al eliminar el comentario');
+            }
+            if (result.affectedRows === 0) {
+                return res.status(404).send('Comentario no encontrado o sin permisos para eliminarlo');
+            }
+            res.redirect(`/content/foros/${foroId}`);
+        });
+    });
+};
 
 const getEditarComentario = (req, res) => {
 

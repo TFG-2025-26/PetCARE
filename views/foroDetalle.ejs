@@ -62,10 +62,10 @@
                   <span class="comentario-autor">@<%= c.nombre_usuario %></span>
                   <span class="comentario-fecha"><%= new Date(c.fecha_publicacion).toLocaleDateString('es-ES') %></span>
                 </div>
-                <% if (usuarioSesion.id === c.id_usuario) { %>
-                  <a href="/content/foros/<%= foro.id_foro %>/usuario/<%= usuarioSesion.id %>/comentario/<%= c.id_comentario %>/eliminar"
+                <% if (usuarioSesion && usuarioSesion.id === c.id_usuario) { %>
+                  <a href="#"
                     class="comentario-eliminar"
-                    onclick="return confirm('¿Seguro que quieres eliminar este comentario?')">Eliminar ✕</a>
+                    onclick="abrirModalEliminarComentario(event, '/content/foros/<%= foro.id_foro %>/usuario/<%= usuarioSesion.id %>/comentario/<%= c.id_comentario %>/eliminar')">Eliminar ✕</a>
                 <% } %>
               </div>
               <p class="comentario-contenido"><%= c.contenido %></p>
@@ -83,6 +83,7 @@
   </main>
 
   <%- include('plantillas/footer') %>
+  <%- include('plantillas/modalConfirmarEliminarComentario') %>
   <%- include('plantillas/modalConfirmarEliminarForo', { foro: foro, usuarioSesion: usuarioSesion }) %>
   <%- include('plantillas/modalErrores', { error: typeof error !== 'undefined' ? error : null, errores: typeof errores !== 'undefined' ? errores : [] }) %>
 
@@ -95,6 +96,24 @@
       }
     });
 
+    // MODAL COMENTARIO
+    function abrirModalEliminarComentario(event, url) {
+      event.preventDefault();
+      document.getElementById('btnEliminarComentario').href = url;
+      document.getElementById('modalEliminarComentario').style.display = 'flex';
+    }
+
+    function cerrarModalEliminarComentario() {
+      document.getElementById('modalEliminarComentario').style.display = 'none';
+    }
+
+    document.getElementById('modalEliminarComentario').addEventListener('click', function (event) {
+      if (event.target === this) {
+        cerrarModalEliminarComentario();
+      }
+    });
+
+    // MODAL FORO
     function abrirModalEliminarForo(event) {
       event.preventDefault();
       document.getElementById('modalEliminarForo').style.display = 'flex';
