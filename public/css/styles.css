@@ -343,8 +343,8 @@ footer, .footer {
 .register-footer a:hover { text-decoration: underline; }
 
 .login-box { background: var(--white); border-radius: var(--radius-xl); box-shadow: var(--shadow-md); padding: 2.5rem; width: 100%; max-width: 380px; animation: fadeUp 0.5s ease both; }
-.login-box.client  { border-top: 4px solid var(--amber); }
-.login-box.business { border-top: 4px solid var(--green); }
+.login-box.usuario  { border-top: 4px solid var(--amber); }
+.login-box.empresa { border-top: 4px solid var(--green); }
 .login-box h2 { font-family: 'Fraunces', serif; font-size: 1.4rem; font-weight: 900; color: var(--brown); letter-spacing: -0.02em; margin-bottom: 0.3rem; }
 .login-box .subtitle { font-size: 0.88rem; color: var(--muted); font-weight: 300; margin-bottom: 1.8rem; }
 

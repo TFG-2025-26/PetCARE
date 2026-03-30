@@ -219,10 +219,10 @@ const postLoginUsuario = (req, res) => {
             return res.status(500).render('error500', { mensaje: "Error al conectar a la base de datos" });
         }
 
-        const { login_input, password } = req.body; 
+        const { usuario_input, password } = req.body; 
 
         const query = "SELECT * FROM usuarios WHERE correo = ? OR telefono = ? OR nombre_usuario = ?";
-        connection.query(query, [login_input, login_input, login_input], (err, results) => {
+        connection.query(query, [usuario_input, usuario_input, usuario_input], (err, results) => {
             connection.release();
             // Comprobar errores en la consulta
             if (err) {
@@ -278,17 +278,15 @@ const postLoginEmpresa = (req, res) => {
             return res.status(500).render('error500', {mensaje: "Error al conectar a la base de datos"}); 
         }
 
-        const { email, password } = req.body;
+        const { correo, password } = req.body;
         
         const query = "SELECT * FROM empresas WHERE correo = ?";
-        connection.query(query, [email], (err, results) => {
+        connection.query(query, [correo], (err, results) => {
             connection.release();
             if (err) {
                 console.error("Error al ejecutar la consulta de login:", err);
                 return res.status(500).render('error500', { mensaje: "Error al ejecutar la consulta de login" });
             }
-
-            console.log(results); // <-- Añade este log para ver qué devuelve la consulta
 
             // 1. Comprobar si existe la cuenta y está activa
             if (results.length === 0) {
