@@ -38,8 +38,16 @@
 }
 
 /* ── BASE ── */
-html { scroll-behavior: smooth; }
-body { font-family: 'DM Sans', sans-serif; background-color: var(--cream); color: var(--text); overflow-x: hidden; }
+html { scroll-behavior: smooth; height: 100%; }
+body {
+   font-family: 'DM Sans', sans-serif;
+   background-color: var(--cream);
+   color: var(--text);
+   overflow-x: hidden;
+   min-height: 100vh;
+   display: flex;
+   flex-direction: column;
+}
 
 /* ── ANIMACIONES ── */
 @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
@@ -207,7 +215,13 @@ textarea { resize: vertical; min-height: 80px; }
 .full-height-layout { min-height: 100vh; display: flex; flex-direction: column; }
 .full-height-layout main { flex: 1; display: flex; justify-content: center; align-items: center; }
 
-.register-page, .login-page, .recovery-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 4.5rem 1.5rem 2rem; }
+.register-page, .login-page, .recovery-page {
+   flex: 1;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   padding: 2rem 1.5rem;
+}
 .login-page { gap: 2rem; }
 .perfil-page { display: grid; grid-template-columns: 300px 1fr; gap: 2rem; min-height: 100vh; padding: 4.5rem 3rem 2rem; max-width: 1100px; margin: 0 auto; }
 .editar-page { max-width: 820px; margin: 0 auto; padding: 4.5rem 2rem 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
@@ -252,7 +266,14 @@ textarea { resize: vertical; min-height: 80px; }
 .cta-section { padding: 6rem 4rem; text-align: center; background: var(--warm); }
 .cta-section h2 { font-family: 'Fraunces', serif; font-size: clamp(2rem, 3.5vw, 3rem); font-weight: 900; color: var(--brown); letter-spacing: -0.03em; margin-bottom: 1rem; }
 .cta-section p { font-size: 1rem; color: var(--muted); margin-bottom: 2rem; font-weight: 300; }
-footer { background: var(--brown); color: rgba(255,255,255,0.4); text-align: center; padding: 1rem; font-size: 0.8rem; }
+footer, .footer {
+   background: var(--brown);
+   color: rgba(255,255,255,0.4);
+   text-align: center;
+   padding: 1rem;
+   font-size: 0.8rem;
+   margin-top: auto;
+}
 
 /* ══════════════════════════════════════════
    REGISTRO / LOGIN / RECOVERY
