@@ -134,14 +134,14 @@ nav { position: sticky; top: 0; left: 0; right: 0; z-index: 100; display: flex; 
 .form-group { margin-bottom: 1.2rem; }
 .form-group label { display: block; font-size: 0.85rem; font-weight: 500; color: var(--brown); margin-bottom: 0.4rem; }
 
-.form-group input, .form-group select, input, select, textarea {
+.form-group input, .form-group select, .filtro-group input, .filtro-group select, textarea {
   width: 100%; padding: 0.75rem 1rem;
   border: 1.5px solid var(--warm); border-radius: var(--radius-sm);
   font-family: 'DM Sans', sans-serif; font-size: 0.95rem;
   color: var(--text); background: var(--cream);
   outline: none; transition: border-color 0.2s, background 0.2s;
 }
-.form-group input:focus, .form-group select:focus, input:focus, select:focus, textarea:focus { border-color: var(--amber); background: var(--white); }
+.form-group input:focus, .form-group select:focus, .filtro-group input:focus, .filtro-group select:focus, textarea:focus { border-color: var(--amber); background: var(--white); }
 select, .form-group select { cursor: pointer; }
 textarea { resize: vertical; min-height: 80px; }
 
@@ -389,21 +389,54 @@ footer { background: var(--brown); color: rgba(255,255,255,0.4); text-align: cen
 .filtro-group select, .filtro-group input { padding: 0.65rem 1rem; }
 .foros-info { font-size: 0.85rem; color: var(--muted); font-weight: 300; }
 .foros-list { display: flex; flex-direction: column; gap: 0.8rem; }
-.foro-card { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; background: var(--white); border-radius: 18px; padding: 1.4rem 1.8rem; box-shadow: 0 4px 20px rgba(61,43,31,0.06); text-decoration: none; color: inherit; transition: transform 0.15s, box-shadow 0.2s; border: 1.5px solid transparent; cursor: pointer; }
+
+/* ── CARD ── */
+.foro-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: var(--white);
+  border-radius: 18px;
+  padding: 1.2rem 1.4rem;
+  box-shadow: 0 4px 20px rgba(61,43,31,0.06);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s, box-shadow 0.2s;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+}
 .foro-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(61,43,31,0.1); border-color: var(--warm); }
-.foro-card-left { flex: 1; min-width: 0; }
-.foro-categoria { display: inline-block; font-size: 0.72rem; font-weight: 500; color: var(--amber); background: rgba(200,135,58,0.1); border-radius: var(--radius-pill); padding: 0.2rem 0.7rem; margin-bottom: 0.5rem; text-transform: capitalize; letter-spacing: 0.03em; }
-.foro-titulo { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 700; color: var(--brown); margin-bottom: 0.4rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ── CABECERA ── */
+.foro-card-header { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; background: transparent; }
+.foro-card-header-left { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; background: transparent; }
+
+/* ── MENÚ ── */
+.foro-card-menu { position: relative; flex-shrink: 0; background: transparent; }
+.foro-card-dots { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; font-size: 1.1rem; font-weight: 700; color: var(--muted); letter-spacing: -1px; cursor: pointer; transition: background 0.2s, color 0.2s; user-select: none; background: transparent; }
+.foro-card-menu:hover .foro-card-dots, .foro-card-menu.open .foro-card-dots { background: var(--warm); color: var(--brown); }
+.foro-card-dropdown { display: none; position: absolute; top: calc(100% + 4px); right: 0; background: var(--white); border-radius: 12px; box-shadow: 0 8px 24px rgba(61,43,31,0.14); border: 1px solid var(--warm); min-width: 130px; z-index: 50; overflow: hidden; }
+.foro-card-menu.open .foro-card-dropdown { display: block; }
+.foro-card-dropdown a { display: block; padding: 0.6rem 1rem; font-size: 0.85rem; font-weight: 500; color: var(--brown); text-decoration: none; transition: background 0.15s; background: transparent; border: none; width: 100%; padding: 0.6rem 1rem; }
+.foro-card-dropdown a:hover { background: var(--cream); }
+.foro-dropdown-danger { color: var(--danger) !important; }
+.foro-dropdown-danger:hover { background: var(--danger-bg) !important; }
+
+/* ── CUERPO ── */
+.foro-card-body { min-width: 0; overflow: hidden; background: transparent; }
+
+/* ── PIE ── */
+.foro-card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 0.2rem; background: transparent; }
+
+/* ── ELEMENTOS ── */
+.foro-categoria { display: inline-block; font-size: 0.72rem; font-weight: 500; color: var(--amber); background: rgba(200,135,58,0.1); border-radius: var(--radius-pill); padding: 0.15rem 0.6rem; text-transform: capitalize; letter-spacing: 0.03em; }
+.foro-titulo { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 700; color: var(--brown); margin-bottom: 0.3rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .foro-desc { font-size: 0.88rem; color: var(--muted); font-weight: 300; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.foro-card-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.6rem; flex-shrink: 0; }
-.foto-edit { display: flex; flex-direction: column; gap: 0.4rem; }
-.foro-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 0.15rem; }
 .foro-autor { font-size: 0.82rem; font-weight: 500; color: var(--brown); }
 .foro-fecha { font-size: 0.75rem; color: var(--muted); font-weight: 300; }
-.foro-edit-btn { font-size: 0.8rem; color: var(--amber); }
-.foro-delete-btn { font-size: 0.8rem; color: var(--amber); }
-.foro-stats { display: flex; gap: 0.8rem; }
 .foro-stat { font-size: 0.8rem; color: var(--muted); font-weight: 300; }
+
+/* ── EMPTY / PAGINACIÓN ── */
 .foros-empty { display: flex; flex-direction: column; align-items: center; gap: 0.8rem; padding: 4rem 2rem; text-align: center; }
 .foros-empty-icon { font-size: 3rem; }
 .foros-empty p { font-size: 0.95rem; color: var(--muted); font-weight: 300; margin-bottom: 0.5rem; }

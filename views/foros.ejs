@@ -55,26 +55,40 @@
 
       <div class="foros-list">
         <% foros.forEach(function(foro) { %>
-        <a class="foro-card" href="/content/foros/<%= foro.id_foro %>">
-          <div class="foro-card-left">
-            <span class="foro-categoria"><%= foro.categoría %></span>
+        <article class="foro-card" role="link" tabindex="0" onclick="window.location.href='/content/foros/<%= foro.id_foro %>'" onkeydown="if(event.key==='Enter'){ window.location.href='/content/foros/<%= foro.id_foro %>'; }">
+
+          <!-- CABECERA -->
+          <div class="foro-card-header">
+            <div class="foro-card-header-left">
+              <span class="foro-autor">@<%= foro.nombre_usuario %></span>
+              <span class="foro-categoria"><%= foro.categoría %></span>
+            </div>
+            <div class="foro-card-menu" onclick="event.stopPropagation(); toggleMenu(this)">
+              <span class="foro-card-dots">···</span>
+              <div class="foro-card-dropdown">
+                <% if (usuario && usuario.id === foro.id_usuario) { %>
+                  <a href="#" data-foro-id="<%= foro.id_foro %>" data-user-id="<%= usuario.id %>" onclick="editarForoDesdeEnlace(event, this)">✏️ Editar</a>
+                  <a href="#" class="foro-dropdown-danger" data-foro-id="<%= foro.id_foro %>" data-user-id="<%= usuario.id %>" onclick="eliminarForoDesdeEnlace(event, this)">🗑️ Eliminar</a>
+                <% } else { %>
+                  <a href="/content/foros/<%= foro.id_foro %>/reportar" onclick="event.stopPropagation()">⚑ Reportar</a>
+                <% } %>
+              </div>
+            </div>
+          </div>
+
+          <!-- CUERPO -->
+          <div class="foro-card-body">
             <h2 class="foro-titulo"><%= foro.titulo %></h2>
             <p class="foro-desc"><%= foro.descripcion %></p>
           </div>
-          <div class="foro-card-right">
-            <% if (usuario && usuario.id === foro.id_usuario) { %>
-            <div class="foro-edit">
-            </div>
-            <% } %>
-            <div class="foro-meta">
-              <span class="foro-autor">@<%= foro.nombre_usuario %></span>
-              <span class="foro-fecha"><%= new Date(foro.fecha_creacion).toLocaleDateString('es-ES') %></span>
-            </div>
-            <div class="foro-stats">
-              <span class="foro-stat">💬 <%= foro.num_respuestas || 0 %></span>
-            </div>
+
+          <!-- PIE -->
+          <div class="foro-card-footer">
+            <span class="foro-fecha"><%= new Date(foro.fecha_creacion).toLocaleDateString('es-ES') %></span>
+            <span class="foro-stat">💬 <%= foro.num_respuestas || 0 %></span>
           </div>
-        </a>
+
+        </article>
         <% }) %>
       </div>
 
@@ -115,6 +129,31 @@
         <div id="modalForo-contenido">
         </div>
     </div>
+
+    <!-- Modal editar foro -->
+    <div id="modalEditarForo" style="display:none;">
+        <div id="modalEditarForo-contenido"></div>
+    </div>
+
+    <!-- Modal eliminar foro -->
+    <div class="modal-overlay" id="modalEliminarForo" style="display:none;">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3>¿Eliminar foro?</h3>
+          <button class="modal-close" type="button" onclick="cerrarModalEliminarForo()">✕</button>
+        </div>
+        <ul class="modal-list">
+          <li>
+            Esta acción ocultará el foro y no aparecerá en la lista de foros activos.
+          </li>
+        </ul>
+        <div class="modal-footer" style="gap: 0.8rem;">
+          <button class="btn-outline-large" type="button" onclick="cerrarModalEliminarForo()">Cancelar</button>
+          <a href="#" id="btnEliminarForo" class="btn-perfil-danger">Eliminar foro</a>
+        </div>
+      </div>
+    </div>
+
   <%- include('plantillas/footer') %>
   <%- include('plantillas/modalErrores', { error: typeof error !== 'undefined' ? error : null, errores: typeof errores !== 'undefined' ? errores : [] }) %>
 
@@ -149,6 +188,76 @@
 
     document.getElementById('modalForo').addEventListener('click', function(e) {
         if (e.target === this) this.style.display = 'none';
+    });
+
+    async function editarForo(event, foroId, usuarioId) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const url = `/content/foros/${foroId}/usuario/${usuarioId}/editar`;
+      try {
+        const response = await fetch(url, {
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+        const html = await response.text();
+
+        if (!response.ok || esDocumentoCompleto(html)) {
+          window.location.href = url;
+          return;
+        }
+
+        document.getElementById('modalEditarForo-contenido').innerHTML = html;
+        document.getElementById('modalEditarForo').style.display = 'flex';
+        initValidacionCrearForo();
+      } catch (error) {
+        window.location.href = url;
+      }
+    }
+
+    function editarForoDesdeEnlace(event, enlace) {
+      const foroId = enlace.getAttribute('data-foro-id');
+      const usuarioId = enlace.getAttribute('data-user-id');
+      editarForo(event, foroId, usuarioId);
+    }
+
+    document.getElementById('modalEditarForo').addEventListener('click', function(e) {
+      if (e.target === this) this.style.display = 'none';
+    });
+
+    function abrirModalEliminarForo(event, foroId, usuarioId) {
+      event.preventDefault();
+      event.stopPropagation();
+      document.getElementById('btnEliminarForo').href = `/content/foros/${foroId}/usuario/${usuarioId}/eliminar`;
+      document.getElementById('modalEliminarForo').style.display = 'flex';
+    }
+
+    function eliminarForoDesdeEnlace(event, enlace) {
+      const foroId = enlace.getAttribute('data-foro-id');
+      const usuarioId = enlace.getAttribute('data-user-id');
+      abrirModalEliminarForo(event, foroId, usuarioId);
+    }
+
+    function cerrarModalEliminarForo() {
+      document.getElementById('modalEliminarForo').style.display = 'none';
+    }
+
+    document.getElementById('modalEliminarForo').addEventListener('click', function (event) {
+      if (event.target === this) {
+        cerrarModalEliminarForo();
+      }
+    });
+
+    function toggleMenu(el) {
+      document.querySelectorAll('.foro-card-menu.open').forEach(m => {
+        if (m !== el) m.classList.remove('open');
+      });
+      el.classList.toggle('open');
+    }
+
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.foro-card-menu.open').forEach(m => m.classList.remove('open'));
     });
   </script>
 </body>
