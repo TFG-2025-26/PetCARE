@@ -2,7 +2,7 @@
 
 // Selección de formularios
 const usuarioForm = document.getElementById("form-usuario");
-const empresaForm = document.getElementById("form-business");
+const empresaForm = document.getElementById("form-empresa");
 
 // Selección de elementos - Usuario
 const usuarioNombreCompletoInput = document.getElementById("usuario-nombre_completo"); 
@@ -13,13 +13,13 @@ const usuarioPasswordInput = document.getElementById("usuario-password");
 const usuarioFechaNacimientoInput = document.getElementById("usuario-fecha_nacimiento"); 
 
 // Selección de elementos - Empresa 
-const bizNombreInput = document.getElementById("biz-nombre"); 
-const bizEmailInput = document.getElementById("biz-email"); 
-const bizCifInput = document.getElementById("biz-cif");
-const bizPasswordInput = document.getElementById("biz-password"); 
-const bizTelefonoInput = document.getElementById("biz-telefono");
-const bizTipoSelect = document.getElementById("biz-tipo"); 
-const bizTipoOtroInput = document.getElementById("biz-tipo-otro");
+const empresaNombreInput = document.getElementById("empresa-nombre"); 
+const empresaCorreoInput = document.getElementById("empresa-correo"); 
+const empresaCifInput = document.getElementById("empresa-cif");
+const empresaPasswordInput = document.getElementById("empresa-password"); 
+const empresaTelefonoContactoInput = document.getElementById("empresa-telefono_contacto");
+const empresaTipoSelect = document.getElementById("empresa-tipo"); 
+const empresaTipoOtroInput = document.getElementById("empresa-tipo-otro");
 
 // Selección de Spans - Usuario
 const usuarioNombreCompletoError = document.getElementById("error-usuario-nombre_completo");
@@ -30,13 +30,13 @@ const usuarioPasswordError = document.getElementById("error-usuario-password");
 const usuarioFechaNacimientoError = document.getElementById("error-usuario-fecha_nacimiento");
 
 // Selección de Spans - Empresa 
-const bizNombreError = document.getElementById("biz-nombre-error");
-const bizEmailError = document.getElementById("biz-email-error");
-const bizCifError = document.getElementById("biz-cif-error");
-const bizPasswordError = document.getElementById("biz-password-error");
-const bizTelefonoError = document.getElementById("biz-telefono-error");
-const bizTipoError = document.getElementById("biz-tipo-error");
-const bizTipoOtroError = document.getElementById("biz-tipo-otro-error");
+const empresaNombreError = document.getElementById("empresa-nombre-error");
+const empresaCorreoError = document.getElementById("empresa-correo-error");
+const empresaCifError = document.getElementById("empresa-cif-error");
+const empresaPasswordError = document.getElementById("empresa-password-error");
+const empresaTelefonoContactoError = document.getElementById("empresa-telefono_contacto-error");
+const empresaTipoError = document.getElementById("empresa-tipo-error");
+const empresaTipoOtroError = document.getElementById("empresa-tipo-otro-error");
 
 // Funciones de validación - Usuario
 function validarNombreCompleto() {
@@ -142,102 +142,102 @@ function validarFechaNacimientoUsuario() {
 }
 
 // Funciones de validación - Empresa 
-function validarNombreBusiness() {
-    let nombreBusinessValid = true;
-    if (bizNombreInput.value.trim().length < 3) {
-        bizNombreError.textContent = "El nombre de la empresa debe tener al menos 3 caracteres.";
-        nombreBusinessValid = false;
+function validarNombreEmpresa() {
+    let nombreEmpresaValid = true;
+    if (empresaNombreInput.value.trim().length < 3) {
+        empresaNombreError.textContent = "El nombre de la empresa debe tener al menos 3 caracteres.";
+        nombreEmpresaValid = false;
     } else {
-        bizNombreError.textContent = "";
+        empresaNombreError.textContent = "";
     }
 
-    return nombreBusinessValid;
+    return nombreEmpresaValid;
 }
 
-function validarEmailBusiness() {
-    let emailBusinessValid = true;
+function validarCorreoEmpresa() {
+    let correoEmpresaValid = true;
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!regex.test(bizEmailInput.value.trim())) {
-        bizEmailError.textContent = "Por favor, introduce un email válido.";
-        emailBusinessValid = false;
+    if (!regex.test(empresaCorreoInput.value.trim())) {
+        empresaCorreoError.textContent = "Por favor, introduce un email válido.";
+        correoEmpresaValid = false;
     } else {
-        bizEmailError.textContent = "";
+        empresaCorreoError.textContent = "";
     }
 
-    return emailBusinessValid;
+    return correoEmpresaValid;
 }
 
-function validarCifBusiness() {
-    let cifBusinessValid = true;
+function validarCifEmpresa() {
+    let cifEmpresaValid = true;
     const regex = /^[A-Za-z0-9]{8,}$/;
 
-    if (!regex.test(bizCifInput.value.trim())) {
-        bizCifError.textContent = "Por favor, introduce un CIF válido.";
-        cifBusinessValid = false;
+    if (!regex.test(empresaCifInput.value.trim())) {
+        empresaCifError.textContent = "Por favor, introduce un CIF válido.";
+        cifEmpresaValid = false;
     } else {
-        bizCifError.textContent = "";
+        empresaCifError.textContent = "";
     }
 
-    return cifBusinessValid;
+    return cifEmpresaValid;
 }
 
-function validarPasswordBusiness() {
-    let passwordBusinessValid = true;
+function validarPasswordEmpresa() {
+    let passwordEmpresaValid = true;
     const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
     // que no contenga espacios en blanco
-    if (/\s/.test(bizPasswordInput.value)) {
-        bizPasswordError.textContent = "La contraseña no puede contener espacios en blanco.";
-        passwordBusinessValid = false;
-    } else if (!regex.test(bizPasswordInput.value.trim())) {
-        bizPasswordError.textContent = "La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una letra minúscula y un número.";
-        passwordBusinessValid = false;
+    if (/\s/.test(empresaPasswordInput.value)) {
+        empresaPasswordError.textContent = "La contraseña no puede contener espacios en blanco.";
+        passwordEmpresaValid = false;
+    } else if (!regex.test(empresaPasswordInput.value.trim())) {
+        empresaPasswordError.textContent = "La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una letra minúscula y un número.";
+        passwordEmpresaValid = false;
     } else {
-        bizPasswordError.textContent = "";
+        empresaPasswordError.textContent = "";
     }
 
-    return passwordBusinessValid;
+    return passwordEmpresaValid;
 }
 
-function validarTelefonoBusiness() {
-    let telefonoBusinessValid = true;
+function validarTelefonoContactoEmpresa() {
+    let telefonoContactoEmpresaValid = true;
     const regex = /^\d{9,15}$/;
 
-    if (!regex.test(bizTelefonoInput.value.trim())) {
-        bizTelefonoError.textContent = "Por favor, introduce un teléfono válido (9-15 dígitos).";
-        telefonoBusinessValid = false;
+    if (!regex.test(empresaTelefonoContactoInput.value.trim())) {
+        empresaTelefonoContactoError.textContent = "Por favor, introduce un teléfono válido (9-15 dígitos).";
+        telefonoContactoEmpresaValid = false;
     } else {
-        bizTelefonoError.textContent = "";
+        empresaTelefonoContactoError.textContent = "";
     }
 
-    return telefonoBusinessValid;
+    return telefonoContactoEmpresaValid;
 }
 
-function validarTipoBusiness() {
-    let tipoBusinessValid = true;
-    if (bizTipoSelect.value === "") {
-        bizTipoError.textContent = "Por favor, selecciona un tipo de empresa.";
-        tipoBusinessValid = false;
+function validarTipoEmpresa() {
+    let tipoEmpresaValid = true;
+    if (empresaTipoSelect.value === "") {
+        empresaTipoError.textContent = "Por favor, selecciona un tipo de empresa.";
+        tipoEmpresaValid = false;
     } else {
-        bizTipoError.textContent = "";
+        empresaTipoError.textContent = "";
     }
 
-    return tipoBusinessValid;
+    return tipoEmpresaValid;
 }
 
-function validarTipoOtroBusiness() {
-    let tipoOtroBusinessValid = true;
-    if (bizTipoSelect.value === "otro" && bizTipoOtroInput.value.trim() === "") {
-        bizTipoOtroError.textContent = "Por favor, especifica el tipo de empresa.";
-        tipoOtroBusinessValid = false;
-    } else if (bizTipoSelect.value === "otro" && bizTipoOtroInput.value.trim().length < 5) {
-        bizTipoOtroError.textContent = "El tipo de empresa debe tener al menos 5 caracteres.";
-        tipoOtroBusinessValid = false;
+function validarTipoOtroEmpresa() {
+    let tipoOtroEmpresaValid = true;
+    if (empresaTipoSelect.value === "otro" && empresaTipoOtroInput.value.trim() === "") {
+        empresaTipoOtroError.textContent = "Por favor, especifica el tipo de empresa.";
+        tipoOtroEmpresaValid = false;
+    } else if (empresaTipoSelect.value === "otro" && empresaTipoOtroInput.value.trim().length < 5) {
+        empresaTipoOtroError.textContent = "El tipo de empresa debe tener al menos 5 caracteres.";
+        tipoOtroEmpresaValid = false;
     } else {
-        bizTipoOtroError.textContent = "";
+        empresaTipoOtroError.textContent = "";
     }
 
-    return tipoOtroBusinessValid;
+    return tipoOtroEmpresaValid;
 }
 
 // Eventos de validación - Usuario
@@ -262,23 +262,23 @@ usuarioForm.addEventListener("submit", function(event) {
 });
 
 // Eventos de validación - Empresa
-bizNombreInput.addEventListener("input", validarNombreBusiness);
-bizEmailInput.addEventListener("input", validarEmailBusiness);
-bizCifInput.addEventListener("input", validarCifBusiness);
-bizPasswordInput.addEventListener("input", validarPasswordBusiness);
-bizTipoSelect.addEventListener("change", validarTipoBusiness);
-bizTipoOtroInput.addEventListener("input", validarTipoOtroBusiness);
-bizTelefonoInput.addEventListener("input", validarTelefonoBusiness);
+empresaNombreInput.addEventListener("input", validarNombreEmpresa);
+empresaCorreoInput.addEventListener("input", validarCorreoEmpresa);
+empresaCifInput.addEventListener("input", validarCifEmpresa);
+empresaPasswordInput.addEventListener("input", validarPasswordEmpresa);
+empresaTipoSelect.addEventListener("change", validarTipoEmpresa);
+empresaTipoOtroInput.addEventListener("input", validarTipoOtroEmpresa);
+empresaTelefonoContactoInput.addEventListener("input", validarTelefonoContactoEmpresa);
 
 empresaForm.addEventListener("submit", function(event) {
-    let isNombreValid = validarNombreBusiness();
-    let isEmailValid = validarEmailBusiness();
-    let isCifValid = validarCifBusiness();
-    let isPasswordValid = validarPasswordBusiness();
-    let isTipoValid = validarTipoBusiness();
-    let isTipoOtroValid = validarTipoOtroBusiness();
-    let isTelefonoValid = validarTelefonoBusiness();    
-    if (!isNombreValid || !isEmailValid || !isCifValid || !isPasswordValid || !isTipoValid || !isTipoOtroValid || !isTelefonoValid) {
+    let isNombreValid = validarNombreEmpresa();
+    let isCorreoValid = validarCorreoEmpresa();
+    let isCifValid = validarCifEmpresa();
+    let isPasswordValid = validarPasswordEmpresa();
+    let isTipoValid = validarTipoEmpresa();
+    let isTipoOtroValid = validarTipoOtroEmpresa();
+    let isTelefonoContactoValid = validarTelefonoContactoEmpresa();    
+    if (!isNombreValid || !isCorreoValid || !isCifValid || !isPasswordValid || !isTipoValid || !isTipoOtroValid || !isTelefonoContactoValid) {
         event.preventDefault();
         alert("Por favor, corrige los errores en el formulario antes de enviarlo.");
     }

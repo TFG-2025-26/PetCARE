@@ -125,11 +125,11 @@ const postRegisterEmpresa = (req, res) => {
             error: 'Por favor, corrige los errores en el formulario.',
             errores: errores.array(),
             formData: req.body,
-            formType: 'business'
+            formType: 'empresa'
         });
     }
 
-    const { nombre_empresa, email, telefono, password, cif, tipo_empresa, tipo_empresa_otro } = req.body;
+    const { nombre, correo, telefono_contacto, password, cif, tipo, tipo_otro } = req.body;
 
     pool.getConnection((err, connection) => {
         if (err) {
@@ -138,7 +138,7 @@ const postRegisterEmpresa = (req, res) => {
         }
 
         // 1. Comprobar email 
-        connection.query("SELECT id_empresa FROM empresas WHERE correo = ?", [email], (err, results) => {
+        connection.query("SELECT id_empresa FROM empresas WHERE correo = ?", [correo], (err, results) => {
             if (err) {
                 connection.release();
                 console.error("Error al verificar el correo:", err);
@@ -150,7 +150,7 @@ const postRegisterEmpresa = (req, res) => {
                     error: 'El correo electrónico ya está registrado.',
                     errores: [],
                     formData: req.body,
-                    formType: 'business'
+                    formType: 'empresa'
                 });
             }
 
@@ -167,12 +167,12 @@ const postRegisterEmpresa = (req, res) => {
                         error: 'El CIF ya está registrado.',
                         errores: [],
                         formData: req.body,
-                        formType: 'business'
+                        formType: 'empresa'
                     });
                 }
 
                 // 3. Comprobar teléfono
-                connection.query("SELECT id_empresa FROM empresas WHERE telefono_contacto = ?", [telefono], (err, results) => {
+                connection.query("SELECT id_empresa FROM empresas WHERE telefono_contacto = ?", [telefono_contacto], (err, results) => {
                     if (err) {
                         connection.release();
                         console.error("Error al verificar el teléfono:", err);
@@ -184,14 +184,14 @@ const postRegisterEmpresa = (req, res) => {
                             error: 'El teléfono ya está registrado.',
                             errores: [],
                             formData: req.body,
-                            formType: 'business'
+                            formType: 'empresa'
                         });
                     }
 
                     // 4. Insertar
                     //! Cambiar tipo_empresa en bd y aquí
                     const insert_query = "INSERT INTO empresas (nombre, correo, contraseña, CIF, telefono_contacto, tipo) VALUES (?, ?, ?, ?, ?, ?)";
-                    connection.query(insert_query, [nombre_empresa, email, password, cif, telefono, tipo_empresa === 'otro' ? tipo_empresa_otro : tipo_empresa], (err, results) => {
+                    connection.query(insert_query, [nombre, correo, password, cif, telefono_contacto, tipo === 'otro' ? tipo_otro : tipo], (err, results) => {
                         connection.release();
                         if (err) {
                             console.error("Error al insertar la empresa:", err);
@@ -199,8 +199,8 @@ const postRegisterEmpresa = (req, res) => {
                         }
                         req.session.usuario = {
                             id:    results.insertId,
-                            nombre: nombre_empresa,
-                            tipo: 'business'
+                            nombre: nombre,
+                            tipo: 'empresa'
                         };
                         // Empresa registrada correctamente
                         res.redirect('/');
@@ -296,32 +296,32 @@ const postLoginEmpresa = (req, res) => {
                     error: 'Datos del formulario incorrectos', 
                     errores: [], 
                     formData: req.body,
-                    formType: 'business' 
+                    formType: 'empresa' 
                 });
             } else if (results[0].activo === 0) {
                 return res.render('login', { 
                     error: 'Cuenta inactiva. Por favor, contacta con soporte.',
                     errores: [],
                     formData: req.body,
-                    formType: 'business' 
+                    formType: 'empresa' 
                 });
             }
 
             // 2. Comprobar contraseña
-            const business = results[0];
-            if (business.contraseña !== password) {
+            const empresa = results[0];
+            if (empresa.contraseña !== password) {
                 return res.render('login', { 
                     error: 'Datos del formulario incorrectos', 
                     errores: [], 
                     formData: req.body,
-                    formType: 'business' 
+                    formType: 'empresa' 
                 });
             }
 
             // 3. Guardar en sesión
             req.session.usuario = {
-                id: business.id_empresa,
-                nombre: business.nombre,
+                id: empresa.id_empresa,
+                nombre: empresa.nombre,
                 tipo: 'empresa'
             };
             res.redirect('/');

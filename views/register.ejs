@@ -26,7 +26,7 @@
           <span class="type-label">Usuario</span>
           <div class="type-desc">Participa en la comunidad de PetCare</div>
         </div>
-        <div class="type-option" id="opt-business" onclick="selectType('business')">
+        <div class="type-option" id="opt-empresa" onclick="selectType('empresa')">
           <div class="type-icon">🏢</div>
           <span class="type-label">Empresa</span>
           <div class="type-desc">Clínica, tienda o servicio</div>
@@ -75,53 +75,53 @@
       </form>
 
       <!-- FORMULARIO EMPRESA -->
-      <form class="register-form" id="form-business" action="/auth/register/empresa" method="POST">
+      <form class="register-form" id="form-empresa" action="/auth/register/empresa" method="POST">
         <div class="form-group">
-          <label for="biz-nombre">Nombre de la empresa</label>
-          <input type="text" id="biz-nombre" name="nombre_empresa" placeholder="Ej: Clínica Veterinaria Sol"
-          value="<%= formType === 'business' && formData ? formData.nombre_empresa : '' %>">
-          <span id="biz-nombre-error" class="error"></span>
+          <label for="empresa-nombre">Nombre de la empresa</label>
+          <input type="text" id="empresa-nombre" name="nombre" placeholder="Ej: Clínica Veterinaria Sol"
+          value="<%= formType === 'empresa' && formData ? formData.nombre : '' %>">
+          <span id="empresa-nombre-error" class="error"></span>
         </div>
         <div class="form-group">
-          <label for="biz-email">Correo corporativo</label>
-          <input type="email" id="biz-email" name="email" placeholder="contacto@empresa.com"
-          value="<%= formType === 'business' && formData ? formData.email : '' %>">
-          <span id="biz-email-error" class="error"></span>
+          <label for="empresa-correo">Correo corporativo</label>
+          <input type="email" id="empresa-correo" name="correo" placeholder="contacto@empresa.com"
+          value="<%= formType === 'empresa' && formData ? formData.correo : '' %>">
+          <span id="empresa-correo-error" class="error"></span>
         </div>
         <div class="form-group">
-          <label for="biz-telefono">Teléfono</label>
-          <input type="number" id="biz-telefono" name="telefono" placeholder="Ej: 912345678"
-          value="<%= formType === 'business' && formData ? formData.telefono : '' %>">
-          <span id="biz-telefono-error" class="error"></span>
+          <label for="empresa-telefono_contacto">Teléfono</label>
+          <input type="number" id="empresa-telefono_contacto" name="telefono_contacto" placeholder="Ej: 912345678"
+          value="<%= formType === 'empresa' && formData ? formData.telefono_contacto : '' %>">
+          <span id="empresa-telefono_contacto-error" class="error"></span>
         </div>
         <div class="form-group">
-          <label for="biz-cif">CIF</label>
-          <input type="text" id="biz-cif" name="cif" placeholder="Ej: B12345678"
-          value="<%= formType === 'business' && formData ? formData.cif : '' %>">
-          <span id="biz-cif-error" class="error"></span>
+          <label for="empresa-cif">CIF</label>
+          <input type="text" id="empresa-cif" name="cif" placeholder="Ej: B12345678"
+          value="<%= formType === 'empresa' && formData ? formData.cif : '' %>">
+          <span id="empresa-cif-error" class="error"></span>
         </div>
         <div class="form-group">
-          <label for="biz-password">Contraseña</label>
-          <input type="password" id="biz-password" name="password" placeholder="••••••••"
-          value="<%= formType === 'business' && formData ? formData.password : '' %>">
-          <span id="biz-password-error" class="error"></span>
+          <label for="empresa-password">Contraseña</label>
+          <input type="password" id="empresa-password" name="password" placeholder="••••••••"
+          value="<%= formType === 'empresa' && formData ? formData.password : '' %>">
+          <span id="empresa-password-error" class="error"></span>
         </div>
         <div class="form-group">
-          <label for="biz-tipo">Tipo de empresa</label>
-          <select id="biz-tipo" name="tipo_empresa" onchange="toggleOtro(this)">
+          <label for="empresa-tipo">Tipo de empresa</label>
+          <select id="empresa-tipo" name="tipo" onchange="toggleOtro(this)">
             <option value="" disabled selected>Selecciona una opción</option>
-            <option value="clinica">Clínica veterinaria</option>
-            <option value="tienda">Tienda de animales</option>
-            <option value="peluqueria">Peluquería canina</option>
-            <option value="residencia">Residencia / Hotel para mascotas</option>
+            <option value="clinica_veterinaria">Clínica veterinaria</option>
+            <option value="tienda_animal">Tienda de animales</option>
+            <option value="peluquería_caninca">Peluquería canina</option>
+            <option value="hotel">Residencia / Hotel para mascotas</option>
             <option value="otro">Otro</option>
           </select>
-          <span id="biz-tipo-error" class="error"></span>
+          <span id="empresa-tipo-error" class="error"></span>
         </div>
         <div class="form-group" id="otro-group" style="display:none;">
-          <label for="biz-tipo-otro">¿Qué otro tipo de empresa?</label>
-          <input type="text" id="biz-tipo-otro" name="tipo_empresa_otro" placeholder="Describe tu tipo de empresa">
-          <span id="biz-tipo-otro-error" class="error"></span>
+          <label for="empresa-tipo-otro">¿Qué otro tipo de empresa?</label>
+          <input type="text" id="empresa-tipo-otro" name="tipo_otro" placeholder="Describe tu tipo de empresa">
+          <span id="empresa-tipo-otro-error" class="error"></span>
         </div>
         <button type="submit" class="btn-submit">Crear cuenta</button>
       </form>
@@ -139,11 +139,11 @@
     function selectType(type) {
       // Actualizar estilo de los botones
       document.getElementById('opt-usuario').classList.toggle('active', type === 'usuario');
-      document.getElementById('opt-business').classList.toggle('active', type === 'business');
+      document.getElementById('opt-empresa').classList.toggle('active', type === 'empresa');
 
       // Mostrar el formulario correspondiente
       document.getElementById('form-usuario').classList.toggle('visible', type === 'usuario');
-      document.getElementById('form-business').classList.toggle('visible', type === 'business');
+      document.getElementById('form-empresa').classList.toggle('visible', type === 'empresa');
     }
 
     function toggleOtro(select) {
