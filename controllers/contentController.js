@@ -2,9 +2,13 @@
 
 const { validationResult } = require('express-validator');
 const pool = require('../db');
+const { parse } = require('path');
 
 const verForos = (req, res) => {
-    res.redirect('/content/foros/filtrar/?pagina=1&categoria=&keyword=');
+    const pagina = req.query.pagina || 1;
+    const categoria = req.query.categoria || '';
+    const keyword = req.query.keyword || '';
+    res.redirect(`/content/foros/filtrar/?pagina=${pagina}&categoria=${categoria}&keyword=${keyword}`);
 };
 
 const verForo = (req, res) => {
@@ -57,20 +61,26 @@ const verForo = (req, res) => {
 };
 
 const getCrearForo = (req, res) => {
+    const esAjax = req.xhr || req.get('X-Requested-With') === 'XMLHttpRequest';
+    if (!esAjax) {
+        return res.redirect('/content/foros');
+    }
+
     res.render('plantillas/crearForo', {
         usuario: req.session.usuario || null,
         error: null,
-        errores: [], 
-        foro: {}
+        errores: [],
+        foro: { titulo: '', categoría: '', descripcion: '', id_foro: '', id_usuario: '' }
     });
-}; 
+};
 
 const postCrearForo = (req, res) => {
+    console.log('Recibiendo solicitud para crear foro con datos:', req.body);
+
     const errors = validationResult(req);
 
     // Comprobar si hay errores de validación
     if (!errors.isEmpty()) {
-        // TODO: Este render hay que cambiarlo porque me manda a un sitio que no debería. 
         return res.render('plantillas/crearForo', {
             usuario: req.session.usuario || null,
             error: 'Por favor corrige los errores',
@@ -84,20 +94,24 @@ const postCrearForo = (req, res) => {
     const sql_insert_foro = 'INSERT INTO foros (titulo, descripcion, categoría, id_usuario) VALUES (?, ?, ?, ?)';
 
     pool.getConnection((err, connection) => {
+        console.log('Conexión a la base de datos establecida para crear foro');
+
         // Comprobar si hubo un error al conectar a la base de datos
         if (err) {
             console.error('Error al conectar a la base de datos:', err);
-            return res.status(500).send('Error al conectar a la base de datos');
+            return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
         }
 
         connection.query(sql_insert_foro, [titulo, descripcion, categoría, id_usuario], (err, result) => {
+            console.log('Intentando insertar foro con datos:', { titulo, descripcion, categoría, id_usuario });
+
             // Comprobar si hubo un error al insertar el foro
             if (err) {
                 console.error('Error al crear el foro:', err);
-                return res.status(500).send('Error al crear el foro');
+                return res.status(500).render('error500', { mensaje: 'Error al crear el foro' });
             }
             
-            res.redirect('/content/foros');
+            res.json({ success: true, redirectUrl: '/content/foros' });
             connection.release();
         });
     }); 
@@ -105,7 +119,7 @@ const postCrearForo = (req, res) => {
 
 const filtrarForos = (req, res) => {
     const pagina = parseInt(req.query.pagina) || 1;
-    const limite = 30;
+    const limite = 20;
     const offset = (pagina - 1) * limite;
     const categoria = req.query.categoria || '';
     const keyword = req.query.keyword || '';
@@ -178,16 +192,23 @@ const filtrarForos = (req, res) => {
 
 const getEditarForo = (req, res) => {
     const foroId = parseInt(req.params.id, 10);
-    const usuarioSesion = req.session.usuario;
+    const usuarioSesion = parseInt(req.params.id_usuario, 10);
+    const esAjax = req.xhr || req.get('X-Requested-With') === 'XMLHttpRequest';
+
+    if (!esAjax) {
+        return res.redirect(`/content/foros/${foroId}`);
+    }
+
     pool.getConnection((err, connection) => {
         // Comprobar si hubo un error al conectar a la base de datos
         if (err) {
             console.error('Error al conectar a la base de datos:', err);
-            return res.status(500).send('Error al conectar a la base de datos');
+            return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
         }
 
         // Obtener el foro para editar
-        connection.query('SELECT * FROM foros WHERE id_foro = ? AND id_usuario = ?', [foroId, usuarioSesion.id_usuario], (err, results) => {
+        connection.query('SELECT * FROM foros WHERE id_foro = ? AND id_usuario = ?', [foroId, usuarioSesion], (err, results) => {
+            connection.release();
             if (err) {
                 console.error('Error al obtener el foro:', err);
                 return res.status(500).send('Error al obtener el foro');
@@ -196,21 +217,72 @@ const getEditarForo = (req, res) => {
                 return res.status(404).send('Foro no encontrado o no tienes permiso para editarlo');
             }
 
-            // TODO: Aquí va a haber 2 posibilidades
-            // 1. El usuario obtiene el foro que no es suyo y le muestra un error
-            // 2. Se hace el query tal y como está ahora y le da un error 404 tal y como está
-
-            res.render('plantillas/crearForo', {
+            res.render('plantillas/modificarForo', {
                 usuario: req.session.usuario || null,
                 error: null,
-                errores: [], 
+                errores: [],
                 foro: results[0]
-            }); 
+            });
         }); 
     }); 
 };
 
-const postEditarForo = (req, res) => {};
+const postEditarForo = (req, res) => {
+    const foroId = parseInt(req.params.id, 10);
+    const usuarioSesion = parseInt(req.params.id_usuario, 10);
+    const { titulo, descripcion, categoría } = req.body;
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.render('plantillas/modificarForo', {
+            usuario: req.session.usuario || null,
+            error: 'Por favor corrige los errores',
+            errores: errors.array(),
+            foro: {
+                ...req.body,
+                id_foro: foroId,
+                id_usuario: usuarioSesion
+            }
+        });
+    }
+
+    pool.getConnection((err, connection) => {
+        // Comprobar si hubo un error al conectar a la base de datos
+        if (err) {
+            console.error('Error al conectar a la base de datos:', err);
+            return res.status(500).send('Error al conectar a la base de datos');
+        }
+
+        // Obtener el foro para editar
+        connection.query('SELECT * FROM foros WHERE id_foro = ? AND id_usuario = ?', [foroId, usuarioSesion], (err, results) => {
+            if (err) {
+                connection.release();
+                console.error('Error al obtener el foro:', err);
+                return res.status(500).render('error500', { mensaje: 'Error al obtener el foro' });
+            }
+            if (results.length === 0) {
+                connection.release();
+                return res.status(404).send('Foro no encontrado o no tienes permiso para editarlo');
+            }
+
+            const sql_update_foro = 'UPDATE foros SET titulo = ?, descripcion = ?, categoría = ? WHERE id_foro = ? AND id_usuario = ?';
+            connection.query(sql_update_foro, [titulo, descripcion, categoría, foroId, usuarioSesion], (updateErr, updateResult) => {
+                connection.release();
+
+                if (updateErr) {
+                    console.error('Error al editar el foro:', updateErr);
+                    return res.status(500).render('error500', { mensaje: 'Error al editar el foro' });
+                }
+
+                if (updateResult.affectedRows === 0) {
+                    return res.status(404).send('Foro no encontrado o sin permisos para editarlo');
+                }
+
+                res.json({ success: true, redirectUrl: `/content/foros/${foroId}` });
+            }); 
+        }); 
+    }); 
+};
 
 const eliminarForo = (req, res) => {
     const foroId = parseInt(req.params.id, 10);

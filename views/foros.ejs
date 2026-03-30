@@ -55,21 +55,25 @@
 
       <div class="foros-list">
         <% foros.forEach(function(foro) { %>
-          <a class="foro-card" href="/content/foros/<%= foro.id_foro %>">
-            <div class="foro-card-left">
-              <span class="foro-categoria"><%= foro.categoría %></span>
-              <h2 class="foro-titulo"><%= foro.titulo %></h2>
-              <p class="foro-desc"><%= foro.descripcion %></p>
+        <a class="foro-card" href="/content/foros/<%= foro.id_foro %>">
+          <div class="foro-card-left">
+            <span class="foro-categoria"><%= foro.categoría %></span>
+            <h2 class="foro-titulo"><%= foro.titulo %></h2>
+            <p class="foro-desc"><%= foro.descripcion %></p>
+          </div>
+          <div class="foro-card-right">
+            <% if (usuario && usuario.id === foro.id_usuario) { %>
+            <div class="foro-edit">
             </div>
-            <div class="foro-card-right">
-              <div class="foro-meta">
-                <span class="foro-autor">@<%= foro.nombre_usuario %></span>
-                <span class="foro-fecha"><%= new Date(foro.fecha_creacion).toLocaleDateString('es-ES') %></span>
-              </div>
-              <div class="foro-stats">
-                <span class="foro-stat">💬 <%= foro.num_respuestas || 0 %></span>
-              </div>
+            <% } %>
+            <div class="foro-meta">
+              <span class="foro-autor">@<%= foro.nombre_usuario %></span>
+              <span class="foro-fecha"><%= new Date(foro.fecha_creacion).toLocaleDateString('es-ES') %></span>
             </div>
+            <div class="foro-stats">
+              <span class="foro-stat">💬 <%= foro.num_respuestas || 0 %></span>
+            </div>
+          </div>
         </a>
         <% }) %>
       </div>
@@ -116,12 +120,31 @@
 
   <script src="/js/validacionCrearForo.js"></script>
   <script>
+    function esDocumentoCompleto(html) {
+        return /<!doctype\s+html|<html[\s>]/i.test(html || '');
+    }
+
     async function crearForo() {
-        const response = await fetch('/content/foros/crearForo');
-        const html = await response.text();
-        document.getElementById('modalForo-contenido').innerHTML = html;
-        document.getElementById('modalForo').style.display = 'flex';
-        initValidacionCrearForo(); 
+        const url = '/content/foros/crearForo';
+        try {
+          const response = await fetch(url, {
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest'
+            }
+          });
+          const html = await response.text();
+
+          if (!response.ok || esDocumentoCompleto(html)) {
+            window.location.href = url;
+            return;
+          }
+
+          document.getElementById('modalForo-contenido').innerHTML = html;
+          document.getElementById('modalForo').style.display = 'flex';
+          initValidacionCrearForo();
+        } catch (error) {
+          window.location.href = url;
+        }
     }
 
     document.getElementById('modalForo').addEventListener('click', function(e) {

@@ -18,16 +18,20 @@
       <a href="/content/foros" class="editar-back">← Volver a los foros</a>
       <h1 class="foro-detalle-titulo"><%= foro.titulo %></h1>
       <div class="foro-detalle-meta">
-        <span class="foro-detalle-autor">@<%= foro.nombre_usuario %></span>
-        <span class="foro-detalle-sep">·</span>
-        <span class="foro-detalle-fecha"><%= new Date(foro.fecha_creacion).toLocaleDateString('es-ES') %></span>
-        <span class="foro-detalle-sep">·</span>
-        <span class="foro-detalle-categoria"><%= foro.categoría %></span>
-        
-        <% if (usuarioSesion && usuarioSesion.id === foro.id_usuario) { %>
+        <div class="foro-detalle-meta-left">
+          <span class="foro-detalle-autor">@<%= foro.nombre_usuario %></span>
           <span class="foro-detalle-sep">·</span>
-          <a href="#" class="foro-detalle-eliminar" onclick="abrirModalEliminarForo(event)">Eliminar foro</a>
-        <% } %>
+          <span class="foro-detalle-fecha"><%= new Date(foro.fecha_creacion).toLocaleDateString('es-ES') %></span>
+          <span class="foro-detalle-sep">·</span>
+          <span class="foro-detalle-categoria"><%= foro.categoría %></span>
+        </div>
+        <div class="foro-detalle-meta-right">
+          <% if (usuarioSesion && usuarioSesion.id === foro.id_usuario) { %>
+            <a href="#" onclick="editarForo(event)" class="foro-detalle-editar">Editar  ✏️</a>
+            <span class="foro-detalle-sep">·</span>
+            <a href="#" class="foro-detalle-eliminar" onclick="abrirModalEliminarForo(event)">Eliminar 🗑️</a>
+          <% } %>
+        </div>
       </div>
     </div>
 
@@ -82,18 +86,59 @@
 
   </main>
 
+  <!-- Modal editar foro -->
+  <div id="modalEditarForo" style="display:none;">
+    <div id="modalEditarForo-contenido"></div>
+  </div>
+
   <%- include('plantillas/footer') %>
   <%- include('plantillas/modalConfirmarEliminarComentario') %>
   <%- include('plantillas/modalConfirmarEliminarForo', { foro: foro, usuarioSesion: usuarioSesion }) %>
   <%- include('plantillas/modalErrores', { error: typeof error !== 'undefined' ? error : null, errores: typeof errores !== 'undefined' ? errores : [] }) %>
 
+  <script src="/js/validacionCrearForo.js"></script>
+
   <script>
+    function esDocumentoCompleto(html) {
+      return /<!doctype\s+html|<html[\s>]/i.test(html || '');
+    }
+
     const comentarForm = document.getElementById('comentarForoForm');
     comentarForm.addEventListener('submit', function (event) {
       const contenido = document.getElementById('contenido').value.trim();
       if (!contenido) {
         event.preventDefault();
       }
+    });
+
+    // MODAL EDITAR FORO
+    async function editarForo(event) {
+      event.preventDefault();
+      const url = '/content/foros/<%= foro.id_foro %>/usuario/<%= usuarioSesion.id %>/editar';
+
+      try {
+        const response = await fetch(url, {
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+        const html = await response.text();
+
+        if (!response.ok || esDocumentoCompleto(html)) {
+          window.location.href = url;
+          return;
+        }
+
+        document.getElementById('modalEditarForo-contenido').innerHTML = html;
+        document.getElementById('modalEditarForo').style.display = 'flex';
+        initValidacionCrearForo();
+      } catch (error) {
+        window.location.href = url;
+      }
+    }
+
+    document.getElementById('modalEditarForo').addEventListener('click', function(e) {
+      if (e.target === this) this.style.display = 'none';
     });
 
     // MODAL COMENTARIO
