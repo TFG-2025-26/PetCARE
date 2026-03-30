@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 25-03-2026 a las 01:18:05
+-- Tiempo de generación: 30-03-2026 a las 09:31:46
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -182,8 +182,9 @@ CREATE TABLE `empresas` (
 CREATE TABLE `foros` (
   `id_foro` int(11) NOT NULL,
   `titulo` varchar(255) NOT NULL,
-  `categoría` varchar(100) DEFAULT NULL,
+  `categoria` varchar(100) DEFAULT NULL,
   `descripcion` text NOT NULL,
+  `fecha_publicacion` datetime NOT NULL,
   `activo` tinyint(1) NOT NULL DEFAULT 1,
   `id_usuario` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
