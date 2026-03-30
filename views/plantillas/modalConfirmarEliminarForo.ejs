@@ -1,0 +1,17 @@
+<div class="modal-overlay" id="modalEliminarForo" style="display:none;">
+	<div class="modal-box">
+		<div class="modal-header">
+			<h3>¿Eliminar foro?</h3>
+			<button class="modal-close" type="button" onclick="cerrarModalEliminarForo()">✕</button>
+		</div>
+		<ul class="modal-list">
+			<li>
+				Esta acción ocultará el foro y no aparecerá en la lista de foros activos.
+			</li>
+		</ul>
+		<div class="modal-footer" style="gap: 0.8rem;">
+			<button class="btn-outline-large" type="button" onclick="cerrarModalEliminarForo()">Cancelar</button>
+			<a href="/content/foros/<%= foro.id_foro %>/usuario/<%= usuarioSesion.id %>/eliminar" class="btn-perfil-danger">Eliminar foro</a>
+		</div>
+	</div>
+</div>
