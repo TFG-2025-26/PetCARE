@@ -1,18 +1,18 @@
 "use strict"; 
 
 // Selección de formularios
-const clientForm = document.getElementById("form-client");
-const bizForm = document.getElementById("form-business");
+const usuarioForm = document.getElementById("form-usuario");
+const empresaForm = document.getElementById("form-business");
 
-// Selección de elementos - Client
-const clientNombreInput = document.getElementById("client-nombre"); 
-const clientNombreUsuarioInput = document.getElementById("client-usuario"); 
-const clientEmailInput = document.getElementById("client-email"); 
-const clientTelefonoInput = document.getElementById("client-telefono");
-const clientPasswordInput = document.getElementById("client-password"); 
-const clientFechaInput = document.getElementById("client-fecha"); 
+// Selección de elementos - Usuario
+const usuarioNombreCompletoInput = document.getElementById("usuario-nombre_completo"); 
+const usuarioNombreUsuarioInput = document.getElementById("usuario-nombre_usuario"); 
+const usuarioCorreoInput = document.getElementById("usuario-correo"); 
+const usuarioTelefonoInput = document.getElementById("usuario-telefono");
+const usuarioPasswordInput = document.getElementById("usuario-password"); 
+const usuarioFechaNacimientoInput = document.getElementById("usuario-fecha_nacimiento"); 
 
-// Selección de elementos - Business 
+// Selección de elementos - Empresa 
 const bizNombreInput = document.getElementById("biz-nombre"); 
 const bizEmailInput = document.getElementById("biz-email"); 
 const bizCifInput = document.getElementById("biz-cif");
@@ -21,15 +21,15 @@ const bizTelefonoInput = document.getElementById("biz-telefono");
 const bizTipoSelect = document.getElementById("biz-tipo"); 
 const bizTipoOtroInput = document.getElementById("biz-tipo-otro");
 
-// Selección de Spans - Client
-const clientNombreError = document.getElementById("error-client-nombre");
-const clientUsuarioError = document.getElementById("error-client-nombre-usuario");
-const clientEmailError = document.getElementById("error-client-email");
-const clientTelefonoError = document.getElementById("error-client-telefono");
-const clientPasswordError = document.getElementById("error-client-password");
-const clientFechaError = document.getElementById("error-client-fecha");
+// Selección de Spans - Usuario
+const usuarioNombreCompletoError = document.getElementById("error-usuario-nombre_completo");
+const usuarioNombreUsuarioError = document.getElementById("error-usuario-nombre_usuario");
+const usuarioCorreoError = document.getElementById("error-usuario-correo");
+const usuarioTelefonoError = document.getElementById("error-usuario-telefono");
+const usuarioPasswordError = document.getElementById("error-usuario-password");
+const usuarioFechaNacimientoError = document.getElementById("error-usuario-fecha_nacimiento");
 
-// Selección de Spans - Business 
+// Selección de Spans - Empresa 
 const bizNombreError = document.getElementById("biz-nombre-error");
 const bizEmailError = document.getElementById("biz-email-error");
 const bizCifError = document.getElementById("biz-cif-error");
@@ -38,84 +38,84 @@ const bizTelefonoError = document.getElementById("biz-telefono-error");
 const bizTipoError = document.getElementById("biz-tipo-error");
 const bizTipoOtroError = document.getElementById("biz-tipo-otro-error");
 
-// Funciones de validación - Client
-function validarNombreClient() {
-    let nombreClientValid = true;
+// Funciones de validación - Usuario
+function validarNombreCompleto() {
+    let nombreUsuarioValid = true;
 
-    if (clientNombreInput.value.trim().length < 3) {
-        clientNombreError.textContent = "El nombre debe tener al menos 3 caracteres.";
-        nombreClientValid = false; 
+    if (usuarioNombreCompletoInput.value.trim().length < 3) {
+        usuarioNombreCompletoError.textContent = "El nombre debe tener al menos 3 caracteres.";
+        nombreUsuarioValid = false; 
     } else {
-        clientNombreError.textContent = "";
+        usuarioNombreCompletoError.textContent = "";
     }
-    return nombreClientValid;
+    return nombreUsuarioValid;
 }
 
-function validarUsuarioClient() {
-    let usuarioClientValid = true;
+function validarNombreUsuario() {
+    let nombreUsuarioInputValid = true;
     const regex = /^\S+$/;
 
-    if (clientNombreUsuarioInput.value.trim().length < 3) {
-        clientUsuarioError.textContent = "El nombre de usuario debe tener al menos 3 caracteres.";
-        usuarioClientValid = false;
-    } else if (!regex.test(clientNombreUsuarioInput.value)) {
-        clientUsuarioError.textContent = "El nombre de usuario no puede contener espacios en blanco.";
-        usuarioClientValid = false;
+    if (usuarioNombreUsuarioInput.value.trim().length < 3) {
+        usuarioNombreUsuarioError.textContent = "El nombre de usuario debe tener al menos 3 caracteres.";
+        nombreUsuarioInputValid = false;
+    } else if (!regex.test(usuarioNombreUsuarioInput.value)) {
+        usuarioNombreUsuarioError.textContent = "El nombre de usuario no puede contener espacios en blanco.";
+        nombreUsuarioInputValid = false;
     } else {
-        clientUsuarioError.textContent = "";
+        usuarioNombreUsuarioError.textContent = "";
     }
 
-    return usuarioClientValid;
+    return nombreUsuarioInputValid ;
 }
 
-function validarEmailClient() {
-    let emailClientValid = true;
+function validarCorreoUsuario() {
+    let emailUsuarioValid = true;
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!regex.test(clientEmailInput.value.trim())) {
-        clientEmailError.textContent = "Por favor, introduce un email válido.";
-        emailClientValid = false;
+    if (!regex.test(usuarioCorreoInput.value.trim())) {
+        usuarioCorreoError.textContent = "Por favor, introduce un email válido.";
+        emailUsuarioValid = false;
     } else {
-        clientEmailError.textContent = "";
+        usuarioCorreoError.textContent = "";
     }
 
-    return emailClientValid;
+    return emailUsuarioValid;
 }
 
-function validarTelefonoClient() {
-    let telefonoClientValid = true;
+function validarTelefonoUsuario() {
+    let telefonoUsuarioValid = true;
     const regex = /^\d{9,15}$/;
 
-    if (!regex.test(clientTelefonoInput.value.trim())) {
-        clientTelefonoError.textContent = "Por favor, introduce un teléfono válido (9-15 dígitos).";
-        telefonoClientValid = false;
+    if (!regex.test(usuarioTelefonoInput.value.trim())) {
+        usuarioTelefonoError.textContent = "Por favor, introduce un teléfono válido (9-15 dígitos).";
+        telefonoUsuarioValid = false;
     } else {
-        clientTelefonoError.textContent = "";
+        usuarioTelefonoError.textContent = "";
     }
 
-    return telefonoClientValid;
+    return telefonoUsuarioValid;
 }
 
-function validarPasswordClient() {
-    let passwordClientValid = true;
+function validarPasswordUsuario() {
+    let passwordUsuarioValid = true;
     const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
-    if (/\s/.test(clientPasswordInput.value)) {
-        clientPasswordError.textContent = "La contraseña no puede contener espacios en blanco.";
-        passwordClientValid = false;
-    } else if (!regex.test(clientPasswordInput.value.trim())) {
-        clientPasswordError.textContent = "La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una letra minúscula y un número.";
-        passwordClientValid = false;
+    if (/\s/.test(usuarioPasswordInput.value)) {
+        usuarioPasswordError.textContent = "La contraseña no puede contener espacios en blanco.";
+        passwordUsuarioValid = false;
+    } else if (!regex.test(usuarioPasswordInput.value.trim())) {
+        usuarioPasswordError.textContent = "La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una letra minúscula y un número.";
+        passwordUsuarioValid = false;
     } else {
-        clientPasswordError.textContent = "";
+        usuarioPasswordError.textContent = "";
     }
 
-    return passwordClientValid;
+    return passwordUsuarioValid;
 }
 
-function validarFechaClient() {
-    let fechaClientValid = true;
-    const fechaNacimiento = new Date(clientFechaInput.value);
+function validarFechaNacimientoUsuario() {
+    let fechaUsuarioValid = true;
+    const fechaNacimiento = new Date(usuarioFechaNacimientoInput.value);
     const hoy = new Date();
 
     let edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
@@ -126,22 +126,22 @@ function validarFechaClient() {
     }
 
     if (isNaN(fechaNacimiento.getTime())) {
-        clientFechaError.textContent = "Por favor, introduce una fecha de nacimiento válida.";
-        fechaClientValid = false;
+        usuarioFechaNacimientoError.textContent = "Por favor, introduce una fecha de nacimiento válida.";
+        fechaUsuarioValid = false;
     } else if (edad < 14) {
-        clientFechaError.textContent = "Debes tener al menos 14 años para registrarte.";
-        fechaClientValid = false;
+        usuarioFechaNacimientoError.textContent = "Debes tener al menos 14 años para registrarte.";
+        fechaUsuarioValid = false;
     } else if (edad > 120) {
-        clientFechaError.textContent = "Por favor, introduce una fecha de nacimiento realista.";
-        fechaClientValid = false;
+        usuarioFechaNacimientoError.textContent = "Por favor, introduce una fecha de nacimiento realista.";
+        fechaUsuarioValid = false;
     } else {
-        clientFechaError.textContent = "";
+        usuarioFechaNacimientoError.textContent = "";
     }
 
-    return fechaClientValid;
+    return fechaUsuarioValid;
 }
 
-// Funciones de validación - Business 
+// Funciones de validación - Empresa 
 function validarNombreBusiness() {
     let nombreBusinessValid = true;
     if (bizNombreInput.value.trim().length < 3) {
@@ -240,28 +240,28 @@ function validarTipoOtroBusiness() {
     return tipoOtroBusinessValid;
 }
 
-// Eventos de validación - Client
-clientNombreInput.addEventListener("input", validarNombreClient);
-clientNombreUsuarioInput.addEventListener("input", validarUsuarioClient);
-clientEmailInput.addEventListener("input", validarEmailClient);
-clientTelefonoInput.addEventListener("input", validarTelefonoClient);
-clientPasswordInput.addEventListener("input", validarPasswordClient);
-clientFechaInput.addEventListener("input", validarFechaClient);
+// Eventos de validación - Usuario
+usuarioNombreCompletoInput.addEventListener("input", validarNombreCompleto);
+usuarioNombreUsuarioInput.addEventListener("input", validarNombreUsuario);
+usuarioCorreoInput.addEventListener("input", validarCorreoUsuario);
+usuarioTelefonoInput.addEventListener("input", validarTelefonoUsuario);
+usuarioPasswordInput.addEventListener("input", validarPasswordUsuario);
+usuarioFechaNacimientoInput.addEventListener("input", validarFechaNacimientoUsuario);
 
-clientForm.addEventListener("submit", function(event) {
-    let isNombreValid = validarNombreClient();
-    let isUsuarioValid = validarUsuarioClient();
-    let isEmailValid = validarEmailClient();
-    let isPasswordValid = validarPasswordClient();
-    let isFechaValid = validarFechaClient();
-    let isTelefonoValid = validarTelefonoClient();
+usuarioForm.addEventListener("submit", function(event) {
+    let isNombreValid = validarNombreCompleto();
+    let isUsuarioValid = validarNombreUsuario();
+    let isEmailValid = validarCorreoUsuario();
+    let isPasswordValid = validarPasswordUsuario();
+    let isFechaValid = validarFechaNacimientoUsuario();
+    let isTelefonoValid = validarTelefonoUsuario();
     if (!isNombreValid || !isUsuarioValid || !isEmailValid || !isPasswordValid || !isFechaValid || !isTelefonoValid) {
         event.preventDefault();
         alert("Por favor, corrige los errores en el formulario antes de enviarlo.");
     }
 });
 
-// Eventos de validación - Business 
+// Eventos de validación - Empresa
 bizNombreInput.addEventListener("input", validarNombreBusiness);
 bizEmailInput.addEventListener("input", validarEmailBusiness);
 bizCifInput.addEventListener("input", validarCifBusiness);
@@ -270,7 +270,7 @@ bizTipoSelect.addEventListener("change", validarTipoBusiness);
 bizTipoOtroInput.addEventListener("input", validarTipoOtroBusiness);
 bizTelefonoInput.addEventListener("input", validarTelefonoBusiness);
 
-bizForm.addEventListener("submit", function(event) {
+empresaForm.addEventListener("submit", function(event) {
     let isNombreValid = validarNombreBusiness();
     let isEmailValid = validarEmailBusiness();
     let isCifValid = validarCifBusiness();

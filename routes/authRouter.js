@@ -9,16 +9,16 @@ const authController = require('../controllers/authController');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
-// validación de los parámetros del registro para clientes
-const validarRegistroClient = [
-    body('nombre')
+// validación de los parámetros del registro para usuarios
+const validarRegistroUsuario = [
+    body('nombre_completo')
         .notEmpty().withMessage('El nombre es obligatorio')
         .isLength({ min: 3 }).withMessage('El nombre debe tener al menos 3 caracteres'),
-    body('usuario')
+    body('nombre_usuario')
         .notEmpty().withMessage('El nombre de usuario es obligatorio')
         .isLength({ min: 3 }).withMessage('El nombre de usuario debe tener al menos 3 caracteres')
         .matches(/^\S+$/).withMessage('El nombre de usuario no puede contener espacios en blanco'),
-    body('email')
+    body('correo')
         .isEmail().withMessage('El correo electrónico no es válido')
         .notEmpty().withMessage('El correo electrónico es obligatorio'),
     body('telefono')
@@ -80,10 +80,10 @@ const validarRegistroBusiness = [
 // Rutas de authentication
 router.get('/register', authController.getRegister);
 router.get('/login', authController.getLogin);
-router.post('/register/client', validarRegistroClient, authController.postRegisterClient);
-router.post('/register/business', validarRegistroBusiness, authController.postRegisterBusiness);
-router.post('/login/client', authController.postLoginClient);
-router.post('/login/business', authController.postLoginBusiness);
+router.post('/register/usuario', validarRegistroUsuario, authController.postRegisterUsuario);
+router.post('/register/empresa', validarRegistroBusiness, authController.postRegisterEmpresa);
+router.post('/login/usuario', authController.postLoginUsuario);
+router.post('/login/empresa', authController.postLoginEmpresa);
 router.get('/logout', authController.logout);
 router.get('/recuperarContrasena', authController.getRecuperarContrasena); 
 
