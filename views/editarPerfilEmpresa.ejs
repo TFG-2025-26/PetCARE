@@ -11,6 +11,10 @@
 
   <%- include('plantillas/navbar') %>
 
+  <% const tipoEmpresaGuardado = empresa.tipo === 'peluqueria_canina' ? 'peluquería_canina' : empresa.tipo; %>
+  <% const tiposBaseEmpresa = ['clinica_veterinaria','tienda_animal','peluquería_canina','hotel','otro']; %>
+  <% const mostrarTipoOtro = ['clinica_veterinaria','tienda_animal','peluquería_canina','hotel'].includes(tipoEmpresaGuardado) ? 'none' : 'block'; %>
+
   <main class="editar-page">
 
     <div class="editar-header">
@@ -44,34 +48,34 @@
         <h2 class="editar-section-title">Datos básicos</h2>
         <div class="editar-grid">
           <div class="form-group">
-            <label for="nombre_empresa">Nombre de la empresa</label>
-            <input type="text" id="nombre_empresa" name="nombre_empresa" value="<%= empresa.nombre %>">
-            <span id="error-nombre_empresa" class="error"></span>
+            <label for="nombre">Nombre de la empresa</label>
+            <input type="text" id="nombre" name="nombre" value="<%= empresa.nombre %>">
+            <span id="error-nombre" class="error"></span>
           </div>
           <div class="form-group">
-            <label for="email">Correo corporativo</label>
-            <input type="email" id="email" name="email" value="<%= empresa.correo %>">
-            <span id="error-email" class="error"></span>
+            <label for="correo">Correo corporativo</label>
+            <input type="email" id="correo" name="correo" value="<%= empresa.correo %>">
+            <span id="error-correo" class="error"></span>
           </div>
           <div class="form-group">
             <label for="cif">CIF</label>
-            <input type="text" id="cif" name="cif" value="<%= empresa.CIF %>">
+            <input type="text" id="cif" name="cif" value="<%= empresa.CIF %>" style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
             <span id="error-cif" class="error"></span>
           </div>
           <div class="form-group">
-            <label for="tipo_empresa">Tipo de empresa</label>
-            <select id="tipo_empresa" name="tipo_empresa" onchange="toggleOtro(this)">
-              <option value="clinica"    <%= empresa.tipo_empresa === 'clinica'    ? 'selected' : '' %>>Clínica veterinaria</option>
-              <option value="tienda"     <%= empresa.tipo_empresa === 'tienda'     ? 'selected' : '' %>>Tienda de animales</option>
-              <option value="peluqueria" <%= empresa.tipo_empresa === 'peluqueria' ? 'selected' : '' %>>Peluquería canina</option>
-              <option value="residencia" <%= empresa.tipo_empresa === 'residencia' ? 'selected' : '' %>>Residencia / Hotel para mascotas</option>
-              <option value="otro"       <%= empresa.tipo_empresa === 'otro' || !['clinica','tienda','peluqueria','residencia'].includes(empresa.tipo_empresa) ? 'selected' : '' %>>Otro</option>
+            <label for="tipo">Tipo de empresa</label>
+            <select id="tipo" name="tipo" onchange="toggleOtro(this)">
+              <option value="clinica_veterinaria" <%= tipoEmpresaGuardado === 'clinica_veterinaria' ? 'selected' : '' %>>Clínica veterinaria</option>
+              <option value="tienda_animal" <%= tipoEmpresaGuardado === 'tienda_animal' ? 'selected' : '' %>>Tienda de animales</option>
+              <option value="peluquería_canina" <%= tipoEmpresaGuardado === 'peluquería_canina' ? 'selected' : '' %>>Peluquería canina</option>
+              <option value="hotel" <%= tipoEmpresaGuardado === 'hotel' ? 'selected' : '' %>>Residencia / Hotel para mascotas</option>
+              <option value="otro" <%= tipoEmpresaGuardado === 'otro' || !tiposBaseEmpresa.includes(tipoEmpresaGuardado) ? 'selected' : '' %>>Otro</option>
             </select>
           </div>
-          <div class="form-group" id="otro-group" style="display: <%= ['clinica','tienda','peluqueria','residencia'].includes(empresa.tipo_empresa) ? 'none' : 'block' %>;">
-            <label for="tipo_empresa_otro">¿Qué otro tipo de empresa?</label>
-            <input type="text" id="tipo_empresa_otro" name="tipo_empresa_otro" value="<%= !['clinica','tienda','peluqueria','residencia'].includes(empresa.tipo_empresa) ? empresa.tipo : '' %>" placeholder="Describe tu tipo de empresa">
-            <span id="error-tipo_empresa_otro" class="error"></span>
+          <div class="form-group" id="otro-group" <%= mostrarTipoOtro === 'none' ? 'hidden' : '' %>>
+            <label for="tipo_otro">¿Qué otro tipo de empresa?</label>
+            <input type="text" id="tipo_otro" name="tipo_otro" value="<%= tipoEmpresaGuardado === 'otro' ? (empresa.tipo_otro || '') : (!tiposBaseEmpresa.includes(tipoEmpresaGuardado) ? tipoEmpresaGuardado : '') %>" placeholder="Describe tu tipo de empresa">
+            <span id="error-tipo_otro" class="error"></span>
           </div>
         </div>
       </div>
@@ -81,9 +85,9 @@
         <h2 class="editar-section-title">Información adicional</h2>
         <div class="editar-grid">
           <div class="form-group">
-            <label for="telefono">Teléfono</label>
-            <input type="text" id="telefono" name="telefono" value="<%= empresa.telefono_contacto || '' %>" placeholder="Ej: +34 600 000 000">
-            <span id="error-telefono" class="error"></span>
+            <label for="telefono_contacto">Teléfono</label>
+            <input type="text" id="telefono_contacto" name="telefono_contacto" value="<%= empresa.telefono_contacto || '' %>" placeholder="Ej: +34 600 000 000">
+            <span id="error-telefono_contacto" class="error"></span>
           </div>
           <div class="form-group">
             <label for="ubicacion">Ubicación</label>
@@ -131,6 +135,8 @@
 
   </main>
 
+  <%- include('plantillas/footer') %>
+
   <script>
     function previewFoto(event) {
       const file = event.target.files[0];
@@ -145,7 +151,7 @@
 
     function toggleOtro(select) {
       const otroGroup = document.getElementById('otro-group');
-      otroGroup.style.display = select.value === 'otro' ? 'block' : 'none';
+      otroGroup.hidden = select.value !== 'otro';
     }
   </script>
 

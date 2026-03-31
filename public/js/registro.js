@@ -171,6 +171,7 @@ function validarCorreoEmpresa() {
 function validarCifEmpresa() {
     let cifEmpresaValid = true;
     const regex = /^[A-Za-z0-9]{8,}$/;
+    empresaCifInput.value = empresaCifInput.value.toUpperCase();
 
     if (!regex.test(empresaCifInput.value.trim())) {
         empresaCifError.textContent = "Por favor, introduce un CIF válido.";

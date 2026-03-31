@@ -8,9 +8,9 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log(form);
 
     // Selección de campos - obligatorios
-    const NombreInput = document.getElementById("nombre"); 
-    const NombreUsuarioInput = document.getElementById("usuario"); 
-    const EmailInput = document.getElementById("email"); 
+    const NombreCompletoInput = document.getElementById("nombre_completo"); 
+    const NombreUsuarioInput = document.getElementById("nombre_usuario"); 
+    const CorreoInput = document.getElementById("correo"); 
     const TelefonoInput = document.getElementById("telefono");
     const FechaInput = document.getElementById("fecha_nacimiento"); 
 
@@ -27,9 +27,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const ConfirmPasswordInput = document.getElementById("password_confirmar");
 
     // Selección de Spans de error 
-    const ErrorNombre = document.getElementById("error-nombre");
-    const ErrorNombreUsuario = document.getElementById("error-usuario");
-    const ErrorEmail = document.getElementById("error-email");
+    const ErrorNombreCompleto = document.getElementById("error-nombre_completo");
+    const ErrorNombreUsuario = document.getElementById("error-nombre_usuario");
+    const ErrorCorreo = document.getElementById("error-correo");
     const ErrorTelefono = document.getElementById("error-telefono");
     const ErrorFecha = document.getElementById("error-fecha_nacimiento");
     const ErrorCiudad = document.getElementById("error-ciudad");
@@ -42,19 +42,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const ErrorConfirmPassword = document.getElementById("error-password_confirmar");
 
     // Funciones de validación - obligatorios
-    function validarNombre() {
+    function validarNombreCompleto() {
         let nombreValid = true;
 
-        if (NombreInput.value.trim().length < 3) {
-            ErrorNombre.textContent = "El nombre debe tener al menos 3 caracteres.";
+        if (NombreCompletoInput.value.trim().length < 3) {
+            ErrorNombreCompleto.textContent = "El nombre debe tener al menos 3 caracteres.";
             nombreValid = false; 
         } else {
-            ErrorNombre.textContent = "";
+            ErrorNombreCompleto.textContent = "";
         }
         return nombreValid;
     }
 
-    function validarUsuario() {
+    function validarNombreUsuario() {
         let usuarioValid = true;
         const regex = /^\S+$/;
 
@@ -71,18 +71,18 @@ document.addEventListener('DOMContentLoaded', function() {
         return usuarioValid;
     }
 
-    function validarEmail() {
-        let emailValid = true;
+    function validarCorreo() {
+        let correoValid = true;
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-        if (!regex.test(EmailInput.value.trim())) {
-            ErrorEmail.textContent = "Por favor, introduce un email válido.";
-            emailValid = false;
+        if (!regex.test(CorreoInput.value.trim())) {
+            ErrorCorreo.textContent = "Por favor, introduce un correo válido.";
+            correoValid = false;
         } else {
-            ErrorEmail.textContent = "";
+            ErrorCorreo.textContent = "";
         }
 
-        return emailValid;
+        return correoValid;
     }
 
     function validarTelefono() {
@@ -240,9 +240,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Eventos de validación en tiempo real
-    NombreInput.addEventListener("input", validarNombre);
-    NombreUsuarioInput.addEventListener("input", validarUsuario);
-    EmailInput.addEventListener("input", validarEmail);
+    NombreCompletoInput.addEventListener("input", validarNombreCompleto);
+    NombreUsuarioInput.addEventListener("input", validarNombreUsuario);
+    CorreoInput.addEventListener("input", validarCorreo);
     TelefonoInput.addEventListener("input", validarTelefono);
     FechaInput.addEventListener("input", validarFechaNacimiento);
     CiudadInput.addEventListener("input", validarCiudad);
@@ -255,9 +255,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Validación final al enviar el formulario
     form.addEventListener("submit", function(event) {
-        let isNombreValid          = validarNombre();
-        let isUsuarioValid         = validarUsuario();
-        let isEmailValid           = validarEmail();
+        let isNombreCompletoValid = validarNombreCompleto();
+        let isNombreUsuarioValid  = validarNombreUsuario();
+        let isCorreoValid         = validarCorreo();
         let isTelefonoValid        = validarTelefono();
         let isFechaValid           = validarFechaNacimiento();
         let isCiudadValid          = validarCiudad();
@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let isPasswordConfirmarValid = validarPassword(ConfirmPasswordInput, ErrorConfirmPassword);
         let isPasswordConjuntoValid  = validarPasswordsConjunto();
 
-        if (!isNombreValid || !isUsuarioValid || !isEmailValid || !isTelefonoValid || !isFechaValid || !isCiudadValid || !isPaisValid || !isCodigoPostalValid || !isTrabajoValid || !isBioValid || !isPasswordNuevaValid || !isPasswordConfirmarValid || !isPasswordConjuntoValid) {
+        if (!isNombreCompletoValid || !isNombreUsuarioValid || !isCorreoValid || !isTelefonoValid || !isFechaValid || !isCiudadValid || !isPaisValid || !isCodigoPostalValid || !isTrabajoValid || !isBioValid || !isPasswordNuevaValid || !isPasswordConfirmarValid || !isPasswordConjuntoValid) {
             event.preventDefault();
             alert("Por favor, corrige los errores en el formulario antes de enviarlo.");
         }

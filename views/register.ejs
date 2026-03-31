@@ -96,7 +96,7 @@
         </div>
         <div class="form-group">
           <label for="empresa-cif">CIF</label>
-          <input type="text" id="empresa-cif" name="cif" placeholder="Ej: B12345678"
+          <input type="text" id="empresa-cif" name="cif" placeholder="Ej: B12345678" style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()"
           value="<%= formType === 'empresa' && formData ? formData.cif : '' %>">
           <span id="empresa-cif-error" class="error"></span>
         </div>
@@ -112,7 +112,7 @@
             <option value="" disabled selected>Selecciona una opción</option>
             <option value="clinica_veterinaria">Clínica veterinaria</option>
             <option value="tienda_animal">Tienda de animales</option>
-            <option value="peluquería_caninca">Peluquería canina</option>
+            <option value="peluquería_canina">Peluquería canina</option>
             <option value="hotel">Residencia / Hotel para mascotas</option>
             <option value="otro">Otro</option>
           </select>

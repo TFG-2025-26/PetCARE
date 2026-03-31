@@ -12,7 +12,7 @@
     </ul>
     <div class="modal-footer" style="gap: 0.8rem;">
       <button class="btn-outline-large" onclick="cerrarModalEliminar()">Cancelar</button>
-      <% if (tipo === 'cliente') { %>
+      <% if (tipo === 'usuario' || tipo === 'cliente') { %>
         <a href="/user/eliminarCuentaUsuario/<%= usuario.id_usuario %>" class="btn-perfil-danger">Eliminar cuenta</a>
       <% } else if (tipo === 'empresa') { %>
         <a href="/user/eliminarCuentaEmpresa/<%= usuario.id_empresa %>" class="btn-perfil-danger">Eliminar cuenta</a>

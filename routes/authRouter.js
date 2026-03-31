@@ -61,6 +61,8 @@ const validarRegistroEmpresa = [
         .isLength({ min: 9, max: 15 }).withMessage('El teléfono debe tener entre 9 y 15 caracteres')
         .matches(/^\d+$/).withMessage('El teléfono solo puede contener números'),
     body('cif')
+        .trim()
+        .toUpperCase()
         .notEmpty().withMessage('El CIF es obligatorio')
         .matches(/^[A-Za-z0-9]{8,}$/).withMessage('El CIF debe tener al menos 8 caracteres alfanuméricos'),
     body('tipo')

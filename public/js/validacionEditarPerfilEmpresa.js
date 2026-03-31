@@ -6,13 +6,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('editarPerfilEmpresaForm');
 
     // Selección de campos
-    const NombreInput = document.getElementById("nombre_empresa"); 
-    const EmailInput = document.getElementById("email");
-    const TelefonoInput = document.getElementById("telefono");
+    const NombreInput = document.getElementById("nombre"); 
+    const CorreoInput = document.getElementById("correo");
+    const TelefonoContactoInput = document.getElementById("telefono_contacto");
     const CIFInput = document.getElementById("cif");
     const UbicacionInput = document.getElementById("ubicacion");
     const DescripcionInput = document.getElementById("descripcion");
-    const TipoEmpresaOtroInput = document.getElementById("tipo_empresa_otro");
+    const TipoEmpresaOtroInput = document.getElementById("tipo_otro");
 
     // Selección de campos - contraseñas
     const PasswordActualInput = document.getElementById("password_actual");
@@ -20,13 +20,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const PasswordConfirmarInput = document.getElementById("password_confirmar");
 
     // Selección de campos - errores
-    const ErrorNombre = document.getElementById("error-nombre_empresa");
-    const ErrorEmail = document.getElementById("error-email");
-    const ErrorTelefono = document.getElementById("error-telefono");
+    const ErrorNombre = document.getElementById("error-nombre");
+    const ErrorCorreo = document.getElementById("error-correo");
+    const ErrorTelefonoContacto = document.getElementById("error-telefono_contacto");
     const ErrorCIF = document.getElementById("error-cif");
     const ErrorUbicacion = document.getElementById("error-ubicacion");
     const ErrorDescripcion = document.getElementById("error-descripcion");
-    const ErrorTipoEmpresaOtro = document.getElementById("error-tipo_empresa_otro");
+    const ErrorTipoOtro = document.getElementById("error-tipo_otro");
     const ErrorPasswordActual = document.getElementById("error-password_actual");
     const ErrorPasswordNueva = document.getElementById("error-password_nueva");
     const ErrorPasswordConfirmar = document.getElementById("error-password_confirmar");
@@ -46,31 +46,32 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function validarEmail() {
-        const email = EmailInput.value.trim();
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            ErrorEmail.textContent = 'El correo electrónico no es válido.';
+    function validarCorreo() {
+        const correo = CorreoInput.value.trim();
+        const correoRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!correoRegex.test(correo)) {
+            ErrorCorreo.textContent = 'El correo electrónico no es válido.';
             return false;
         } else {
-            ErrorEmail.textContent = '';
+            ErrorCorreo.textContent = '';
             return true;
         }
     }
 
-    function validarTelefono() {
-        const telefono = TelefonoInput.value.trim();
+    function validarTelefonoContacto() {
+        const telefono = TelefonoContactoInput.value.trim();
         const telefonoRegex = /^\d{9,15}$/;
         if (telefono && !telefonoRegex.test(telefono)) {
-            ErrorTelefono.textContent = 'El teléfono no es válido.';
+            ErrorTelefonoContacto.textContent = 'El teléfono no es válido.';
             return false;
         } else {
-            ErrorTelefono.textContent = '';
+            ErrorTelefonoContacto.textContent = '';
             return true;
         }
     }
 
     function validarCIF() {
+        CIFInput.value = CIFInput.value.toUpperCase();
         const cif = CIFInput.value.trim();
         const cifRegex = /^[A-Za-z0-9]{8,}$/;
         if (!cifRegex.test(cif)) {
@@ -104,16 +105,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function validarTipoEmpresaOtro() {
-        const tipoEmpresaOtro = TipoEmpresaOtroInput.value.trim();
-        if (document.getElementById("tipo_empresa").value === "otro" && tipoEmpresaOtro === '') {
-            ErrorTipoEmpresaOtro.textContent = 'Por favor, describe tu tipo de empresa.';
+    function validarTipoOtro() {
+        const tipoOtro = TipoEmpresaOtroInput.value.trim();
+        if (document.getElementById("tipo").value === "otro" && tipoOtro === '') {
+            ErrorTipoOtro.textContent = 'Por favor, describe tu tipo de empresa.';
             return false;
-        } else if (document.getElementById("tipo_empresa").value === "otro" && tipoEmpresaOtro.length < 5) {
-            ErrorTipoEmpresaOtro.textContent = 'El tipo de empresa debe tener al menos 5 caracteres.';
+        } else if (document.getElementById("tipo").value === "otro" && tipoOtro.length < 5) {
+            ErrorTipoOtro.textContent = 'El tipo de empresa debe tener al menos 5 caracteres.';
             return false;
         } else {
-            ErrorTipoEmpresaOtro.textContent = '';
+            ErrorTipoOtro.textContent = '';
             return true;
         }
     }
@@ -174,13 +175,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Validación en tiempo real
     NombreInput.addEventListener('input', validarNombre);
-    EmailInput.addEventListener('input', validarEmail);
-    TelefonoInput.addEventListener('input', validarTelefono);
+    CorreoInput.addEventListener('input', validarCorreo);
+    TelefonoContactoInput.addEventListener('input', validarTelefonoContacto);
     CIFInput.addEventListener('input', validarCIF);
     UbicacionInput.addEventListener('input', validarUbicacion);
     DescripcionInput.addEventListener('input', validarDescripcion);
-    document.getElementById("tipo_empresa").addEventListener('change', validarTipoEmpresaOtro);
-    TipoEmpresaOtroInput.addEventListener('input', validarTipoEmpresaOtro);
+    document.getElementById("tipo").addEventListener('change', validarTipoOtro);
+    TipoEmpresaOtroInput.addEventListener('input', validarTipoOtro);
     PasswordActualInput.addEventListener('input', () => {
         validarPassword(PasswordActualInput, ErrorPasswordActual); 
     }); 
@@ -193,8 +194,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Validación final al enviar el formulario
     form.addEventListener('submit', function(event) {
-        const isValid = validarNombre() && validarEmail() && validarTelefono() && validarCIF() &&
-                        validarUbicacion() && validarDescripcion() && validarTipoEmpresaOtro() &&
+        const isValid = validarNombre() && validarCorreo() && validarTelefonoContacto() && validarCIF() &&
+                        validarUbicacion() && validarDescripcion() && validarTipoOtro() &&
                         validarPassword(PasswordActualInput, ErrorPasswordActual) &&
                         validarPassword(PasswordNuevaInput, ErrorPasswordNueva) &&
                         validarPassword(PasswordConfirmarInput, ErrorPasswordConfirmar) &&
