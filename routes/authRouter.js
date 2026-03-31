@@ -9,16 +9,16 @@ const authController = require('../controllers/authController');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
-// validación de los parámetros del registro para clientes
-const validarRegistroClient = [
-    body('nombre')
+// validación de los parámetros del registro para usuarios
+const validarRegistroUsuario = [
+    body('nombre_completo')
         .notEmpty().withMessage('El nombre es obligatorio')
         .isLength({ min: 3 }).withMessage('El nombre debe tener al menos 3 caracteres'),
-    body('usuario')
+    body('nombre_usuario')
         .notEmpty().withMessage('El nombre de usuario es obligatorio')
         .isLength({ min: 3 }).withMessage('El nombre de usuario debe tener al menos 3 caracteres')
         .matches(/^\S+$/).withMessage('El nombre de usuario no puede contener espacios en blanco'),
-    body('email')
+    body('correo')
         .isEmail().withMessage('El correo electrónico no es válido')
         .notEmpty().withMessage('El correo electrónico es obligatorio'),
     body('telefono')
@@ -44,11 +44,11 @@ const validarRegistroClient = [
 ]
 
 // validación de los parámetros del registro para empresas
-const validarRegistroBusiness = [
-    body('nombre_empresa')
+const validarRegistroEmpresa = [
+    body('nombre')
         .notEmpty().withMessage('El nombre de la empresa es obligatorio')
         .isLength({ min: 3 }).withMessage('El nombre de la empresa debe tener al menos 3 caracteres'),
-    body('email')
+    body('correo')
         .isEmail().withMessage('El correo electrónico no es válido')
         .notEmpty().withMessage('El correo electrónico es obligatorio'),
     body('password')
@@ -56,21 +56,21 @@ const validarRegistroBusiness = [
         .isLength({ min: 8 }).withMessage('La contraseña debe tener al menos 8 caracteres')
         .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/).withMessage('La contraseña debe contener al menos una letra mayúscula, una letra minúscula y un número')
         .matches(/^\S+$/).withMessage('La contraseña no puede contener espacios en blanco'),
-    body('telefono')
+    body('telefono_contacto')
         .notEmpty().withMessage('El teléfono es obligatorio')
         .isLength({ min: 9, max: 15 }).withMessage('El teléfono debe tener entre 9 y 15 caracteres')
         .matches(/^\d+$/).withMessage('El teléfono solo puede contener números'),
     body('cif')
         .notEmpty().withMessage('El CIF es obligatorio')
         .matches(/^[A-Za-z0-9]{8,}$/).withMessage('El CIF debe tener al menos 8 caracteres alfanuméricos'),
-    body('tipo_empresa')
+    body('tipo')
         .notEmpty().withMessage('El tipo de empresa es obligatorio'),
-    body('tipo_empresa_otro')
+    body('tipo_otro')
         .custom((value, { req }) => {
-            if (req.body.tipo_empresa === 'otro' && value.trim() === '') {
+            if (req.body.tipo === 'otro' && value.trim() === '') {
                 throw new Error('Por favor, especifica el tipo de empresa.');
             }  
-            if (req.body.tipo_empresa === 'otro' && value.trim().length < 5) {
+            if (req.body.tipo === 'otro' && value.trim().length < 5) {
                 throw new Error('El tipo de empresa debe tener al menos 5 caracteres.');
             }
             return true;
@@ -80,10 +80,10 @@ const validarRegistroBusiness = [
 // Rutas de authentication
 router.get('/register', authController.getRegister);
 router.get('/login', authController.getLogin);
-router.post('/register/client', validarRegistroClient, authController.postRegisterClient);
-router.post('/register/business', validarRegistroBusiness, authController.postRegisterBusiness);
-router.post('/login/client', authController.postLoginClient);
-router.post('/login/business', authController.postLoginBusiness);
+router.post('/register/usuario', validarRegistroUsuario, authController.postRegisterUsuario);
+router.post('/register/empresa', validarRegistroEmpresa, authController.postRegisterEmpresa);
+router.post('/login/usuario', authController.postLoginUsuario);
+router.post('/login/empresa', authController.postLoginEmpresa);
 router.get('/logout', authController.logout);
 router.get('/recuperarContrasena', authController.getRecuperarContrasena); 
 

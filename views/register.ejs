@@ -21,107 +21,107 @@
 
       <!-- SELECTOR DE TIPO -->
       <div class="type-selector">
-        <div class="type-option" id="opt-client" onclick="selectType('client')">
+        <div class="type-option" id="opt-usuario" onclick="selectType('usuario')">
           <div class="type-icon">🐾</div>
-          <span class="type-label">Cliente</span>
+          <span class="type-label">Usuario</span>
           <div class="type-desc">Participa en la comunidad de PetCare</div>
         </div>
-        <div class="type-option" id="opt-business" onclick="selectType('business')">
+        <div class="type-option" id="opt-empresa" onclick="selectType('empresa')">
           <div class="type-icon">🏢</div>
           <span class="type-label">Empresa</span>
           <div class="type-desc">Clínica, tienda o servicio</div>
         </div>
       </div>
 
-      <!-- FORMULARIO CLIENTE -->
-      <form class="register-form" id="form-client" action="/auth/register/client" method="POST">
+      <!-- FORMULARIO USUARIO -->
+      <form class="register-form" id="form-usuario" action="/auth/register/usuario" method="POST">
         <div class="form-group">
-          <label for="client-nombre">Nombre completo</label>
-          <input type="text" id="client-nombre" name="nombre" placeholder="Ej: Ana García López"
-          value="<%= formType === 'client' && formData ? formData.nombre : '' %>">
-          <span id="error-client-nombre" class="error"></span>
+          <label for="usuario-nombre_completo">Nombre completo</label>
+          <input type="text" id="usuario-nombre_completo" name="nombre_completo" placeholder="Ej: Ana García López"
+          value="<%= formType === 'usuario' && formData ? formData.nombre_completo : '' %>">
+          <span id="error-usuario-nombre_completo" class="error"></span>
         </div>
         <div class="form-group">
-          <label for="client-usuario">Nombre de usuario</label>
-          <input type="text" id="client-usuario" name="usuario" placeholder="Ej: ana_garcia"
-          value="<%= formType === 'client' && formData ? formData.usuario : '' %>">
-          <span id="error-client-nombre-usuario" class="error"></span>
+          <label for="usuario-nombre_usuario">Nombre de usuario</label>
+          <input type="text" id="usuario-nombre_usuario" name="nombre_usuario" placeholder="Ej: ana_garcia"
+          value="<%= formType === 'usuario' && formData ? formData.nombre_usuario : '' %>">
+          <span id="error-usuario-nombre_usuario" class="error"></span>
         </div>
         <div class="form-group">
-          <label for="client-email">Correo electrónico</label>
-          <input type="email" id="client-email" name="email" placeholder="ana@ejemplo.com"
-          value="<%= formType === 'client' && formData ? formData.email : '' %>">
-          <span id="error-client-email" class="error"></span>
+          <label for="usuario-email">Correo electrónico</label>
+          <input type="email" id="usuario-correo" name="correo" placeholder="ana@ejemplo.com"
+          value="<%= formType === 'usuario' && formData ? formData.correo : '' %>">
+          <span id="error-usuario-correo" class="error"></span>
         </div>
         <div class="form-group">
-          <label for="client-telefono">Teléfono</label>
-          <input type="number" id="client-telefono" name="telefono" placeholder="Ej: 612345678"
-          value="<%= formType === 'client' && formData ? formData.telefono : '' %>">
-          <span id="error-client-telefono" class="error"></span>
+          <label for="usuario-telefono">Teléfono</label>
+          <input type="number" id="usuario-telefono" name="telefono" placeholder="Ej: 612345678"
+          value="<%= formType === 'usuario' && formData ? formData.telefono : '' %>">
+          <span id="error-usuario-telefono" class="error"></span>
         </div>
         <div class="form-group">
-          <label for="client-password">Contraseña</label>
-          <input type="password" id="client-password" name="password" placeholder="••••••••"
-          value="<%= formType === 'client' && formData ? formData.password : '' %>">
-          <span id="error-client-password" class="error"></span>
+          <label for="usuario-password">Contraseña</label>
+          <input type="password" id="usuario-password" name="password" placeholder="••••••••"
+          value="<%= formType === 'usuario' && formData ? formData.password : '' %>">
+          <span id="error-usuario-password" class="error"></span>
         </div>
         <div class="form-group">
-          <label for="client-fecha">Fecha de nacimiento</label>
-          <input type="date" id="client-fecha" name="fecha_nacimiento"
-          value="<%= formType === 'client' && formData ? formData.fecha_nacimiento : '' %>">
-          <span id="error-client-fecha" class="error"></span>
+          <label for="usuario-fecha_nacimiento">Fecha de nacimiento</label>
+          <input type="date" id="usuario-fecha_nacimiento" name="fecha_nacimiento"
+          value="<%= formType === 'usuario' && formData ? formData.fecha_nacimiento : '' %>">
+          <span id="error-usuario-fecha_nacimiento" class="error"></span>
         </div>
         <button type="submit" class="btn-submit">Crear cuenta</button>
       </form>
 
       <!-- FORMULARIO EMPRESA -->
-      <form class="register-form" id="form-business" action="/auth/register/business" method="POST">
+      <form class="register-form" id="form-empresa" action="/auth/register/empresa" method="POST">
         <div class="form-group">
-          <label for="biz-nombre">Nombre de la empresa</label>
-          <input type="text" id="biz-nombre" name="nombre_empresa" placeholder="Ej: Clínica Veterinaria Sol"
-          value="<%= formType === 'business' && formData ? formData.nombre_empresa : '' %>">
-          <span id="biz-nombre-error" class="error"></span>
+          <label for="empresa-nombre">Nombre de la empresa</label>
+          <input type="text" id="empresa-nombre" name="nombre" placeholder="Ej: Clínica Veterinaria Sol"
+          value="<%= formType === 'empresa' && formData ? formData.nombre : '' %>">
+          <span id="empresa-nombre-error" class="error"></span>
         </div>
         <div class="form-group">
-          <label for="biz-email">Correo corporativo</label>
-          <input type="email" id="biz-email" name="email" placeholder="contacto@empresa.com"
-          value="<%= formType === 'business' && formData ? formData.email : '' %>">
-          <span id="biz-email-error" class="error"></span>
+          <label for="empresa-correo">Correo corporativo</label>
+          <input type="email" id="empresa-correo" name="correo" placeholder="contacto@empresa.com"
+          value="<%= formType === 'empresa' && formData ? formData.correo : '' %>">
+          <span id="empresa-correo-error" class="error"></span>
         </div>
         <div class="form-group">
-          <label for="biz-telefono">Teléfono</label>
-          <input type="number" id="biz-telefono" name="telefono" placeholder="Ej: 912345678"
-          value="<%= formType === 'business' && formData ? formData.telefono : '' %>">
-          <span id="biz-telefono-error" class="error"></span>
+          <label for="empresa-telefono_contacto">Teléfono</label>
+          <input type="number" id="empresa-telefono_contacto" name="telefono_contacto" placeholder="Ej: 912345678"
+          value="<%= formType === 'empresa' && formData ? formData.telefono_contacto : '' %>">
+          <span id="empresa-telefono_contacto-error" class="error"></span>
         </div>
         <div class="form-group">
-          <label for="biz-cif">CIF</label>
-          <input type="text" id="biz-cif" name="cif" placeholder="Ej: B12345678"
-          value="<%= formType === 'business' && formData ? formData.cif : '' %>">
-          <span id="biz-cif-error" class="error"></span>
+          <label for="empresa-cif">CIF</label>
+          <input type="text" id="empresa-cif" name="cif" placeholder="Ej: B12345678"
+          value="<%= formType === 'empresa' && formData ? formData.cif : '' %>">
+          <span id="empresa-cif-error" class="error"></span>
         </div>
         <div class="form-group">
-          <label for="biz-password">Contraseña</label>
-          <input type="password" id="biz-password" name="password" placeholder="••••••••"
-          value="<%= formType === 'business' && formData ? formData.password : '' %>">
-          <span id="biz-password-error" class="error"></span>
+          <label for="empresa-password">Contraseña</label>
+          <input type="password" id="empresa-password" name="password" placeholder="••••••••"
+          value="<%= formType === 'empresa' && formData ? formData.password : '' %>">
+          <span id="empresa-password-error" class="error"></span>
         </div>
         <div class="form-group">
-          <label for="biz-tipo">Tipo de empresa</label>
-          <select id="biz-tipo" name="tipo_empresa" onchange="toggleOtro(this)">
+          <label for="empresa-tipo">Tipo de empresa</label>
+          <select id="empresa-tipo" name="tipo" onchange="toggleOtro(this)">
             <option value="" disabled selected>Selecciona una opción</option>
-            <option value="clinica">Clínica veterinaria</option>
-            <option value="tienda">Tienda de animales</option>
-            <option value="peluqueria">Peluquería canina</option>
-            <option value="residencia">Residencia / Hotel para mascotas</option>
+            <option value="clinica_veterinaria">Clínica veterinaria</option>
+            <option value="tienda_animal">Tienda de animales</option>
+            <option value="peluquería_caninca">Peluquería canina</option>
+            <option value="hotel">Residencia / Hotel para mascotas</option>
             <option value="otro">Otro</option>
           </select>
-          <span id="biz-tipo-error" class="error"></span>
+          <span id="empresa-tipo-error" class="error"></span>
         </div>
         <div class="form-group" id="otro-group" style="display:none;">
-          <label for="biz-tipo-otro">¿Qué otro tipo de empresa?</label>
-          <input type="text" id="biz-tipo-otro" name="tipo_empresa_otro" placeholder="Describe tu tipo de empresa">
-          <span id="biz-tipo-otro-error" class="error"></span>
+          <label for="empresa-tipo-otro">¿Qué otro tipo de empresa?</label>
+          <input type="text" id="empresa-tipo-otro" name="tipo_otro" placeholder="Describe tu tipo de empresa">
+          <span id="empresa-tipo-otro-error" class="error"></span>
         </div>
         <button type="submit" class="btn-submit">Crear cuenta</button>
       </form>
@@ -133,17 +133,18 @@
     </div>
   </main>
 
+  <%- include('plantillas/footer') %>
   <script>
     const formType = "<%= formType || '' %>";
 
     function selectType(type) {
       // Actualizar estilo de los botones
-      document.getElementById('opt-client').classList.toggle('active', type === 'client');
-      document.getElementById('opt-business').classList.toggle('active', type === 'business');
+      document.getElementById('opt-usuario').classList.toggle('active', type === 'usuario');
+      document.getElementById('opt-empresa').classList.toggle('active', type === 'empresa');
 
       // Mostrar el formulario correspondiente
-      document.getElementById('form-client').classList.toggle('visible', type === 'client');
-      document.getElementById('form-business').classList.toggle('visible', type === 'business');
+      document.getElementById('form-usuario').classList.toggle('visible', type === 'usuario');
+      document.getElementById('form-empresa').classList.toggle('visible', type === 'empresa');
     }
 
     function toggleOtro(select) {

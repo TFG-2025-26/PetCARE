@@ -32,13 +32,6 @@ app.use((req, res, next) => {
     next();
 });
 
-// Almacén temporal (sustituirá la base de datos más adelante)
-const db = {
-  clients:    [],
-  businesses: []
-};
-app.locals.db = db;
-
 // Rutas (se añadirán aquí)
 const authRoutes = require('./routes/authRouter');
 const userRoutes = require('./routes/userRouter');

@@ -1,121 +1,121 @@
 "use strict"; 
 
 // Selección de formularios
-const clientForm = document.getElementById("form-client");
-const bizForm = document.getElementById("form-business");
+const usuarioForm = document.getElementById("form-usuario");
+const empresaForm = document.getElementById("form-empresa");
 
-// Selección de elementos - Client
-const clientNombreInput = document.getElementById("client-nombre"); 
-const clientNombreUsuarioInput = document.getElementById("client-usuario"); 
-const clientEmailInput = document.getElementById("client-email"); 
-const clientTelefonoInput = document.getElementById("client-telefono");
-const clientPasswordInput = document.getElementById("client-password"); 
-const clientFechaInput = document.getElementById("client-fecha"); 
+// Selección de elementos - Usuario
+const usuarioNombreCompletoInput = document.getElementById("usuario-nombre_completo"); 
+const usuarioNombreUsuarioInput = document.getElementById("usuario-nombre_usuario"); 
+const usuarioCorreoInput = document.getElementById("usuario-correo"); 
+const usuarioTelefonoInput = document.getElementById("usuario-telefono");
+const usuarioPasswordInput = document.getElementById("usuario-password"); 
+const usuarioFechaNacimientoInput = document.getElementById("usuario-fecha_nacimiento"); 
 
-// Selección de elementos - Business 
-const bizNombreInput = document.getElementById("biz-nombre"); 
-const bizEmailInput = document.getElementById("biz-email"); 
-const bizCifInput = document.getElementById("biz-cif");
-const bizPasswordInput = document.getElementById("biz-password"); 
-const bizTelefonoInput = document.getElementById("biz-telefono");
-const bizTipoSelect = document.getElementById("biz-tipo"); 
-const bizTipoOtroInput = document.getElementById("biz-tipo-otro");
+// Selección de elementos - Empresa 
+const empresaNombreInput = document.getElementById("empresa-nombre"); 
+const empresaCorreoInput = document.getElementById("empresa-correo"); 
+const empresaCifInput = document.getElementById("empresa-cif");
+const empresaPasswordInput = document.getElementById("empresa-password"); 
+const empresaTelefonoContactoInput = document.getElementById("empresa-telefono_contacto");
+const empresaTipoSelect = document.getElementById("empresa-tipo"); 
+const empresaTipoOtroInput = document.getElementById("empresa-tipo-otro");
 
-// Selección de Spans - Client
-const clientNombreError = document.getElementById("error-client-nombre");
-const clientUsuarioError = document.getElementById("error-client-nombre-usuario");
-const clientEmailError = document.getElementById("error-client-email");
-const clientTelefonoError = document.getElementById("error-client-telefono");
-const clientPasswordError = document.getElementById("error-client-password");
-const clientFechaError = document.getElementById("error-client-fecha");
+// Selección de Spans - Usuario
+const usuarioNombreCompletoError = document.getElementById("error-usuario-nombre_completo");
+const usuarioNombreUsuarioError = document.getElementById("error-usuario-nombre_usuario");
+const usuarioCorreoError = document.getElementById("error-usuario-correo");
+const usuarioTelefonoError = document.getElementById("error-usuario-telefono");
+const usuarioPasswordError = document.getElementById("error-usuario-password");
+const usuarioFechaNacimientoError = document.getElementById("error-usuario-fecha_nacimiento");
 
-// Selección de Spans - Business 
-const bizNombreError = document.getElementById("biz-nombre-error");
-const bizEmailError = document.getElementById("biz-email-error");
-const bizCifError = document.getElementById("biz-cif-error");
-const bizPasswordError = document.getElementById("biz-password-error");
-const bizTelefonoError = document.getElementById("biz-telefono-error");
-const bizTipoError = document.getElementById("biz-tipo-error");
-const bizTipoOtroError = document.getElementById("biz-tipo-otro-error");
+// Selección de Spans - Empresa 
+const empresaNombreError = document.getElementById("empresa-nombre-error");
+const empresaCorreoError = document.getElementById("empresa-correo-error");
+const empresaCifError = document.getElementById("empresa-cif-error");
+const empresaPasswordError = document.getElementById("empresa-password-error");
+const empresaTelefonoContactoError = document.getElementById("empresa-telefono_contacto-error");
+const empresaTipoError = document.getElementById("empresa-tipo-error");
+const empresaTipoOtroError = document.getElementById("empresa-tipo-otro-error");
 
-// Funciones de validación - Client
-function validarNombreClient() {
-    let nombreClientValid = true;
+// Funciones de validación - Usuario
+function validarNombreCompleto() {
+    let nombreUsuarioValid = true;
 
-    if (clientNombreInput.value.trim().length < 3) {
-        clientNombreError.textContent = "El nombre debe tener al menos 3 caracteres.";
-        nombreClientValid = false; 
+    if (usuarioNombreCompletoInput.value.trim().length < 3) {
+        usuarioNombreCompletoError.textContent = "El nombre debe tener al menos 3 caracteres.";
+        nombreUsuarioValid = false; 
     } else {
-        clientNombreError.textContent = "";
+        usuarioNombreCompletoError.textContent = "";
     }
-    return nombreClientValid;
+    return nombreUsuarioValid;
 }
 
-function validarUsuarioClient() {
-    let usuarioClientValid = true;
+function validarNombreUsuario() {
+    let nombreUsuarioInputValid = true;
     const regex = /^\S+$/;
 
-    if (clientNombreUsuarioInput.value.trim().length < 3) {
-        clientUsuarioError.textContent = "El nombre de usuario debe tener al menos 3 caracteres.";
-        usuarioClientValid = false;
-    } else if (!regex.test(clientNombreUsuarioInput.value)) {
-        clientUsuarioError.textContent = "El nombre de usuario no puede contener espacios en blanco.";
-        usuarioClientValid = false;
+    if (usuarioNombreUsuarioInput.value.trim().length < 3) {
+        usuarioNombreUsuarioError.textContent = "El nombre de usuario debe tener al menos 3 caracteres.";
+        nombreUsuarioInputValid = false;
+    } else if (!regex.test(usuarioNombreUsuarioInput.value)) {
+        usuarioNombreUsuarioError.textContent = "El nombre de usuario no puede contener espacios en blanco.";
+        nombreUsuarioInputValid = false;
     } else {
-        clientUsuarioError.textContent = "";
+        usuarioNombreUsuarioError.textContent = "";
     }
 
-    return usuarioClientValid;
+    return nombreUsuarioInputValid ;
 }
 
-function validarEmailClient() {
-    let emailClientValid = true;
+function validarCorreoUsuario() {
+    let emailUsuarioValid = true;
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!regex.test(clientEmailInput.value.trim())) {
-        clientEmailError.textContent = "Por favor, introduce un email válido.";
-        emailClientValid = false;
+    if (!regex.test(usuarioCorreoInput.value.trim())) {
+        usuarioCorreoError.textContent = "Por favor, introduce un email válido.";
+        emailUsuarioValid = false;
     } else {
-        clientEmailError.textContent = "";
+        usuarioCorreoError.textContent = "";
     }
 
-    return emailClientValid;
+    return emailUsuarioValid;
 }
 
-function validarTelefonoClient() {
-    let telefonoClientValid = true;
+function validarTelefonoUsuario() {
+    let telefonoUsuarioValid = true;
     const regex = /^\d{9,15}$/;
 
-    if (!regex.test(clientTelefonoInput.value.trim())) {
-        clientTelefonoError.textContent = "Por favor, introduce un teléfono válido (9-15 dígitos).";
-        telefonoClientValid = false;
+    if (!regex.test(usuarioTelefonoInput.value.trim())) {
+        usuarioTelefonoError.textContent = "Por favor, introduce un teléfono válido (9-15 dígitos).";
+        telefonoUsuarioValid = false;
     } else {
-        clientTelefonoError.textContent = "";
+        usuarioTelefonoError.textContent = "";
     }
 
-    return telefonoClientValid;
+    return telefonoUsuarioValid;
 }
 
-function validarPasswordClient() {
-    let passwordClientValid = true;
+function validarPasswordUsuario() {
+    let passwordUsuarioValid = true;
     const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
-    if (/\s/.test(clientPasswordInput.value)) {
-        clientPasswordError.textContent = "La contraseña no puede contener espacios en blanco.";
-        passwordClientValid = false;
-    } else if (!regex.test(clientPasswordInput.value.trim())) {
-        clientPasswordError.textContent = "La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una letra minúscula y un número.";
-        passwordClientValid = false;
+    if (/\s/.test(usuarioPasswordInput.value)) {
+        usuarioPasswordError.textContent = "La contraseña no puede contener espacios en blanco.";
+        passwordUsuarioValid = false;
+    } else if (!regex.test(usuarioPasswordInput.value.trim())) {
+        usuarioPasswordError.textContent = "La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una letra minúscula y un número.";
+        passwordUsuarioValid = false;
     } else {
-        clientPasswordError.textContent = "";
+        usuarioPasswordError.textContent = "";
     }
 
-    return passwordClientValid;
+    return passwordUsuarioValid;
 }
 
-function validarFechaClient() {
-    let fechaClientValid = true;
-    const fechaNacimiento = new Date(clientFechaInput.value);
+function validarFechaNacimientoUsuario() {
+    let fechaUsuarioValid = true;
+    const fechaNacimiento = new Date(usuarioFechaNacimientoInput.value);
     const hoy = new Date();
 
     let edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
@@ -126,159 +126,159 @@ function validarFechaClient() {
     }
 
     if (isNaN(fechaNacimiento.getTime())) {
-        clientFechaError.textContent = "Por favor, introduce una fecha de nacimiento válida.";
-        fechaClientValid = false;
+        usuarioFechaNacimientoError.textContent = "Por favor, introduce una fecha de nacimiento válida.";
+        fechaUsuarioValid = false;
     } else if (edad < 14) {
-        clientFechaError.textContent = "Debes tener al menos 14 años para registrarte.";
-        fechaClientValid = false;
+        usuarioFechaNacimientoError.textContent = "Debes tener al menos 14 años para registrarte.";
+        fechaUsuarioValid = false;
     } else if (edad > 120) {
-        clientFechaError.textContent = "Por favor, introduce una fecha de nacimiento realista.";
-        fechaClientValid = false;
+        usuarioFechaNacimientoError.textContent = "Por favor, introduce una fecha de nacimiento realista.";
+        fechaUsuarioValid = false;
     } else {
-        clientFechaError.textContent = "";
+        usuarioFechaNacimientoError.textContent = "";
     }
 
-    return fechaClientValid;
+    return fechaUsuarioValid;
 }
 
-// Funciones de validación - Business 
-function validarNombreBusiness() {
-    let nombreBusinessValid = true;
-    if (bizNombreInput.value.trim().length < 3) {
-        bizNombreError.textContent = "El nombre de la empresa debe tener al menos 3 caracteres.";
-        nombreBusinessValid = false;
+// Funciones de validación - Empresa 
+function validarNombreEmpresa() {
+    let nombreEmpresaValid = true;
+    if (empresaNombreInput.value.trim().length < 3) {
+        empresaNombreError.textContent = "El nombre de la empresa debe tener al menos 3 caracteres.";
+        nombreEmpresaValid = false;
     } else {
-        bizNombreError.textContent = "";
+        empresaNombreError.textContent = "";
     }
 
-    return nombreBusinessValid;
+    return nombreEmpresaValid;
 }
 
-function validarEmailBusiness() {
-    let emailBusinessValid = true;
+function validarCorreoEmpresa() {
+    let correoEmpresaValid = true;
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!regex.test(bizEmailInput.value.trim())) {
-        bizEmailError.textContent = "Por favor, introduce un email válido.";
-        emailBusinessValid = false;
+    if (!regex.test(empresaCorreoInput.value.trim())) {
+        empresaCorreoError.textContent = "Por favor, introduce un email válido.";
+        correoEmpresaValid = false;
     } else {
-        bizEmailError.textContent = "";
+        empresaCorreoError.textContent = "";
     }
 
-    return emailBusinessValid;
+    return correoEmpresaValid;
 }
 
-function validarCifBusiness() {
-    let cifBusinessValid = true;
+function validarCifEmpresa() {
+    let cifEmpresaValid = true;
     const regex = /^[A-Za-z0-9]{8,}$/;
 
-    if (!regex.test(bizCifInput.value.trim())) {
-        bizCifError.textContent = "Por favor, introduce un CIF válido.";
-        cifBusinessValid = false;
+    if (!regex.test(empresaCifInput.value.trim())) {
+        empresaCifError.textContent = "Por favor, introduce un CIF válido.";
+        cifEmpresaValid = false;
     } else {
-        bizCifError.textContent = "";
+        empresaCifError.textContent = "";
     }
 
-    return cifBusinessValid;
+    return cifEmpresaValid;
 }
 
-function validarPasswordBusiness() {
-    let passwordBusinessValid = true;
+function validarPasswordEmpresa() {
+    let passwordEmpresaValid = true;
     const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
     // que no contenga espacios en blanco
-    if (/\s/.test(bizPasswordInput.value)) {
-        bizPasswordError.textContent = "La contraseña no puede contener espacios en blanco.";
-        passwordBusinessValid = false;
-    } else if (!regex.test(bizPasswordInput.value.trim())) {
-        bizPasswordError.textContent = "La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una letra minúscula y un número.";
-        passwordBusinessValid = false;
+    if (/\s/.test(empresaPasswordInput.value)) {
+        empresaPasswordError.textContent = "La contraseña no puede contener espacios en blanco.";
+        passwordEmpresaValid = false;
+    } else if (!regex.test(empresaPasswordInput.value.trim())) {
+        empresaPasswordError.textContent = "La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una letra minúscula y un número.";
+        passwordEmpresaValid = false;
     } else {
-        bizPasswordError.textContent = "";
+        empresaPasswordError.textContent = "";
     }
 
-    return passwordBusinessValid;
+    return passwordEmpresaValid;
 }
 
-function validarTelefonoBusiness() {
-    let telefonoBusinessValid = true;
+function validarTelefonoContactoEmpresa() {
+    let telefonoContactoEmpresaValid = true;
     const regex = /^\d{9,15}$/;
 
-    if (!regex.test(bizTelefonoInput.value.trim())) {
-        bizTelefonoError.textContent = "Por favor, introduce un teléfono válido (9-15 dígitos).";
-        telefonoBusinessValid = false;
+    if (!regex.test(empresaTelefonoContactoInput.value.trim())) {
+        empresaTelefonoContactoError.textContent = "Por favor, introduce un teléfono válido (9-15 dígitos).";
+        telefonoContactoEmpresaValid = false;
     } else {
-        bizTelefonoError.textContent = "";
+        empresaTelefonoContactoError.textContent = "";
     }
 
-    return telefonoBusinessValid;
+    return telefonoContactoEmpresaValid;
 }
 
-function validarTipoBusiness() {
-    let tipoBusinessValid = true;
-    if (bizTipoSelect.value === "") {
-        bizTipoError.textContent = "Por favor, selecciona un tipo de empresa.";
-        tipoBusinessValid = false;
+function validarTipoEmpresa() {
+    let tipoEmpresaValid = true;
+    if (empresaTipoSelect.value === "") {
+        empresaTipoError.textContent = "Por favor, selecciona un tipo de empresa.";
+        tipoEmpresaValid = false;
     } else {
-        bizTipoError.textContent = "";
+        empresaTipoError.textContent = "";
     }
 
-    return tipoBusinessValid;
+    return tipoEmpresaValid;
 }
 
-function validarTipoOtroBusiness() {
-    let tipoOtroBusinessValid = true;
-    if (bizTipoSelect.value === "otro" && bizTipoOtroInput.value.trim() === "") {
-        bizTipoOtroError.textContent = "Por favor, especifica el tipo de empresa.";
-        tipoOtroBusinessValid = false;
-    } else if (bizTipoSelect.value === "otro" && bizTipoOtroInput.value.trim().length < 5) {
-        bizTipoOtroError.textContent = "El tipo de empresa debe tener al menos 5 caracteres.";
-        tipoOtroBusinessValid = false;
+function validarTipoOtroEmpresa() {
+    let tipoOtroEmpresaValid = true;
+    if (empresaTipoSelect.value === "otro" && empresaTipoOtroInput.value.trim() === "") {
+        empresaTipoOtroError.textContent = "Por favor, especifica el tipo de empresa.";
+        tipoOtroEmpresaValid = false;
+    } else if (empresaTipoSelect.value === "otro" && empresaTipoOtroInput.value.trim().length < 5) {
+        empresaTipoOtroError.textContent = "El tipo de empresa debe tener al menos 5 caracteres.";
+        tipoOtroEmpresaValid = false;
     } else {
-        bizTipoOtroError.textContent = "";
+        empresaTipoOtroError.textContent = "";
     }
 
-    return tipoOtroBusinessValid;
+    return tipoOtroEmpresaValid;
 }
 
-// Eventos de validación - Client
-clientNombreInput.addEventListener("input", validarNombreClient);
-clientNombreUsuarioInput.addEventListener("input", validarUsuarioClient);
-clientEmailInput.addEventListener("input", validarEmailClient);
-clientTelefonoInput.addEventListener("input", validarTelefonoClient);
-clientPasswordInput.addEventListener("input", validarPasswordClient);
-clientFechaInput.addEventListener("input", validarFechaClient);
+// Eventos de validación - Usuario
+usuarioNombreCompletoInput.addEventListener("input", validarNombreCompleto);
+usuarioNombreUsuarioInput.addEventListener("input", validarNombreUsuario);
+usuarioCorreoInput.addEventListener("input", validarCorreoUsuario);
+usuarioTelefonoInput.addEventListener("input", validarTelefonoUsuario);
+usuarioPasswordInput.addEventListener("input", validarPasswordUsuario);
+usuarioFechaNacimientoInput.addEventListener("input", validarFechaNacimientoUsuario);
 
-clientForm.addEventListener("submit", function(event) {
-    let isNombreValid = validarNombreClient();
-    let isUsuarioValid = validarUsuarioClient();
-    let isEmailValid = validarEmailClient();
-    let isPasswordValid = validarPasswordClient();
-    let isFechaValid = validarFechaClient();
-    let isTelefonoValid = validarTelefonoClient();
+usuarioForm.addEventListener("submit", function(event) {
+    let isNombreValid = validarNombreCompleto();
+    let isUsuarioValid = validarNombreUsuario();
+    let isEmailValid = validarCorreoUsuario();
+    let isPasswordValid = validarPasswordUsuario();
+    let isFechaValid = validarFechaNacimientoUsuario();
+    let isTelefonoValid = validarTelefonoUsuario();
     if (!isNombreValid || !isUsuarioValid || !isEmailValid || !isPasswordValid || !isFechaValid || !isTelefonoValid) {
         event.preventDefault();
         alert("Por favor, corrige los errores en el formulario antes de enviarlo.");
     }
 });
 
-// Eventos de validación - Business 
-bizNombreInput.addEventListener("input", validarNombreBusiness);
-bizEmailInput.addEventListener("input", validarEmailBusiness);
-bizCifInput.addEventListener("input", validarCifBusiness);
-bizPasswordInput.addEventListener("input", validarPasswordBusiness);
-bizTipoSelect.addEventListener("change", validarTipoBusiness);
-bizTipoOtroInput.addEventListener("input", validarTipoOtroBusiness);
-bizTelefonoInput.addEventListener("input", validarTelefonoBusiness);
+// Eventos de validación - Empresa
+empresaNombreInput.addEventListener("input", validarNombreEmpresa);
+empresaCorreoInput.addEventListener("input", validarCorreoEmpresa);
+empresaCifInput.addEventListener("input", validarCifEmpresa);
+empresaPasswordInput.addEventListener("input", validarPasswordEmpresa);
+empresaTipoSelect.addEventListener("change", validarTipoEmpresa);
+empresaTipoOtroInput.addEventListener("input", validarTipoOtroEmpresa);
+empresaTelefonoContactoInput.addEventListener("input", validarTelefonoContactoEmpresa);
 
-bizForm.addEventListener("submit", function(event) {
-    let isNombreValid = validarNombreBusiness();
-    let isEmailValid = validarEmailBusiness();
-    let isCifValid = validarCifBusiness();
-    let isPasswordValid = validarPasswordBusiness();
-    let isTipoValid = validarTipoBusiness();
-    let isTipoOtroValid = validarTipoOtroBusiness();
-    let isTelefonoValid = validarTelefonoBusiness();    
-    if (!isNombreValid || !isEmailValid || !isCifValid || !isPasswordValid || !isTipoValid || !isTipoOtroValid || !isTelefonoValid) {
+empresaForm.addEventListener("submit", function(event) {
+    let isNombreValid = validarNombreEmpresa();
+    let isCorreoValid = validarCorreoEmpresa();
+    let isCifValid = validarCifEmpresa();
+    let isPasswordValid = validarPasswordEmpresa();
+    let isTipoValid = validarTipoEmpresa();
+    let isTipoOtroValid = validarTipoOtroEmpresa();
+    let isTelefonoContactoValid = validarTelefonoContactoEmpresa();    
+    if (!isNombreValid || !isCorreoValid || !isCifValid || !isPasswordValid || !isTipoValid || !isTipoOtroValid || !isTelefonoContactoValid) {
         event.preventDefault();
         alert("Por favor, corrige los errores en el formulario antes de enviarlo.");
     }

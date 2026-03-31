@@ -1,5 +1,7 @@
 <nav>
-      <div class="nav-logo">Pet<span>Care</span></div>
+      <a href="/" style="text-decoration: none;">
+        <div class="nav-logo">Pet<span>Care</span></div>
+      </a>
 
       <ul class="nav-links">
             <li><a href="/">Home</a></li>
@@ -15,7 +17,7 @@
       </ul>
       <div class="nav-actions">
         <% if(usuario) { %>
-            <% if(usuario.tipo === 'client') { %>
+            <% if(usuario.tipo === 'usuario') { %>
             <a href="/user/perfilUsuario/<%= usuario.id %>" class="btn-ghost">Perfil</a>
             <% } else { %>
             <a href="/user/perfilEmpresa/<%= usuario.id %>" class="btn-ghost">Perfil</a>
@@ -26,4 +28,64 @@
             <a href="/auth/register" class="btn-primary">Registrarse</a>
         <% } %>
       </div>
+
+      <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-nav-menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
     </nav>
+
+    <div id="mobile-nav-menu" class="mobile-nav-menu" hidden>
+      <ul class="mobile-nav-links">
+            <li><a href="/">Home</a></li>
+            <% if(usuario) { %>
+                <li><a href="/pets/mypets">Mis Animales</a></li>
+                <li><a href="/servicios">Servicios</a></li>
+                <li><a href="">Sobre nosotros</a></li>
+            <% } else { %>
+                <li><a href="/#features">Servicios</a></li>
+                <li><a href="/#about">Sobre nosotros</a></li>
+            <% } %>
+      </ul>
+
+      <div class="mobile-nav-actions">
+        <% if(usuario) { %>
+            <% if(usuario.tipo === 'usuario') { %>
+            <a href="/user/perfilUsuario/<%= usuario.id %>" class="btn-ghost">Perfil</a>
+            <% } else { %>
+            <a href="/user/perfilEmpresa/<%= usuario.id %>" class="btn-ghost">Perfil</a>
+            <% } %>
+            <a href="/auth/logout" class="btn-primary">Cerrar sesión</a>
+        <% } else { %>
+            <a href="/auth/login" class="btn-ghost">Iniciar sesión</a>
+            <a href="/auth/register" class="btn-primary">Registrarse</a>
+        <% } %>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const toggle = document.getElementById('nav-toggle');
+        const menu = document.getElementById('mobile-nav-menu');
+        if (!toggle || !menu) return;
+
+        function setMenuState(open) {
+          toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+          toggle.classList.toggle('is-open', open);
+          menu.classList.toggle('is-open', open);
+          menu.hidden = !open;
+        }
+
+        toggle.addEventListener('click', function () {
+          const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+          setMenuState(!isOpen);
+        });
+
+        window.addEventListener('resize', function () {
+          if (window.innerWidth > 768) {
+            setMenuState(false);
+          }
+        });
+      })();
+    </script>
