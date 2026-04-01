@@ -1,4 +1,4 @@
-"use strict"; 
+﻿"use strict"; 
 
 const { validationResult } = require('express-validator');
 const pool = require('../db');
@@ -52,7 +52,7 @@ const verForo = (req, res) => {
                     res.render('foroDetalle', { 
                         foro: results[0],
                         comentarios: commentResults, 
-                        usuarioSesion: req.session.usuario || null
+                        usuario: req.session.usuario || null
                     }); 
                 }); 
             }   
@@ -70,7 +70,7 @@ const getCrearForo = (req, res) => {
         usuario: req.session.usuario || null,
         error: null,
         errores: [],
-        foro: { titulo: '', categoría: '', descripcion: '', id_foro: '', id_usuario: '' }
+        foro: { titulo: '', categoria: '', descripcion: '', id_foro: '', id_usuario: '' }
     });
 };
 
@@ -89,9 +89,9 @@ const postCrearForo = (req, res) => {
         });
     }
 
-    const { titulo, descripcion, categoría } = req.body;
+    const { titulo, descripcion, categoria } = req.body;
     const id_usuario = req.session.usuario.id;
-    const sql_insert_foro = 'INSERT INTO foros (titulo, descripcion, categoría, id_usuario) VALUES (?, ?, ?, ?)';
+    const sql_insert_foro = 'INSERT INTO foros (titulo, descripcion, categoria, id_usuario, fecha_publicacion) VALUES (?, ?, ?, ?, NOW())';
 
     pool.getConnection((err, connection) => {
         console.log('Conexión a la base de datos establecida para crear foro');
@@ -102,8 +102,8 @@ const postCrearForo = (req, res) => {
             return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
         }
 
-        connection.query(sql_insert_foro, [titulo, descripcion, categoría, id_usuario], (err, result) => {
-            console.log('Intentando insertar foro con datos:', { titulo, descripcion, categoría, id_usuario });
+        connection.query(sql_insert_foro, [titulo, descripcion, categoria, id_usuario], (err, result) => {
+            console.log('Intentando insertar foro con datos:', { titulo, descripcion, categoria, id_usuario });
 
             // Comprobar si hubo un error al insertar el foro
             if (err) {
@@ -128,7 +128,7 @@ const filtrarForos = (req, res) => {
     let params = [1];
 
     if (categoria) {
-        condiciones.push('f.categoría = ?');
+        condiciones.push('f.categoria = ?');
         params.push(categoria);
     }
     if (keyword) {
@@ -164,7 +164,8 @@ const filtrarForos = (req, res) => {
                      FROM comentarios
                      GROUP BY id_foro
                  ) c ON c.id_foro = f.id_foro
-                 ${where} 
+                 ${where}
+                 ORDER BY f.fecha_publicacion DESC
                  LIMIT ? OFFSET ?`,
                 [...params, limite, offset],
                 (err, results) => {
@@ -192,7 +193,7 @@ const filtrarForos = (req, res) => {
 
 const getEditarForo = (req, res) => {
     const foroId = parseInt(req.params.id, 10);
-    const usuarioSesion = parseInt(req.params.id_usuario, 10);
+    const usuarioId = parseInt(req.params.id_usuario, 10);
     const esAjax = req.xhr || req.get('X-Requested-With') === 'XMLHttpRequest';
 
     if (!esAjax) {
@@ -207,7 +208,7 @@ const getEditarForo = (req, res) => {
         }
 
         // Obtener el foro para editar
-        connection.query('SELECT * FROM foros WHERE id_foro = ? AND id_usuario = ?', [foroId, usuarioSesion], (err, results) => {
+        connection.query('SELECT * FROM foros WHERE id_foro = ? AND id_usuario = ?', [foroId, usuarioId], (err, results) => {
             connection.release();
             if (err) {
                 console.error('Error al obtener el foro:', err);
@@ -229,8 +230,8 @@ const getEditarForo = (req, res) => {
 
 const postEditarForo = (req, res) => {
     const foroId = parseInt(req.params.id, 10);
-    const usuarioSesion = parseInt(req.params.id_usuario, 10);
-    const { titulo, descripcion, categoría } = req.body;
+    const usuarioId = parseInt(req.params.id_usuario, 10);
+    const { titulo, descripcion, categoria } = req.body;
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -241,7 +242,7 @@ const postEditarForo = (req, res) => {
             foro: {
                 ...req.body,
                 id_foro: foroId,
-                id_usuario: usuarioSesion
+                id_usuario: usuarioId
             }
         });
     }
@@ -254,7 +255,7 @@ const postEditarForo = (req, res) => {
         }
 
         // Obtener el foro para editar
-        connection.query('SELECT * FROM foros WHERE id_foro = ? AND id_usuario = ?', [foroId, usuarioSesion], (err, results) => {
+        connection.query('SELECT * FROM foros WHERE id_foro = ? AND id_usuario = ?', [foroId, usuarioId], (err, results) => {
             if (err) {
                 connection.release();
                 console.error('Error al obtener el foro:', err);
@@ -265,8 +266,8 @@ const postEditarForo = (req, res) => {
                 return res.status(404).send('Foro no encontrado o no tienes permiso para editarlo');
             }
 
-            const sql_update_foro = 'UPDATE foros SET titulo = ?, descripcion = ?, categoría = ? WHERE id_foro = ? AND id_usuario = ?';
-            connection.query(sql_update_foro, [titulo, descripcion, categoría, foroId, usuarioSesion], (updateErr, updateResult) => {
+            const sql_update_foro = 'UPDATE foros SET titulo = ?, descripcion = ?, categoria = ? WHERE id_foro = ? AND id_usuario = ?';
+            connection.query(sql_update_foro, [titulo, descripcion, categoria, foroId, usuarioId], (updateErr, updateResult) => {
                 connection.release();
 
                 if (updateErr) {
@@ -287,18 +288,18 @@ const postEditarForo = (req, res) => {
 const eliminarForo = (req, res) => {
     const foroId = parseInt(req.params.id, 10);
     const usuarioId = parseInt(req.params.id_usuario, 10);
-    const usuarioSesion = req.session.usuario;
+    const usuario = req.session.usuario;
 
     if (Number.isNaN(foroId) || Number.isNaN(usuarioId)) {
         return res.status(400).send('Parámetros inválidos');
     }
 
-    if (!usuarioSesion) {
+    if (!usuario) {
         return res.status(401).send('Debes iniciar sesión para realizar esta acción');
     }
 
     // Comprobación adicional: el id de usuario del enlace debe coincidir con la sesión activa.
-    if (usuarioSesion.id !== usuarioId) {
+    if (usuario.id !== usuarioId) {
         return res.status(403).send('No tienes permiso para eliminar este foro');
     }
 
@@ -327,7 +328,7 @@ const comentarForo = (req, res) => {
     const foroId = parseInt(req.params.id, 10);
     const usuarioId = parseInt(req.params.id_usuario, 10);
     const { contenido } = req.body;
-    const usuarioSesion = req.session.usuario;
+    const usuario = req.session.usuario;
 
     if (Number.isNaN(foroId) || Number.isNaN(usuarioId)) {
         return res.status(400).send('Parámetros inválidos');
@@ -338,7 +339,7 @@ const comentarForo = (req, res) => {
     }
 
     // Comprobación adicional: el id de usuario del enlace debe coincidir con la sesión activa.
-    if (usuarioSesion.id !== usuarioId) {
+    if (usuario.id !== usuarioId) {
         return res.status(403).send('No tienes permiso para comentar en este foro');
     }
 
@@ -365,14 +366,14 @@ const eliminarComentario = (req, res) => {
     const foroId = parseInt(req.params.id, 10);
     const usuarioId = parseInt(req.params.id_usuario, 10);
     const comentarioId = parseInt(req.params.id_comentario, 10);
-    const usuarioSesion = req.session.usuario;
+    const usuario = req.session.usuario;
 
     if (Number.isNaN(foroId) || Number.isNaN(usuarioId) || Number.isNaN(comentarioId)) {
         return res.status(400).send('Parámetros inválidos');
     }
 
     // Comprobación adicional: el id de usuario del enlace debe coincidir con la sesión activa.
-    if (usuarioSesion.id !== usuarioId) {
+    if (usuario.id !== usuarioId) {
         return res.status(403).send('No tienes permiso para eliminar este comentario');
     }
 

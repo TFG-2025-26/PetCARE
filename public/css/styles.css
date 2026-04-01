@@ -250,7 +250,17 @@ textarea { resize: vertical; min-height: 80px; }
 .modal-list { list-style: none; margin-bottom: 1.5rem; }
 .modal-list li { font-size: 0.9rem; color: var(--muted); padding: 0.4rem 0; border-bottom: 1px solid var(--warm); }
 .modal-list li:last-child { border-bottom: none; }
-.modal-footer { display: flex; justify-content: flex-end; }
+.modal-footer { display: flex; justify-content: flex-end; align-items: center; }
+.modal-footer .btn-outline-large,
+.modal-footer .btn-perfil-danger,
+.modal-footer .btn-danger {
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+   min-height: 44px;
+   padding: 0.75rem 1.25rem;
+   line-height: 1.2;
+}
 .botones-modal button { color: var(--white); background: var(--amber); border-radius: 24px; padding: 0.6rem; border: none; font-family: 'DM Sans', sans-serif; font-size: 1rem; cursor: pointer; }
 #cancelar-eliminar-mascota, #cancelar-eliminar-registro { background: #c8b0a2; }
 
@@ -280,8 +290,8 @@ textarea { resize: vertical; min-height: 80px; }
 .login-page { gap: clamp(1.5rem, 2.5vw, 2.75rem); }
 .perfil-page { display: grid; grid-template-columns: minmax(320px, 360px) minmax(0, 1fr); gap: clamp(1.5rem, 2.5vw, 2.75rem); width: min(100%, var(--profile-max-width)); margin: 3rem auto; padding: 0 var(--page-gutter); }
 .editar-page { width: min(100%, var(--edit-max-width)); margin: 0 auto; padding: 0 var(--page-gutter); display: flex; flex-direction: column; gap: 1.5rem; margin-top: 3rem; margin-bottom: 3rem;}
-.foros-page { max-width: 900px; margin: 0 auto; padding: 4.5rem 1.5rem 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
-.foro-detalle-page { max-width: 780px; margin: 0 auto; padding: 4.5rem 2rem 3rem; display: flex; flex-direction: column; gap: 0; }
+.foros-page { display: flex; flex-direction: column; gap: 1.5rem; width: min(100%, 900px); margin: 3rem auto; padding: 0 var(--page-gutter); }
+.foro-detalle-page { width: min(100%, 780px); margin: 3rem auto; padding: 0 var(--page-gutter); display: flex; flex-direction: column; gap: 0; }
 
 /* ══════════════════════════════════════════
    HERO
@@ -463,7 +473,7 @@ footer, .footer {
 /* ══════════════════════════════════════════
    FOROS
 ══════════════════════════════════════════ */
-.foros-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.foros-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .foros-header h1 { font-family: 'Fraunces', serif; font-size: 2.2rem; font-weight: 900; color: var(--brown); letter-spacing: -0.03em; margin-bottom: 0.3rem; }
 .foros-subtitle { font-size: 0.95rem; color: var(--muted); font-weight: 300; }
 .foros-filtros { display: flex; align-items: flex-end; gap: 1rem; background: var(--white); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow-sm); flex-wrap: wrap; }
@@ -471,6 +481,7 @@ footer, .footer {
 .filtro-group label { font-size: 0.8rem; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
 .filtro-keyword { flex: 1; min-width: 180px; }
 .filtro-group select, .filtro-group input { padding: 0.65rem 1rem; }
+.filtro-acciones { display: flex; gap: 0.5rem; align-items: flex-end; margin-left: auto; }
 .foros-info { font-size: 0.85rem; color: var(--muted); font-weight: 300; }
 .foros-list { display: flex; flex-direction: column; gap: 0.8rem; }
 
@@ -700,13 +711,15 @@ footer, .footer {
   .editar-grid { grid-template-columns: 1fr; }
   .editar-footer { flex-direction: column-reverse; }
   .editar-footer .btn-outline-large, .editar-footer .btn-submit { width: 100%; text-align: center; }
-  .foros-page { padding: 4rem 1rem 2rem; }
+  .foros-page { margin: 1.5rem auto 2rem; }
   .foros-header { flex-direction: column; }
+  .foros-header .btn-large { align-self: flex-end; }
   .foro-card { flex-direction: column; align-items: flex-start; }
   .foro-card-right { flex-direction: row; align-items: center; width: 100%; justify-content: space-between; }
   .foro-meta { flex-direction: row; align-items: center; gap: 0.5rem; }
-  .foro-detalle-page { padding: 4.5rem 1.5rem 2rem; }
+  .foro-detalle-page { margin: 1.5rem auto 2rem; }
   .foro-detalle-page .foro-detalle-titulo { font-size: 1.5rem; }
+  .foro-detalle-meta { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
 }
 
 @media (max-width: 480px) {

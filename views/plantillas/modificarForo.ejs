@@ -1,4 +1,4 @@
-<div class="foro-detalle-header">
+﻿<div class="foro-detalle-header">
   <div class="foro-detalle-top">
     <h2 class="foro-detalle-titulo">Editar foro</h2>
     <button class="foro-detalle-cerrar" onclick="document.getElementById('modalEditarForo').style.display='none'">✕</button>
@@ -15,15 +15,15 @@
     <span id="error-titulo" class="error"></span>
   </div>
   <div class="form-group">
-    <label for="crear-categoria">Categoría</label>
-    <select id="crear-categoria" name="categoría">
-      <option value="" disabled <%= !foro.categoría ? 'selected' : '' %>>Selecciona una categoría</option>
-      <option value="salud" <%= foro.categoría === 'salud' ? 'selected' : '' %>>Salud y veterinaria</option>
-      <option value="alimentacion" <%= foro.categoría === 'alimentacion' ? 'selected' : '' %>>Alimentación</option>
-      <option value="adopcion" <%= foro.categoría === 'adopcion' ? 'selected' : '' %>>Adopción</option>
-      <option value="educacion" <%= foro.categoría === 'educacion' ? 'selected' : '' %>>Educación y comportamiento</option>
-      <option value="accesorios" <%= foro.categoría === 'accesorios' ? 'selected' : '' %>>Accesorios y productos</option>
-      <option value="general" <%= foro.categoría === 'general' ? 'selected' : '' %>>General</option>
+    <label for="crear-categoria">Categoria</label>
+    <select id="crear-categoria" name="categoria">
+      <option value="" disabled <%= !foro.categoria ? 'selected' : '' %>>Selecciona una categoria</option>
+      <option value="salud" <%= foro.categoria === 'salud' ? 'selected' : '' %>>Salud y veterinaria</option>
+      <option value="alimentacion" <%= foro.categoria === 'alimentacion' ? 'selected' : '' %>>Alimentación</option>
+      <option value="adopcion" <%= foro.categoria === 'adopcion' ? 'selected' : '' %>>Adopción</option>
+      <option value="educacion" <%= foro.categoria === 'educacion' ? 'selected' : '' %>>Educación y comportamiento</option>
+      <option value="accesorios" <%= foro.categoria === 'accesorios' ? 'selected' : '' %>>Accesorios y productos</option>
+      <option value="general" <%= foro.categoria === 'general' ? 'selected' : '' %>>General</option>
     </select>
     <span id="error-categoria" class="error"></span>
   </div>

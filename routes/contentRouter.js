@@ -1,4 +1,4 @@
-"use strict"; 
+﻿"use strict"; 
 
 const express = require('express'); 
 const router = express.Router(); 
@@ -13,18 +13,17 @@ const validarCreacionForo = [
     body('descripcion')
         .notEmpty().withMessage('La descripción es obligatoria')
         .isLength({ max: 500 }).withMessage('La descripción no puede exceder los 500 caracteres'),
-    body('categoría')
-        .notEmpty().withMessage('La categoría es obligatoria')
+    body('categoria')
+        .notEmpty().withMessage('La categoria es obligatoria')
 ];
 
 
-router.get('/foros', contentController.verForos);
-router.get('/foros/filtrar', contentController.filtrarForos);
-router.post('/foros/filtrar', contentController.filtrarForos);
-router.get('/foros/:id', contentController.verForo);
-
-router.get('/foros/crearForo', isAuthenticated, contentController.getCrearForo); 
+router.get('/foros', isAuthenticated, contentController.verForos);
+router.get('/foros/filtrar', isAuthenticated, contentController.filtrarForos);
+router.post('/foros/filtrar', isAuthenticated, contentController.filtrarForos);
+router.get('/foros/crearForo', isAuthenticated, contentController.getCrearForo);
 router.post('/foros/crearForo', isAuthenticated, validarCreacionForo, contentController.postCrearForo);
+router.get('/foros/:id', isAuthenticated, contentController.verForo);
 router.get('/foros/:id/usuario/:id_usuario/editar', isAuthenticated, contentController.getEditarForo);
 router.post('/foros/:id/usuario/:id_usuario/editar', isAuthenticated, validarCreacionForo, contentController.postEditarForo);
 router.get('/foros/:id/usuario/:id_usuario/eliminar', isAuthenticated, contentController.eliminarForo);
