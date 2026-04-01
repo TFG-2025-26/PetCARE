@@ -86,7 +86,7 @@
 
           <!-- PIE -->
           <div class="foro-card-footer">
-            <span class="foro-fecha"><%= new Date(foro.fecha_creacion).toLocaleDateString('es-ES') %></span>
+            <span class="foro-fecha"><%= new Date(foro.fecha_publicacion).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' }) %></span>
             <span class="foro-stat">💬 <%= foro.num_respuestas || 0 %></span>
           </div>
 

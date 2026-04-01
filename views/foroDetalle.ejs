@@ -21,7 +21,7 @@
         <div class="foro-detalle-meta-left">
           <span class="foro-detalle-autor">@<%= foro.nombre_usuario %></span>
           <span class="foro-detalle-sep">·</span>
-          <span class="foro-detalle-fecha"><%= new Date(foro.fecha_creacion).toLocaleDateString('es-ES') %></span>
+          <span class="foro-detalle-fecha"><%= new Date(foro.fecha_publicacion).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' }) %></span>
           <span class="foro-detalle-sep">·</span>
           <span class="foro-detalle-categoria"><%= foro.categoria %></span>
         </div>
