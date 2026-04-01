@@ -28,7 +28,8 @@ app.use(session({
 
 //Middleware global para la sesión 
 app.use((req, res, next) => {
-    res.locals.usuario = req.session.usuario || null;
+        res.locals.usuario = req.session.usuario || null;
+        res.locals.usuarioSesion = req.session.usuario || null;
     next();
 });
 

@@ -130,6 +130,9 @@ const postRegisterEmpresa = (req, res) => {
     }
 
     const { nombre, correo, telefono_contacto, password, cif, tipo, tipo_otro } = req.body;
+    const cifNormalizado = (cif || '').trim().toUpperCase();
+    req.body.cif = cifNormalizado;
+    const tipoOtroGuardado = tipo === 'otro' ? tipo_otro.trim() : null;
 
     pool.getConnection((err, connection) => {
         if (err) {
@@ -155,7 +158,7 @@ const postRegisterEmpresa = (req, res) => {
             }
 
             // 2. Comprobar CIF
-            connection.query("SELECT id_empresa FROM empresas WHERE CIF = ?", [cif], (err, results) => {
+            connection.query("SELECT id_empresa FROM empresas WHERE CIF = ?", [cifNormalizado], (err, results) => {
                 if (err) {
                     connection.release();
                     console.error("Error al verificar el CIF:", err);
@@ -189,9 +192,8 @@ const postRegisterEmpresa = (req, res) => {
                     }
 
                     // 4. Insertar
-                    //! Cambiar tipo_empresa en bd y aquí
-                    const insert_query = "INSERT INTO empresas (nombre, correo, contraseña, CIF, telefono_contacto, tipo) VALUES (?, ?, ?, ?, ?, ?)";
-                    connection.query(insert_query, [nombre, correo, password, cif, telefono_contacto, tipo === 'otro' ? tipo_otro : tipo], (err, results) => {
+                    const insert_query = "INSERT INTO empresas (nombre, correo, contraseña, CIF, telefono_contacto, tipo, tipo_otro) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    connection.query(insert_query, [nombre, correo, password, cifNormalizado, telefono_contacto, tipo, tipoOtroGuardado], (err, results) => {
                         connection.release();
                         if (err) {
                             console.error("Error al insertar la empresa:", err);

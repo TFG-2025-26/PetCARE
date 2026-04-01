@@ -128,9 +128,9 @@ const postEditarPerfilUsuario = (req, res) => {
 
     const usuarioActual = {
         id_usuario: req.params.id,
-        nombre_completo: req.body.nombre,
-        nombre_usuario: req.body.usuario,
-        correo: req.body.email,
+        nombre_completo: req.body.nombre_completo,
+        nombre_usuario: req.body.nombre_usuario,
+        correo: req.body.correo,
         fecha_nacimiento: req.body.fecha_nacimiento,
         telefono: req.body.telefono,
         ciudad: req.body.ciudad,
@@ -150,7 +150,7 @@ const postEditarPerfilUsuario = (req, res) => {
         }); 
     }
 
-    const { nombre, usuario, email, fecha_nacimiento, telefono, ciudad, pais, codigo_postal, genero, trabajo, bio, password_actual, password_nueva } = req.body;
+    const { nombre_completo, nombre_usuario, correo, fecha_nacimiento, telefono, ciudad, pais, codigo_postal, genero, trabajo, bio, password_actual, password_nueva } = req.body;
     const usuarioId = parseInt(req.params.id, 10); 
 
     pool.getConnection((err, connection) => {
@@ -176,7 +176,7 @@ const postEditarPerfilUsuario = (req, res) => {
             }
 
             // 1. Comprobar correo
-            connection.query('SELECT id_usuario FROM usuarios WHERE correo = ? AND id_usuario != ?', [email, usuarioId], (err, results) => {
+            connection.query('SELECT id_usuario FROM usuarios WHERE correo = ? AND id_usuario != ?', [correo, usuarioId], (err, results) => {
                 if (err) {
                     connection.release();
                     return res.status(500).send('Error al verificar el correo');
@@ -191,7 +191,7 @@ const postEditarPerfilUsuario = (req, res) => {
                 }
 
                 // 2. Comprobar nombre de usuario
-                connection.query('SELECT id_usuario FROM usuarios WHERE nombre_usuario = ? AND id_usuario != ?', [usuario, usuarioId], (err, results) => {
+                connection.query('SELECT id_usuario FROM usuarios WHERE nombre_usuario = ? AND id_usuario != ?', [nombre_usuario, usuarioId], (err, results) => {
                     if (err) {
                         connection.release();
                         return res.status(500).send('Error al verificar el nombre de usuario');
@@ -239,7 +239,7 @@ const postEditarPerfilUsuario = (req, res) => {
                             const contrasenhaFinal = password_nueva || results[0].contraseña;
                             const fotoFinal = fotoNueva || results[0].foto;
 
-                            ejecutarUpdate(connection, [nombre, usuario, email, fecha_nacimiento, telefono, ciudad, pais, codigo_postal, genero, trabajo, bio, contrasenhaFinal, fotoFinal, usuarioId], res, usuarioId);
+                            ejecutarUpdate(connection, [nombre_completo, nombre_usuario, correo, fecha_nacimiento, telefono, ciudad, pais, codigo_postal, genero, trabajo, bio, contrasenhaFinal, fotoFinal, usuarioId], res, usuarioId);
                         });
                     });
                 });
@@ -277,15 +277,19 @@ const postEditarPerfilUsuario = (req, res) => {
 const postEditarPerfilEmpresa = (req, res) => {
     const errors = validationResult(req);
     const fotoNueva = req.file ? '/uploads/' + req.file.filename : null;
+    const tipoSeleccionado = req.body.tipo;
+    const tipoOtroGuardado = tipoSeleccionado === 'otro' ? (req.body.tipo_otro || '').trim() : null;
 
+    const cifNorm = (req.body.cif || '').trim().toUpperCase();
     const empresaActual = {
         id_empresa: req.params.id,
-        nombre_empresa: req.body.nombre_empresa,
-        email: req.body.email,
-        telefono_contacto: req.body.telefono,
-        cif: req.body.cif,
-        tipo_empresa: req.body.tipo_empresa,
-        tipo_empresa_otro: req.body.tipo_empresa_otro,
+        nombre: req.body.nombre,
+        correo: req.body.correo,
+        telefono_contacto: req.body.telefono_contacto,
+        CIF: cifNorm,
+        cif: cifNorm,
+        tipo: tipoSeleccionado,
+        tipo_otro: req.body.tipo_otro,
         ubicacion: req.body.ubicacion,
         descripcion: req.body.descripcion, 
         foto: fotoNueva
@@ -300,7 +304,8 @@ const postEditarPerfilEmpresa = (req, res) => {
         });
     }
 
-    const { nombre_empresa, email, telefono, cif, tipo_empresa, ubicacion, descripcion, password_actual, password_nueva } = req.body;
+    const { nombre, correo, telefono_contacto, ubicacion, descripcion, password_actual, password_nueva } = req.body;
+    const cifNormalizado = cifNorm;
     const empresaId = parseInt(req.params.id, 10);
 
     pool.getConnection((err, connection) => {
@@ -326,7 +331,7 @@ const postEditarPerfilEmpresa = (req, res) => {
             }
 
             // 1. Comprobar correo
-            connection.query('SELECT id_empresa FROM empresas WHERE correo = ? AND id_empresa != ?', [email, empresaId], (err, results) => {
+            connection.query('SELECT id_empresa FROM empresas WHERE correo = ? AND id_empresa != ?', [correo, empresaId], (err, results) => {
                 if (err) {
                     connection.release();
                     return res.status(500).send('Error al verificar el correo');
@@ -341,7 +346,7 @@ const postEditarPerfilEmpresa = (req, res) => {
                 }
 
                 // 2. Comprobar CIF
-                connection.query('SELECT id_empresa FROM empresas WHERE cif = ? AND id_empresa != ?', [cif, empresaId], (err, results) => {
+                connection.query('SELECT id_empresa FROM empresas WHERE CIF = ? AND id_empresa != ?', [cifNormalizado, empresaId], (err, results) => {
                     if (err) {
                         connection.release();
                         return res.status(500).send('Error al verificar el CIF');
@@ -379,7 +384,7 @@ const postEditarPerfilEmpresa = (req, res) => {
 
                         const fotoFinal = fotoNueva || results[0].foto;
 
-                        ejecutarUpdate(connection, [nombre_empresa, email, telefono, cif, tipo_empresa, ubicacion, descripcion, contrasenhaFinal, fotoFinal, empresaId], res, empresaId);
+                        ejecutarUpdate(connection, [nombre, correo, telefono_contacto, cifNormalizado, tipoSeleccionado, tipoOtroGuardado, ubicacion, descripcion, contrasenhaFinal, fotoFinal, empresaId], res, empresaId);
                     });
                 });
             });
@@ -391,6 +396,7 @@ const postEditarPerfilEmpresa = (req, res) => {
                     telefono_contacto = ?,
                     CIF = ?,
                     tipo = ?,
+                    tipo_otro = ?,
                     ubicacion = ?,
                     descripcion = ?,
                     contraseña = ?,

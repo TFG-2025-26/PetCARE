@@ -4,6 +4,7 @@ const express = require('express');
 const router = express.Router(); 
 const { body } = require('express-validator');
 const userController = require('../controllers/userController');
+const { isAuthenticated } = require('../middlewares/authMiddleware');
 const multer = require('multer');
 const path = require('path');
 
@@ -31,14 +32,14 @@ const upload = multer({
 });
 
 const validarEdicionUsuario = [
-    body('nombre')
+    body('nombre_completo')
         .notEmpty().withMessage('El nombre es obligatorio')
         .isLength({ min: 3 }).withMessage('El nombre debe tener al menos 3 caracteres'),
-    body('usuario')
+    body('nombre_usuario')
         .notEmpty().withMessage('El nombre de usuario es obligatorio')
         .isLength({ min: 3 }).withMessage('El nombre de usuario debe tener al menos 3 caracteres')
         .matches(/^\S+$/).withMessage('El nombre de usuario no puede contener espacios en blanco'),
-    body('email')
+    body('correo')
         .isEmail().withMessage('El correo electrónico no es válido')
         .notEmpty().withMessage('El correo electrónico es obligatorio'),
     body('telefono')
@@ -109,27 +110,29 @@ const validarEdicionUsuario = [
 ]; 
 
 const validarEdicionEmpresa = [
-    body('nombre_empresa')
+    body('nombre')
         .notEmpty().withMessage('El nombre de la empresa es obligatorio')
         .isLength({ min: 3 }).withMessage('El nombre de la empresa debe tener al menos 3 caracteres'),
-    body('email')
+    body('correo')
         .notEmpty().withMessage('El correo corporativo es obligatorio')
         .isEmail().withMessage('El correo corporativo no es válido'),
-    body('telefono')
+    body('telefono_contacto')
         .notEmpty().withMessage('El teléfono es obligatorio')
         .isLength({ min: 9, max: 15 }).withMessage('El teléfono debe tener entre 9 y 15 caracteres')
         .matches(/^\d+$/).withMessage('El teléfono solo puede contener números'),
     body('cif')
+        .trim()
+        .toUpperCase()
         .notEmpty().withMessage('El CIF es obligatorio')
         .matches(/^[A-Za-z0-9]{8,}$/).withMessage('El CIF debe tener al menos 8 caracteres alfanuméricos'),
-    body('tipo_empresa')
+    body('tipo')
         .notEmpty().withMessage('El tipo de empresa es obligatorio'),
-    body('tipo_empresa_otro')
+    body('tipo_otro')
         .custom((value, { req }) => {
-            if (req.body.tipo_empresa === 'otro' && value.trim() === '') {
+            if (req.body.tipo === 'otro' && value.trim() === '') {
                 throw new Error('Por favor, especifica el tipo de empresa.');
             }  
-            if (req.body.tipo_empresa === 'otro' && value.trim().length < 5) {
+            if (req.body.tipo === 'otro' && value.trim().length < 5) {
                 throw new Error('El tipo de empresa debe tener al menos 5 caracteres.');
             }
             return true;
@@ -171,13 +174,13 @@ const validarEdicionEmpresa = [
         }),
 ]; 
 
-router.get('/perfilUsuario/:id', userController.getPerfilUsuario);
-router.get('/perfilEmpresa/:id', userController.getPerfilEmpresa);
-router.get('/perfilUsuario/:id/editar', userController.getEditarPerfilUsuario);
-router.get('/perfilEmpresa/:id/editar', userController.getEditarPerfilEmpresa);
-router.post('/perfilUsuario/:id/editar', upload.single('foto'), validarEdicionUsuario, userController.postEditarPerfilUsuario); 
-router.post('/perfilEmpresa/:id/editar', upload.single('foto'), validarEdicionEmpresa, userController.postEditarPerfilEmpresa);
-router.get('/eliminarCuentaUsuario/:id', userController.postEliminarCuentaUsuario);
-router.get('/eliminarCuentaEmpresa/:id', userController.postEliminarCuentaEmpresa);
+router.get('/perfilUsuario/:id', isAuthenticated, userController.getPerfilUsuario);
+router.get('/perfilEmpresa/:id', isAuthenticated, userController.getPerfilEmpresa);
+router.get('/perfilUsuario/:id/editar', isAuthenticated, userController.getEditarPerfilUsuario);
+router.get('/perfilEmpresa/:id/editar', isAuthenticated, userController.getEditarPerfilEmpresa);
+router.post('/perfilUsuario/:id/editar', isAuthenticated, upload.single('foto'), validarEdicionUsuario, userController.postEditarPerfilUsuario); 
+router.post('/perfilEmpresa/:id/editar', isAuthenticated, upload.single('foto'), validarEdicionEmpresa, userController.postEditarPerfilEmpresa);
+router.get('/eliminarCuentaUsuario/:id', isAuthenticated, userController.postEliminarCuentaUsuario);
+router.get('/eliminarCuentaEmpresa/:id', isAuthenticated, userController.postEliminarCuentaEmpresa);
 
 module.exports = router; 

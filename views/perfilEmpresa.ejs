@@ -11,6 +11,18 @@
 
   <%- include('plantillas/navbar') %>
 
+  <% const tipoEmpresaVista = {
+    'peluquería_canina': 'Peluquería canina',
+    'peluqueria_canina': 'Peluquería canina',
+    'hotel': 'Residencia / Hotel para mascotas',
+    'clinica_veterinaria': 'Clínica veterinaria',
+    'tienda_animal': 'Tienda de animales',
+    'otro': 'Otro'
+  }; %>
+  <% const tipoEmpresaMostrado = empresa.tipo === 'otro'
+    ? (empresa.tipo_otro && empresa.tipo_otro.trim() ? empresa.tipo_otro : 'Otro')
+    : (tipoEmpresaVista[empresa.tipo] || empresa.tipo); %>
+
   <main class="perfil-page">
 
     <!-- COLUMNA IZQUIERDA -->
@@ -27,7 +39,7 @@
           <button class="perfil-avatar-edit" title="Cambiar logo">＋</button>
         </div>
         <h1 class="perfil-nombre"><%= empresa.nombre %></h1>
-        <span class="perfil-badge empresa-badge"><%= empresa.tipo %></span>
+        <span class="perfil-badge empresa-badge"><%= tipoEmpresaMostrado %></span>
       </div>
 
       <!-- Datos principales -->

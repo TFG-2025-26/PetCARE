@@ -128,7 +128,7 @@
           <div class="perfil-empty">
             <span class="perfil-empty-icon">🐾</span>
             <p>Aún no has añadido ninguna mascota.</p>
-            <a href="/mascotas/nueva" class="btn-submit" style="display:inline-block; width:auto; padding: 0.6rem 1.5rem;">Añadir mascota</a>
+            <a href="/pets/mypets" class="btn-submit" style="display:inline-block; width:auto; padding: 0.6rem 1.5rem;">Añadir mascota</a>
           </div>
         <% } %>
       </div>
@@ -156,7 +156,8 @@
 
   </main>
 
-  <%- include('plantillas/modalEliminarCuenta', { usuario: usuario, tipo: 'cliente' }) %>
+  <%- include('plantillas/footer') %>
+  <%- include('plantillas/modalEliminarCuenta', { usuario: usuario, tipo: 'usuario' }) %>
   <%- include('plantillas/modalErrores', { error: typeof error !== 'undefined' ? error : null, errores: typeof errores !== 'undefined' ? errores : [] }) %>
   
   <script>
