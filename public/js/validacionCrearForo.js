@@ -1,4 +1,4 @@
-"use strict"; 
+﻿"use strict"; 
 
 function esDocumentoCompleto(html) {
     return /<!doctype\s+html|<html[\s>]/i.test(html || '');
@@ -41,7 +41,7 @@ function initValidacionCrearForo() {
 
     function validarCategoria() {
         if (categoriaSelect.value === '') {
-            errorCategoria.textContent = 'Por favor selecciona una categoría.';
+            errorCategoria.textContent = 'Por favor selecciona una categoria.';
             return false;
         } else {
             errorCategoria.textContent = '';

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -23,10 +23,10 @@
           <span class="foro-detalle-sep">·</span>
           <span class="foro-detalle-fecha"><%= new Date(foro.fecha_creacion).toLocaleDateString('es-ES') %></span>
           <span class="foro-detalle-sep">·</span>
-          <span class="foro-detalle-categoria"><%= foro.categoría %></span>
+          <span class="foro-detalle-categoria"><%= foro.categoria %></span>
         </div>
         <div class="foro-detalle-meta-right">
-          <% if (usuarioSesion && usuarioSesion.id === foro.id_usuario) { %>
+          <% if (usuario && usuario.id === foro.id_usuario) { %>
             <a href="#" onclick="editarForo(event)" class="foro-detalle-editar">Editar  ✏️</a>
             <span class="foro-detalle-sep">·</span>
             <a href="#" class="foro-detalle-eliminar" onclick="abrirModalEliminarForo(event)">Eliminar 🗑️</a>
@@ -50,7 +50,7 @@
       </h2>
 
       <!-- FORMULARIO COMENTARIO -->
-      <form action="/content/foros/<%= foro.id_foro %>/usuario/<%= usuarioSesion.id %>/comentario" method="POST" id="comentarForoForm">
+      <form action="/content/foros/<%= foro.id_foro %>/usuario/<%= usuario.id %>/comentario" method="POST" id="comentarForoForm">
         <textarea id="contenido" name="contenido" rows="3" placeholder="Añade tu comentario..."></textarea>
         <div class="foro-comentario-actions">
           <button type="submit" class="btn-submit" style="width:auto; padding: 0.6rem 1.5rem; margin-bottom: 1rem;">Publicar</button>
@@ -66,10 +66,10 @@
                   <span class="comentario-autor">@<%= c.nombre_usuario %></span>
                   <span class="comentario-fecha"><%= new Date(c.fecha_publicacion).toLocaleDateString('es-ES') %></span>
                 </div>
-                <% if (usuarioSesion && usuarioSesion.id === c.id_usuario) { %>
+                <% if (usuario && usuario.id === c.id_usuario) { %>
                   <a href="#"
                     class="comentario-eliminar"
-                    onclick="abrirModalEliminarComentario(event, '/content/foros/<%= foro.id_foro %>/usuario/<%= usuarioSesion.id %>/comentario/<%= c.id_comentario %>/eliminar')">Eliminar ✕</a>
+                    onclick="abrirModalEliminarComentario(event, '/content/foros/<%= foro.id_foro %>/usuario/<%= usuario.id %>/comentario/<%= c.id_comentario %>/eliminar')">Eliminar ✕</a>
                 <% } %>
               </div>
               <p class="comentario-contenido"><%= c.contenido %></p>
@@ -93,7 +93,7 @@
 
   <%- include('plantillas/footer') %>
   <%- include('plantillas/modalConfirmarEliminarComentario') %>
-  <%- include('plantillas/modalConfirmarEliminarForo', { foro: foro, usuarioSesion: usuarioSesion }) %>
+  <%- include('plantillas/modalConfirmarEliminarForo', { foro: foro, usuario: usuario }) %>
   <%- include('plantillas/modalErrores', { error: typeof error !== 'undefined' ? error : null, errores: typeof errores !== 'undefined' ? errores : [] }) %>
 
   <script src="/js/validacionCrearForo.js"></script>
@@ -114,7 +114,7 @@
     // MODAL EDITAR FORO
     async function editarForo(event) {
       event.preventDefault();
-      const url = '/content/foros/<%= foro.id_foro %>/usuario/<%= usuarioSesion.id %>/editar';
+      const url = '/content/foros/<%= foro.id_foro %>/usuario/<%= usuario.id %>/editar';
 
       try {
         const response = await fetch(url, {

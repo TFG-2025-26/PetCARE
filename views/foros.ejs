@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -27,7 +27,7 @@
     <!-- FILTROS -->
     <form action="/content/foros/filtrar" method="GET" class="foros-filtros">
       <div class="filtro-group">
-        <label for="categoria">Categoría</label>
+        <label for="categoria">Categoria</label>
         <select id="categoria" name="categoria">
           <option value="">Todas</option>
           <option value="salud"       <%= typeof filtros !== 'undefined' && filtros.categoria === 'salud'       ? 'selected' : '' %>>Salud y veterinaria</option>
@@ -42,8 +42,10 @@
         <label for="keyword">Palabra clave</label>
         <input type="text" id="keyword" name="keyword" placeholder="Buscar en foros..." value="<%= typeof filtros !== 'undefined' && filtros.keyword ? filtros.keyword : '' %>">
       </div>
-      <button type="submit" class="btn-filtro">Buscar</button>
-      <a href="/content/foros" class="btn-filtro-reset">Limpiar</a>
+      <div class="filtro-acciones">
+        <button type="submit" class="btn-filtro">Buscar</button>
+        <a href="/content/foros" class="btn-filtro-reset">Limpiar</a>
+      </div>
     </form>
 
     <!-- RESULTADOS -->
@@ -61,7 +63,7 @@
           <div class="foro-card-header">
             <div class="foro-card-header-left">
               <span class="foro-autor">@<%= foro.nombre_usuario %></span>
-              <span class="foro-categoria"><%= foro.categoría %></span>
+              <span class="foro-categoria"><%= foro.categoria %></span>
             </div>
             <div class="foro-card-menu" onclick="event.stopPropagation(); toggleMenu(this)">
               <span class="foro-card-dots">···</span>

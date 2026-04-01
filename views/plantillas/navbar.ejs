@@ -16,11 +16,11 @@
             
       </ul>
       <div class="nav-actions">
-        <% if(usuarioSesion) { %>
-          <% if(usuarioSesion.tipo === 'usuario') { %>
-          <a href="/user/perfilUsuario/<%= usuarioSesion.id %>" class="btn-ghost">Perfil</a>
+        <% if(usuario) { %>
+          <% if(usuario.tipo === 'usuario') { %>
+          <a href="/user/perfilUsuario/<%= usuario.id %>" class="btn-ghost">Perfil</a>
             <% } else { %>
-          <a href="/user/perfilEmpresa/<%= usuarioSesion.id %>" class="btn-ghost">Perfil</a>
+          <a href="/user/perfilEmpresa/<%= usuario.id %>" class="btn-ghost">Perfil</a>
             <% } %>
             <a href="/auth/logout" class="btn-primary">Cerrar sesión</a>
         <% } else { %>
@@ -50,11 +50,11 @@
       </ul>
 
       <div class="mobile-nav-actions">
-    <% if(usuarioSesion) { %>
-      <% if(usuarioSesion.tipo === 'usuario') { %>
-      <a href="/user/perfilUsuario/<%= usuarioSesion.id %>" class="btn-ghost">Perfil</a>
+    <% if(usuario) { %>
+      <% if(usuario.tipo === 'usuario') { %>
+      <a href="/user/perfilUsuario/<%= usuario.id %>" class="btn-ghost">Perfil</a>
             <% } else { %>
-      <a href="/user/perfilEmpresa/<%= usuarioSesion.id %>" class="btn-ghost">Perfil</a>
+      <a href="/user/perfilEmpresa/<%= usuario.id %>" class="btn-ghost">Perfil</a>
             <% } %>
             <a href="/auth/logout" class="btn-primary">Cerrar sesión</a>
         <% } else { %>
