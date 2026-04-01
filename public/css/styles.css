@@ -551,6 +551,16 @@ footer, .footer {
 .foro-detalle-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem; }
 .foro-detalle-titulo { font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 900; color: var(--brown); letter-spacing: -0.02em; margin-top: 0.5rem; margin-bottom: 0.6rem; line-height: 1.2; }
 .foro-detalle-page .foro-detalle-titulo { font-size: 2rem; }
+.foro-detalle-alerta-ok {
+   margin: 0.6rem 0 0.8rem;
+   padding: 0.7rem 1rem;
+   border-radius: var(--radius-sm);
+   background: rgba(79,124,66,0.12);
+   border: 1px solid rgba(79,124,66,0.35);
+   color: var(--green);
+   font-size: 0.88rem;
+   font-weight: 500;
+}
 .foro-detalle-meta { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; justify-content: space-between; }
 .foro-detalle-autor { font-size: 0.85rem; font-weight: 500; color: var(--brown); }
 .foro-detalle-sep { color: var(--muted); font-size: 0.85rem; }

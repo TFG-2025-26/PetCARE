@@ -17,6 +17,13 @@
     <div class="foro-detalle-header">
       <a href="/content/foros" class="editar-back">← Volver a los foros</a>
       <h1 class="foro-detalle-titulo"><%= foro.titulo %></h1>
+
+      <% if (typeof reporteExito !== 'undefined' && reporteExito) { %>
+        <div class="foro-detalle-alerta-ok">
+          El <%= tipoReporte %> ha sido reportado con exito.
+        </div>
+      <% } %>
+
       <div class="foro-detalle-meta">
         <div class="foro-detalle-meta-left">
           <span class="foro-detalle-autor">@<%= foro.nombre_usuario %></span>

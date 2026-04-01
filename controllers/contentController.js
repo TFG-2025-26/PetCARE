@@ -49,10 +49,15 @@ const verForo = (req, res) => {
                         return res.status(500).send('Error al obtener los comentarios');
                     }
 
+                    const reporteExito = req.query.reporte === 'ok';
+                    const tipoReporte = req.query.tipo === 'comentario' ? 'comentario' : 'foro';
+
                     res.render('foroDetalle', { 
                         foro: results[0],
                         comentarios: commentResults, 
-                        usuario: req.session.usuario || null
+                        usuario: req.session.usuario || null,
+                        reporteExito,
+                        tipoReporte
                     }); 
                 }); 
             }   
@@ -471,7 +476,7 @@ const postReportarForo = (req, res) => {
                     return res.status(500).render('error500', { mensaje: 'Error al crear el reporte' });
                 }
 
-                return res.redirect(`/content/foros/${id_foro}`);
+                return res.redirect(`/content/foros/${id_foro}?reporte=ok&tipo=foro`);
             }
         );
     });
@@ -547,7 +552,7 @@ const postReportarComentario = (req, res) => {
                     return res.status(500).render('error500', { mensaje: 'Error al crear el reporte' });
                 }
 
-                return res.redirect(`/content/foros/${id_foro}`);
+                return res.redirect(`/content/foros/${id_foro}?reporte=ok&tipo=comentario`);
             }
         );
     });
