@@ -272,6 +272,10 @@ textarea { resize: vertical; min-height: 80px; }
 #modalEditarForo { position: fixed; inset: 0; background: rgba(61,43,31,0.45); backdrop-filter: blur(4px); z-index: 200; display: flex; align-items: flex-start; justify-content: center; padding: 4.5rem 1.5rem 2rem; overflow-y: auto; animation: fadeIn 0.2s ease both; }
 #modalEditarForo-contenido { background: #fff; border-radius: 24px; box-shadow: 0 20px 60px rgba(61,43,31,0.2); width: 100%; max-width: 700px; padding: 2rem; animation: fadeUp 0.3s ease both; }
 
+/* ── Modal reportar ── */
+#modalReportar { position: fixed; inset: 0; background: rgba(61,43,31,0.45); backdrop-filter: blur(4px); z-index: 200; display: flex; align-items: flex-start; justify-content: center; padding: 4.5rem 1.5rem 2rem; overflow-y: auto; animation: fadeIn 0.2s ease both; }
+#modalReportar-contenido { background: #fff; border-radius: 24px; box-shadow: 0 20px 60px rgba(61,43,31,0.2); width: 100%; max-width: 700px; padding: 2rem; animation: fadeUp 0.3s ease both; }
+
 /* ══════════════════════════════════════════
    LAYOUTS
 ══════════════════════════════════════════ */
@@ -547,6 +551,16 @@ footer, .footer {
 .foro-detalle-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem; }
 .foro-detalle-titulo { font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 900; color: var(--brown); letter-spacing: -0.02em; margin-top: 0.5rem; margin-bottom: 0.6rem; line-height: 1.2; }
 .foro-detalle-page .foro-detalle-titulo { font-size: 2rem; }
+.foro-detalle-alerta-ok {
+   margin: 0.6rem 0 0.8rem;
+   padding: 0.7rem 1rem;
+   border-radius: var(--radius-sm);
+   background: rgba(79,124,66,0.12);
+   border: 1px solid rgba(79,124,66,0.35);
+   color: var(--green);
+   font-size: 0.88rem;
+   font-weight: 500;
+}
 .foro-detalle-meta { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; justify-content: space-between; }
 .foro-detalle-autor { font-size: 0.85rem; font-weight: 500; color: var(--brown); }
 .foro-detalle-sep { color: var(--muted); font-size: 0.85rem; }
@@ -572,6 +586,17 @@ footer, .footer {
 .comentario-info { display: flex; align-items: center; gap: 0.6rem; }
 .comentario-autor { font-size: 0.85rem; font-weight: 500; color: var(--brown); }
 .comentario-fecha { font-size: 0.75rem; color: var(--muted); font-weight: 300; }
+.comentario-acciones { display: flex; align-items: center; gap: 0.8rem; }
+.comentario-editar, .comentario-reportar {
+   font-size: 0.78rem;
+   color: var(--amber);
+   text-decoration: none;
+   background: none;
+   border: none;
+   cursor: pointer;
+   transition: color 0.2s;
+}
+.comentario-editar:hover, .comentario-reportar:hover { color: var(--brown); }
 .comentario-eliminar { font-size: 0.78rem; color: var(--muted); text-decoration: none; background: none; border: none; cursor: pointer; transition: color 0.2s; }
 .comentario-eliminar:hover { color: var(--danger); }
 .comentario-contenido { font-size: 0.9rem; color: var(--text); line-height: 1.6; font-weight: 300; }

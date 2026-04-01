@@ -1,0 +1,51 @@
+<div class="foro-detalle-header">
+	<div class="foro-detalle-top">
+		<h2 class="foro-detalle-titulo">Reportar <%= tipo === 'foro' ? 'foro' : 'comentario' %></h2>
+		<button class="foro-detalle-cerrar" type="button" onclick="cerrarModalReportar()">✕</button>
+	</div>
+</div>
+
+<form action="<%= action %>" id="reportarForm" method="POST">
+	<input type="hidden" name="fecha" value="<%= reporte.fecha %>">
+	<input type="hidden" name="id_usuario_reportado" value="<%= reporte.id_usuario_reportado %>">
+
+	<% if (tipo === 'foro') { %>
+		<input type="hidden" name="id_foro" value="<%= reporte.id_foro %>">
+	<% } %>
+
+	<% if (tipo === 'comentario') { %>
+		<input type="hidden" name="id_comentario" value="<%= reporte.id_comentario %>">
+	<% } %>
+
+	<div class="form-group">
+		<label for="reportar-motivo">Motivo</label>
+		<select id="reportar-motivo" name="motivo">
+			<option value="" disabled <%= !reporte.motivo ? 'selected' : '' %>>Selecciona un motivo</option>
+			<option value="spam" <%= reporte.motivo === 'spam' ? 'selected' : '' %>>Spam</option>
+			<option value="lenguaje_ofensivo" <%= reporte.motivo === 'lenguaje_ofensivo' ? 'selected' : '' %>>Lenguaje ofensivo</option>
+			<option value="contenido_inapropiado" <%= reporte.motivo === 'contenido_inapropiado' ? 'selected' : '' %>>Contenido inapropiado</option>
+			<option value="informacion_falsa" <%= reporte.motivo === 'informacion_falsa' ? 'selected' : '' %>>Informacion falsa</option>
+		</select>
+		<span id="error-motivo" class="error"></span>
+	</div>
+
+	<div class="foro-comentario-actions" style="margin-top: 1rem;">
+		<button type="submit" class="btn-submit" style="width:auto; padding: 0.6rem 1.5rem;">
+			Enviar reporte
+		</button>
+	</div>
+</form>
+
+<script>
+	function cerrarModalReportar() {
+		const modal = document.getElementById('modalReportar');
+		if (modal) {
+			modal.style.display = 'none';
+			return;
+		}
+
+		if (window.history.length > 1) {
+			window.history.back();
+		}
+	}
+</script>

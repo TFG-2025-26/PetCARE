@@ -17,11 +17,18 @@
     <div class="foro-detalle-header">
       <a href="/content/foros" class="editar-back">← Volver a los foros</a>
       <h1 class="foro-detalle-titulo"><%= foro.titulo %></h1>
+
+      <% if (typeof reporteExito !== 'undefined' && reporteExito) { %>
+        <div class="foro-detalle-alerta-ok">
+          El <%= tipoReporte %> ha sido reportado con exito.
+        </div>
+      <% } %>
+
       <div class="foro-detalle-meta">
         <div class="foro-detalle-meta-left">
           <span class="foro-detalle-autor">@<%= foro.nombre_usuario %></span>
           <span class="foro-detalle-sep">·</span>
-          <span class="foro-detalle-fecha"><%= new Date(foro.fecha_creacion).toLocaleDateString('es-ES') %></span>
+          <span class="foro-detalle-fecha"><%= new Date(foro.fecha_publicacion).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' }) %></span>
           <span class="foro-detalle-sep">·</span>
           <span class="foro-detalle-categoria"><%= foro.categoria %></span>
         </div>
@@ -30,6 +37,8 @@
             <a href="#" onclick="editarForo(event)" class="foro-detalle-editar">Editar  ✏️</a>
             <span class="foro-detalle-sep">·</span>
             <a href="#" class="foro-detalle-eliminar" onclick="abrirModalEliminarForo(event)">Eliminar 🗑️</a>
+          <% } else { %>
+            <a href="#" class="foro-detalle-editar" onclick="generarReporteForo(event, '<%= foro.id_foro %>', '<%= foro.id_usuario %>')">Reportar ⚑</a>
           <% } %>
         </div>
       </div>
@@ -67,9 +76,17 @@
                   <span class="comentario-fecha"><%= new Date(c.fecha_publicacion).toLocaleDateString('es-ES') %></span>
                 </div>
                 <% if (usuario && usuario.id === c.id_usuario) { %>
+                  <div class="comentario-acciones">
+                    <a href="/content/foros/<%= foro.id_foro %>/usuario/<%= usuario.id %>/comentario/<%= c.id_comentario %>/editar"
+                      class="comentario-editar">Editar</a>
+                    <a href="#"
+                      class="comentario-eliminar"
+                      onclick="abrirModalEliminarComentario(event, '/content/foros/<%= foro.id_foro %>/usuario/<%= usuario.id %>/comentario/<%= c.id_comentario %>/eliminar')">Eliminar ✕</a>
+                  </div>
+                <% } else { %>
                   <a href="#"
-                    class="comentario-eliminar"
-                    onclick="abrirModalEliminarComentario(event, '/content/foros/<%= foro.id_foro %>/usuario/<%= usuario.id %>/comentario/<%= c.id_comentario %>/eliminar')">Eliminar ✕</a>
+                    class="comentario-reportar"
+                    onclick="generarReporteComentario(event, '<%= foro.id_foro %>', '<%= c.id_usuario %>', '<%= c.id_comentario %>')">Reportar ⚑</a>
                 <% } %>
               </div>
               <p class="comentario-contenido"><%= c.contenido %></p>
@@ -91,6 +108,11 @@
     <div id="modalEditarForo-contenido"></div>
   </div>
 
+  <!-- Modal reportar -->
+  <div id="modalReportar" style="display:none;">
+    <div id="modalReportar-contenido"></div>
+  </div>
+
   <%- include('plantillas/footer') %>
   <%- include('plantillas/modalConfirmarEliminarComentario') %>
   <%- include('plantillas/modalConfirmarEliminarForo', { foro: foro, usuario: usuario }) %>
@@ -101,6 +123,10 @@
   <script>
     function esDocumentoCompleto(html) {
       return /<!doctype\s+html|<html[\s>]/i.test(html || '');
+    }
+
+    function cerrarModalReportar() {
+      document.getElementById('modalReportar').style.display = 'none';
     }
 
     const comentarForm = document.getElementById('comentarForoForm');
@@ -138,6 +164,58 @@
     }
 
     document.getElementById('modalEditarForo').addEventListener('click', function(e) {
+      if (e.target === this) this.style.display = 'none';
+    });
+
+    async function generarReporteComentario(event, foroId, usuarioId, comentarioId) {
+      event.preventDefault();
+
+      const url = `/content/foros/${foroId}/usuario/${usuarioId}/comentario/${comentarioId}/reportar`;
+      try {
+        const response = await fetch(url, {
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+        const html = await response.text();
+
+        if (!response.ok || esDocumentoCompleto(html)) {
+          window.location.href = url;
+          return;
+        }
+
+        document.getElementById('modalReportar-contenido').innerHTML = html;
+        document.getElementById('modalReportar').style.display = 'flex';
+      } catch (error) {
+        window.location.href = url;
+      }
+    }
+
+    async function generarReporteForo(event, foroId, usuarioId) {
+      event.preventDefault();
+
+      const url = `/content/foros/${foroId}/usuario/${usuarioId}/reportar`;
+      try {
+        const response = await fetch(url, {
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+        const html = await response.text();
+
+        if (!response.ok || esDocumentoCompleto(html)) {
+          window.location.href = url;
+          return;
+        }
+
+        document.getElementById('modalReportar-contenido').innerHTML = html;
+        document.getElementById('modalReportar').style.display = 'flex';
+      } catch (error) {
+        window.location.href = url;
+      }
+    }
+
+    document.getElementById('modalReportar').addEventListener('click', function(e) {
       if (e.target === this) this.style.display = 'none';
     });
 

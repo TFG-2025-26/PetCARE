@@ -49,10 +49,15 @@ const verForo = (req, res) => {
                         return res.status(500).send('Error al obtener los comentarios');
                     }
 
+                    const reporteExito = req.query.reporte === 'ok';
+                    const tipoReporte = req.query.tipo === 'comentario' ? 'comentario' : 'foro';
+
                     res.render('foroDetalle', { 
                         foro: results[0],
                         comentarios: commentResults, 
-                        usuario: req.session.usuario || null
+                        usuario: req.session.usuario || null,
+                        reporteExito,
+                        tipoReporte
                     }); 
                 }); 
             }   
@@ -398,11 +403,160 @@ const eliminarComentario = (req, res) => {
     });
 };
 
-const getEditarComentario = (req, res) => {
-
-};
+const getEditarComentario = (req, res) => {};
 
 const postEditarComentario = (req, res) => {};
+
+const getReportarForo = (req, res) => {
+    const esAjax = req.xhr || req.get('X-Requested-With') === 'XMLHttpRequest';
+    if (!esAjax) {
+        return res.redirect(`/content/foros/${req.params.id}`);
+    }
+
+    res.render('plantillas/reportar', {
+        usuario: req.session.usuario || null,
+        tipo: 'foro',
+        action: `/content/foros/${req.params.id}/usuario/${req.params.id_usuario}/reportar`,
+        error: null,
+        errores: [],
+        reporte: {
+            motivo: '',
+            fecha: new Date().toISOString().slice(0, 19).replace('T', ' '),
+            id_usuario_reportado: req.params.id_usuario,
+            id_foro: req.params.id,
+            id_comentario: null
+        }
+    });
+};
+
+const postReportarForo = (req, res) => {
+    const usuario = req.session.usuario;
+    const id_autor = usuario ? usuario.id : null;
+    const id_foro = parseInt(req.params.id, 10);
+    const id_usuario_reportado = parseInt(req.params.id_usuario, 10);
+    const { motivo, fecha } = req.body;
+    const estado = 'pendiente';
+    const motivosPermitidos = ['spam', 'lenguaje_ofensivo', 'contenido_inapropiado', 'informacion_falsa'];
+
+    if (!id_autor) {
+        return res.status(401).send('Debes iniciar sesion para reportar contenido');
+    }
+
+    if (Number.isNaN(id_foro) || Number.isNaN(id_usuario_reportado)) {
+        return res.status(400).send('Parametros invalidos');
+    }
+
+    if (!motivo || !motivosPermitidos.includes(motivo)) {
+        return res.status(400).send('Motivo de reporte invalido');
+    }
+
+    const fechaReporte = fecha && fecha.trim() ? fecha : new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al conectar a la base de datos:', err);
+            return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
+        }
+
+        const sqlInsertReporte = `
+            INSERT INTO reportes
+                (motivo, estado, fecha, id_autor, id_usuario_reportado, id_foro, id_comentario, id_valoracion)
+            VALUES
+                (?, ?, ?, ?, ?, ?, NULL, NULL)
+        `;
+
+        connection.query(
+            sqlInsertReporte,
+            [motivo, estado, fechaReporte, id_autor, id_usuario_reportado, id_foro],
+            (insertErr) => {
+                connection.release();
+
+                if (insertErr) {
+                    console.error('Error al crear el reporte del foro:', insertErr);
+                    return res.status(500).render('error500', { mensaje: 'Error al crear el reporte' });
+                }
+
+                return res.redirect(`/content/foros/${id_foro}?reporte=ok&tipo=foro`);
+            }
+        );
+    });
+};
+
+const getReportarComentario = (req, res) => {
+    const esAjax = req.xhr || req.get('X-Requested-With') === 'XMLHttpRequest';
+    if (!esAjax) {
+        return res.redirect(`/content/foros/${req.params.id}`);
+    }
+
+    res.render('plantillas/reportar', {
+        usuario: req.session.usuario || null,
+        tipo: 'comentario',
+        action: `/content/foros/${req.params.id}/usuario/${req.params.id_usuario}/comentario/${req.params.id_comentario}/reportar`,
+        error: null,
+        errores: [],
+        reporte: {
+            motivo: '',
+            fecha: new Date().toISOString().slice(0, 19).replace('T', ' '),
+            id_usuario_reportado: req.params.id_usuario,
+            id_foro: null,
+            id_comentario: req.params.id_comentario
+        }
+    });
+};
+
+const postReportarComentario = (req, res) => {
+    const usuario = req.session.usuario;
+    const id_autor = usuario ? usuario.id : null;
+    const id_foro = parseInt(req.params.id, 10);
+    const id_usuario_reportado = parseInt(req.params.id_usuario, 10);
+    const id_comentario = parseInt(req.params.id_comentario, 10);
+    const { motivo, fecha } = req.body;
+    const estado = 'pendiente';
+    const motivosPermitidos = ['spam', 'lenguaje_ofensivo', 'contenido_inapropiado', 'informacion_falsa'];
+
+    if (!id_autor) {
+        return res.status(401).send('Debes iniciar sesion para reportar contenido');
+    }
+
+    if (Number.isNaN(id_foro) || Number.isNaN(id_usuario_reportado) || Number.isNaN(id_comentario)) {
+        return res.status(400).send('Parametros invalidos');
+    }
+
+    if (!motivo || !motivosPermitidos.includes(motivo)) {
+        return res.status(400).send('Motivo de reporte invalido');
+    }
+
+    const fechaReporte = fecha && fecha.trim() ? fecha : new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al conectar a la base de datos:', err);
+            return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
+        }
+
+        const sqlInsertReporte = `
+            INSERT INTO reportes
+                (motivo, estado, fecha, id_autor, id_usuario_reportado, id_foro, id_comentario, id_valoracion)
+            VALUES
+                (?, ?, ?, ?, ?, NULL, ?, NULL)
+        `;
+
+        connection.query(
+            sqlInsertReporte,
+            [motivo, estado, fechaReporte, id_autor, id_usuario_reportado, id_comentario],
+            (insertErr) => {
+                connection.release();
+
+                if (insertErr) {
+                    console.error('Error al crear el reporte del comentario:', insertErr);
+                    return res.status(500).render('error500', { mensaje: 'Error al crear el reporte' });
+                }
+
+                return res.redirect(`/content/foros/${id_foro}?reporte=ok&tipo=comentario`);
+            }
+        );
+    });
+};
 
 module.exports = {
     getCrearForo, 
@@ -416,5 +570,9 @@ module.exports = {
     comentarForo,
     eliminarComentario,
     getEditarComentario,
-    postEditarComentario
+    postEditarComentario,
+    getReportarForo,
+    postReportarForo,
+    getReportarComentario,
+    postReportarComentario
 };

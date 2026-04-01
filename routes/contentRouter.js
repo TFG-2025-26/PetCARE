@@ -30,6 +30,11 @@ router.get('/foros/:id/usuario/:id_usuario/eliminar', isAuthenticated, contentCo
 router.post('/foros/:id/usuario/:id_usuario/comentario', isAuthenticated, contentController.comentarForo);
 router.get('/foros/:id/usuario/:id_usuario/comentario/:id_comentario/eliminar', isAuthenticated, contentController.eliminarComentario);
 router.get('/foros/:id/usuario/:id_usuario/comentario/:id_comentario/editar', isAuthenticated, contentController.getEditarComentario);
-router.post('/foros/:id/usuario/:id_usuario/comentario/:id_comentario/editar', isAuthenticated, contentController.postEditarComentario);
+router.post('/foros/:id/usuario/:id_usuario/comentario/:id_comentario/editar', isAuthenticated, contentController.postEditarComentario); //me falta hacer esto
+router.get('/foros/:id/usuario/:id_usuario/reportar', isAuthenticated, contentController.getReportarForo); 
+router.post('/foros/:id/usuario/:id_usuario/reportar', isAuthenticated, contentController.postReportarForo); 
+router.get('/foros/:id/usuario/:id_usuario/comentario/:id_comentario/reportar', isAuthenticated, contentController.getReportarComentario);
+router.post('/foros/:id/usuario/:id_usuario/comentario/:id_comentario/reportar', isAuthenticated, contentController.postReportarComentario);
+
 
 module.exports = router;
