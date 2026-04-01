@@ -72,7 +72,7 @@
                   <a href="#" data-foro-id="<%= foro.id_foro %>" data-user-id="<%= usuario.id %>" onclick="editarForoDesdeEnlace(event, this)">✏️ Editar</a>
                   <a href="#" class="foro-dropdown-danger" data-foro-id="<%= foro.id_foro %>" data-user-id="<%= usuario.id %>" onclick="eliminarForoDesdeEnlace(event, this)">🗑️ Eliminar</a>
                 <% } else { %>
-                  <a href="/content/foros/<%= foro.id_foro %>/reportar" onclick="event.stopPropagation()">⚑ Reportar</a>
+                  <a href="#" data-foro-id="<%= foro.id_foro %>" data-user-id="<%= foro.id_usuario %>" onclick="generarReporteDesdeEnlace(event, this)">⚑ Reportar</a>
                 <% } %>
               </div>
             </div>
@@ -137,6 +137,11 @@
         <div id="modalEditarForo-contenido"></div>
     </div>
 
+    <!-- Modal reportar -->
+    <div id="modalReportar" style="display:none;">
+      <div id="modalReportar-contenido"></div>
+    </div>
+
     <!-- Modal eliminar foro -->
     <div class="modal-overlay" id="modalEliminarForo" style="display:none;">
       <div class="modal-box">
@@ -163,6 +168,10 @@
   <script>
     function esDocumentoCompleto(html) {
         return /<!doctype\s+html|<html[\s>]/i.test(html || '');
+    }
+
+    function cerrarModalReportar() {
+      document.getElementById('modalReportar').style.display = 'none';
     }
 
     async function crearForo() {
@@ -225,6 +234,41 @@
     }
 
     document.getElementById('modalEditarForo').addEventListener('click', function(e) {
+      if (e.target === this) this.style.display = 'none';
+    });
+
+    async function generarReporte(event, foroId, usuarioId) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const url = `/content/foros/${foroId}/usuario/${usuarioId}/reportar`;
+      try {
+        const response = await fetch(url, {
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+        const html = await response.text();
+
+        if (!response.ok || esDocumentoCompleto(html)) {
+          window.location.href = url;
+          return;
+        }
+
+        document.getElementById('modalReportar-contenido').innerHTML = html;
+        document.getElementById('modalReportar').style.display = 'flex';
+      } catch (error) {
+        window.location.href = url;
+      }
+    }
+
+    function generarReporteDesdeEnlace(event, enlace) {
+      const foroId = enlace.getAttribute('data-foro-id');
+      const usuarioId = enlace.getAttribute('data-user-id');
+      generarReporte(event, foroId, usuarioId);
+    }
+
+    document.getElementById('modalReportar').addEventListener('click', function(e) {
       if (e.target === this) this.style.display = 'none';
     });
 
