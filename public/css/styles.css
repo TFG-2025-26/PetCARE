@@ -326,7 +326,7 @@ textarea { resize: vertical; min-height: 80px; }
    LAYOUTS
 ══════════════════════════════════════════ */
 .full-height-layout { min-height: 100vh; display: flex; flex-direction: column; }
-.full-height-layout main { flex: 1; display: flex; justify-content: center; align-items: center; }
+.full-height-layout .full-height-main { flex: 1; display: flex; justify-content: center; align-items: center; }
 
 .register-page, .login-page, .recovery-page {
    flex: 1;
