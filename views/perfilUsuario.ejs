@@ -19,15 +19,15 @@
       <!-- Foto y nombre -->
       <div class="perfil-avatar-block">
         <div class="perfil-avatar">
-          <% if (usuario.foto) { %>
-            <img src="<%= usuario.foto %>" alt="Foto de perfil">
+          <% if (perfil.foto) { %>
+            <img src="<%= perfil.foto %>" alt="Foto de perfil">
           <% } else { %>
-            <span class="perfil-avatar-initials"><%= usuario.nombre_completo.charAt(0).toUpperCase() %></span>
+            <span class="perfil-avatar-initials"><%= perfil.nombre_completo.charAt(0).toUpperCase() %></span>
           <% } %>
           <button class="perfil-avatar-edit" title="Cambiar foto">＋</button>
         </div>
-        <h1 class="perfil-nombre"><%= usuario.nombre_completo %></h1>
-        <span class="perfil-usuario">@<%= usuario.nombre_usuario %></span>
+        <h1 class="perfil-nombre"><%= perfil.nombre_completo %></h1>
+        <span class="perfil-usuario">@<%= perfil.nombre_usuario %></span>
       </div>
 
       <!-- Datos principales -->
@@ -36,48 +36,48 @@
         <ul class="perfil-data-list">
           <li>
             <span class="data-label">Correo</span>
-            <span class="data-value"><%= usuario.correo %></span>
+            <span class="data-value"><%= perfil.correo %></span>
           </li>
-          <% if (usuario.fecha_nacimiento) { %>
+          <% if (perfil.fecha_nacimiento) { %>
           <li>
             <span class="data-label">Fecha de nacimiento</span>
-            <span class="data-value"><%= new Date(usuario.fecha_nacimiento).toLocaleDateString('es-ES') %></span>
+            <span class="data-value"><%= new Date(perfil.fecha_nacimiento).toLocaleDateString('es-ES') %></span>
           </li>
           <% } %>
-          <% if (usuario.telefono) { %>
+          <% if (perfil.telefono) { %>
           <li>
             <span class="data-label">Teléfono</span>
-            <span class="data-value"><%= usuario.telefono %></span>
+            <span class="data-value"><%= perfil.telefono %></span>
           </li>
           <% } %>
-          <% if (usuario.ciudad) { %>
+          <% if (perfil.ciudad) { %>
           <li>
             <span class="data-label">Ciudad</span>
-            <span class="data-value"><%= usuario.ciudad %></span>
+            <span class="data-value"><%= perfil.ciudad %></span>
           </li>
           <% } %>
-          <% if (usuario.pais) { %>
+          <% if (perfil.pais) { %>
           <li>
             <span class="data-label">País</span>
-            <span class="data-value"><%= usuario.pais %></span>
+            <span class="data-value"><%= perfil.pais %></span>
           </li>
           <% } %>
-          <% if (usuario.codigo_postal) { %>
+          <% if (perfil.codigo_postal) { %>
           <li>
             <span class="data-label">Código postal</span>
-            <span class="data-value"><%= usuario.codigo_postal %></span>
+            <span class="data-value"><%= perfil.codigo_postal %></span>
           </li>
           <% } %>
-          <% if (usuario.genero) { %>
+          <% if (perfil.genero) { %>
           <li>
             <span class="data-label">Género</span>
-            <span class="data-value"><%= usuario.genero %></span>
+            <span class="data-value"><%= perfil.genero %></span>
           </li>
           <% } %>
-          <% if (usuario.trabajo) { %>
+          <% if (perfil.trabajo) { %>
           <li>
             <span class="data-label">Trabajo</span>
-            <span class="data-value"><%= usuario.trabajo %></span>
+            <span class="data-value"><%= perfil.trabajo %></span>
           </li>
           <% } %>
         </ul>
@@ -85,7 +85,7 @@
 
       <!-- Acciones -->
       <div class="perfil-actions">
-        <a href="/user/perfilUsuario/<%= usuario.id_usuario %>/editar" class="btn-perfil-edit">Editar perfil</a>
+        <a href="/user/perfilUsuario/<%= perfil.id_usuario %>/editar" class="btn-perfil-edit">Editar perfil</a>
         <a href="/auth/logout" class="btn-perfil-danger">Cerrar sesión</a>
       </div>
 
@@ -95,12 +95,12 @@
     <section class="perfil-main">
 
       <!-- Bio -->
-      <% if (usuario.bio) { %>
+      <% if (perfil.bio) { %>
         <div class="perfil-section">
           <div class="perfil-section-header">
             <h2>Bio</h2>
           </div>
-          <p class="perfil-bio"><%= usuario.bio %></p>
+          <p class="perfil-bio"><%= perfil.bio %></p>
         </div>
       <% } %>
 
@@ -157,7 +157,7 @@
   </main>
 
   <%- include('plantillas/footer') %>
-  <%- include('plantillas/modalEliminarCuenta', { usuario: usuario, tipo: 'usuario' }) %>
+  <%- include('plantillas/modalEliminarCuenta', { usuario: perfil, tipo: 'usuario' }) %>
   <%- include('plantillas/modalErrores', { error: typeof error !== 'undefined' ? error : null, errores: typeof errores !== 'undefined' ? errores : [] }) %>
   
   <script>

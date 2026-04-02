@@ -14,21 +14,21 @@
   <main class="editar-page">
 
     <div class="editar-header">
-      <a href="/user/perfilUsuario/<%= usuario.id_usuario %>" class="editar-back">← Volver al perfil</a>
+      <a href="/user/perfilUsuario/<%= perfil.id_usuario %>" class="editar-back">← Volver al perfil</a>
       <h1>Editar perfil</h1>
     </div>
 
-    <form action="/user/perfilUsuario/<%= usuario.id_usuario %>/editar" id="editarPerfilUsuarioForm" enctype="multipart/form-data" method="POST" class="editar-form">
+    <form action="/user/perfilUsuario/<%= perfil.id_usuario %>/editar" id="editarPerfilUsuarioForm" enctype="multipart/form-data" method="POST" class="editar-form">
 
       <!-- FOTO DE PERFIL -->
       <div class="editar-section">
         <h2 class="editar-section-title">Foto de perfil</h2>
         <div class="editar-avatar-row">
           <div class="editar-avatar-preview" id="avatarPreview">
-            <% if (usuario.foto) { %>
-              <img src="<%= usuario.foto %>" id="avatarImg" alt="Foto de perfil">
+            <% if (perfil.foto) { %>
+              <img src="<%= perfil.foto %>" id="avatarImg" alt="Foto de perfil">
             <% } else { %>
-              <span class="perfil-avatar-initials" id="avatarInitial"><%= usuario.nombre_completo.charAt(0).toUpperCase() %></span>
+              <span class="perfil-avatar-initials" id="avatarInitial"><%= perfil.nombre_completo.charAt(0).toUpperCase() %></span>
             <% } %>
           </div>
           <div class="editar-avatar-actions">
@@ -45,28 +45,28 @@
         <div class="editar-grid">
           <div class="form-group">
             <label for="nombre_completo">Nombre completo</label>
-            <input type="text" id="nombre_completo" name="nombre_completo" value="<%= usuario.nombre_completo %>">
+            <input type="text" id="nombre_completo" name="nombre_completo" value="<%= perfil.nombre_completo %>">
             <span id="error-nombre_completo" class="error"></span>
           </div>
           <div class="form-group">
             <label for="nombre_usuario">Nombre de usuario</label>
-            <input type="text" id="nombre_usuario" name="nombre_usuario" value="<%= usuario.nombre_usuario %>">
+            <input type="text" id="nombre_usuario" name="nombre_usuario" value="<%= perfil.nombre_usuario %>">
             <span id="error-nombre_usuario" class="error"></span>
           </div>
           <div class="form-group">
             <label for="correo">Correo electrónico</label>
-            <input type="email" id="correo" name="correo" value="<%= usuario.correo %>">
+            <input type="email" id="correo" name="correo" value="<%= perfil.correo %>">
             <span id="error-correo" class="error"></span>
           </div>
           <div class="form-group">
             <label for="telefono">Teléfono</label>
-            <input type="tel" id="telefono" name="telefono" value="<%= usuario.telefono %>">
+            <input type="tel" id="telefono" name="telefono" value="<%= perfil.telefono %>">
             <span id="error-telefono" class="error"></span>
           </div>
           <div class="form-group">
             <label for="fecha_nacimiento">Fecha de nacimiento</label>
             <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" 
-                  value="<%= usuario.fecha_nacimiento ? new Date(usuario.fecha_nacimiento).toLocaleDateString('en-CA') : '' %>">
+                  value="<%= perfil.fecha_nacimiento ? new Date(perfil.fecha_nacimiento).toLocaleDateString('en-CA') : '' %>">
             <span id="error-fecha_nacimiento" class="error"></span>
           </div>
         </div>
@@ -78,36 +78,36 @@
         <div class="editar-grid">
           <div class="form-group">
             <label for="ciudad">Ciudad</label>
-            <input type="text" id="ciudad" name="ciudad" value="<%= usuario.ciudad || '' %>" placeholder="Ej: Madrid">
+            <input type="text" id="ciudad" name="ciudad" value="<%= perfil.ciudad || '' %>" placeholder="Ej: Madrid">
             <span id="error-ciudad" class="error"></span>
           </div>
           <div class="form-group">
             <label for="pais">País</label>
-            <input type="text" id="pais" name="pais" value="<%= usuario.pais || '' %>" placeholder="Ej: España">
+            <input type="text" id="pais" name="pais" value="<%= perfil.pais || '' %>" placeholder="Ej: España">
             <span id="error-pais" class="error"></span>
           </div>
           <div class="form-group">
             <label for="codigo_postal">Código postal</label>
-            <input type="text" id="codigo_postal" name="codigo_postal" value="<%= usuario.codigo_postal || '' %>" placeholder="Ej: 28001">
+            <input type="text" id="codigo_postal" name="codigo_postal" value="<%= perfil.codigo_postal || '' %>" placeholder="Ej: 28001">
             <span id="error-codigo_postal" class="error"></span>
           </div>
           <div class="form-group">
             <label for="genero">Género</label>
             <select id="genero" name="genero">
-              <option value="" <%= !usuario.genero ? 'selected' : '' %>>Prefiero no decirlo</option>
-              <option value="hombre"    <%= usuario.genero === 'hombre'    ? 'selected' : '' %>>Hombre</option>
-              <option value="mujer"     <%= usuario.genero === 'mujer'     ? 'selected' : '' %>>Mujer</option>
-              <option value="otro"      <%= usuario.genero === 'otro'      ? 'selected' : '' %>>Otro</option>
+              <option value="" <%= !perfil.genero ? 'selected' : '' %>>Prefiero no decirlo</option>
+              <option value="hombre"    <%= perfil.genero === 'hombre'    ? 'selected' : '' %>>Hombre</option>
+              <option value="mujer"     <%= perfil.genero === 'mujer'     ? 'selected' : '' %>>Mujer</option>
+              <option value="otro"      <%= perfil.genero === 'otro'      ? 'selected' : '' %>>Otro</option>
             </select>
           </div>
           <div class="form-group">
             <label for="trabajo">Trabajo</label>
-            <input type="text" id="trabajo" name="trabajo" value="<%= usuario.trabajo || '' %>" placeholder="Ej: Veterinario">
+            <input type="text" id="trabajo" name="trabajo" value="<%= perfil.trabajo || '' %>" placeholder="Ej: Veterinario">
             <span id="error-trabajo" class="error"></span>
           </div>
           <div class="form-group editar-grid-full">
             <label for="bio">Bio</label>
-            <textarea id="bio" name="bio" rows="3" placeholder="Cuéntanos algo sobre ti..."><%= usuario.bio || '' %></textarea>
+            <textarea id="bio" name="bio" rows="3" placeholder="Cuéntanos algo sobre ti..."><%= perfil.bio || '' %></textarea>
             <span id="error-bio" class="error"></span>
           </div>
         </div>
@@ -137,7 +137,7 @@
 
       <!-- BOTONES -->
       <div class="editar-footer">
-        <a href="/user/perfilUsuario/<%= usuario.id_usuario %>" class="btn-outline-large">Cancelar</a>
+        <a href="/user/perfilUsuario/<%= perfil.id_usuario %>" class="btn-outline-large">Cancelar</a>
         <button type="submit" class="btn-submit" style="width:auto; padding: 0.9rem 2.5rem;">Guardar cambios</button>
       </div>
     </form>
