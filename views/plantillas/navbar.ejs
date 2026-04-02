@@ -18,6 +18,9 @@
       <div class="nav-actions">
         <% if(usuario) { %>
           <% if(usuario.tipo === 'usuario') { %>
+            <% if (usuario.rol === 'admin') { %>
+            <a href="/admin/adminPanel" class="btn-ghost">Admin</a>
+            <% } %>
           <a href="/user/perfilUsuario/<%= usuario.id %>" class="btn-ghost">Perfil</a>
             <% } else { %>
           <a href="/user/perfilEmpresa/<%= usuario.id %>" class="btn-ghost">Perfil</a>
@@ -52,15 +55,18 @@
       <div class="mobile-nav-actions">
     <% if(usuario) { %>
       <% if(usuario.tipo === 'usuario') { %>
-      <a href="/user/perfilUsuario/<%= usuario.id %>" class="btn-ghost">Perfil</a>
-            <% } else { %>
+        <% if (usuario.rol === 'admin') { %>
+        <a href="/admin/dashboard" class="btn-ghost">Admin</a>
+        <% } %>
+        <a href="/user/perfilUsuario/<%= usuario.id %>" class="btn-ghost">Perfil</a>
+      <% } else { %>
       <a href="/user/perfilEmpresa/<%= usuario.id %>" class="btn-ghost">Perfil</a>
-            <% } %>
+      <% } %>
             <a href="/auth/logout" class="btn-primary">Cerrar sesión</a>
-        <% } else { %>
+    <% } else { %>
             <a href="/auth/login" class="btn-ghost">Iniciar sesión</a>
             <a href="/auth/register" class="btn-primary">Registrarse</a>
-        <% } %>
+    <% } %>
       </div>
     </div>
 
