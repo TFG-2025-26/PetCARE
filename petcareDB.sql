@@ -742,6 +742,24 @@ ALTER TABLE `valoraciones`
   ADD CONSTRAINT `valoraciones_ibfk_1` FOREIGN KEY (`id_autor`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `valoraciones_ibfk_2` FOREIGN KEY (`id_destinatario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `valoraciones_ibfk_3` FOREIGN KEY (`id_empresa`) REFERENCES `empresas` (`id_empresa`) ON DELETE CASCADE ON UPDATE CASCADE;
+--
+-- CHECK constraints
+--
+
+--
+-- CHECK constraint para la tabla `reportes`
+--
+ALTER TABLE `reportes`
+  ADD CONSTRAINT `chk_un_solo_objetivo`
+  CHECK ((`id_foro` IS NOT NULL) + (`id_comentario` IS NOT NULL) + (`id_valoracion` IS NOT NULL) = 1);
+
+--
+-- CHECK constraint para la tabla `valoraciones`
+--
+ALTER TABLE `valoraciones`
+  ADD CONSTRAINT `chk_valoracion_destinatario`
+  CHECK ((`id_destinatario` IS NOT NULL) + (`id_empresa` IS NOT NULL) = 1);
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
