@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 05-04-2026 a las 17:31:16
+-- Tiempo de generación: 05-04-2026 a las 17:45:42
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -33,7 +33,7 @@ CREATE TABLE `anuncios` (
   `tipo_mascota` enum('perro','gato','roedor','reptil','pez','ave','otro') NOT NULL,
   `precio_hora` int(11) NOT NULL,
   `tipo_servicio` enum('cuidador','transporte','entrenador') NOT NULL,
-  `disponibilidad` int(11) NOT NULL,
+  `eliminado` tinyint(1) NOT NULL DEFAULT 0,
   `activo` tinyint(1) NOT NULL DEFAULT 1,
   `id_usuario` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -742,24 +742,6 @@ ALTER TABLE `valoraciones`
   ADD CONSTRAINT `valoraciones_ibfk_1` FOREIGN KEY (`id_autor`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `valoraciones_ibfk_2` FOREIGN KEY (`id_destinatario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `valoraciones_ibfk_3` FOREIGN KEY (`id_empresa`) REFERENCES `empresas` (`id_empresa`) ON DELETE CASCADE ON UPDATE CASCADE;
---
--- CHECK constraints
---
-
---
--- CHECK constraint para la tabla `reportes`
---
-ALTER TABLE `reportes`
-  ADD CONSTRAINT `chk_un_solo_objetivo`
-  CHECK ((`id_foro` IS NOT NULL) + (`id_comentario` IS NOT NULL) + (`id_valoracion` IS NOT NULL) = 1);
-
---
--- CHECK constraint para la tabla `valoraciones`
---
-ALTER TABLE `valoraciones`
-  ADD CONSTRAINT `chk_valoracion_destinatario`
-  CHECK ((`id_destinatario` IS NOT NULL) + (`id_empresa` IS NOT NULL) = 1);
-
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
