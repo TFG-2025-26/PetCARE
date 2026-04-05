@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alta de cuentas — PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <%- include('plantillas/navbar') %>
+
+  <% const tabDestino = formType === 'empresa' ? 'empresas' : 'usuarios'; %>
+  <% const esEdicion = modo === 'editar'; %>
+  <% const datosFormulario = formData || {}; %>
+  <% const rolSeleccionado = datosFormulario.rol === 'admin' ? 'admin' : 'user'; %>
+  <% const tipoEmpresaSeleccionado = datosFormulario.tipo || ''; %>
+  <% const mostrarTipoOtro = tipoEmpresaSeleccionado === 'otro'; %>
+  <% const estadoActivoSeleccionado = String(datosFormulario.activo ?? '1') === '0' ? '0' : '1'; %>
+  <% const banSeleccionado = String(datosFormulario.ban ?? '0') === '1' ? '1' : '0'; %>
+  <% const suspendidoSeleccionado = String(datosFormulario.suspendido ?? '0') === '1' ? '1' : '0'; %>
+
+  <main class="reportes-page gestion-usuarios-page">
+    <section class="reportes-toolbar" aria-label="Acciones de navegacion">
+      <a href="/admin/adminPanel/gestionUsuarios/filtrar?tab=<%= tabDestino %>" class="reportes-back-link" aria-label="Volver a la gestión de usuarios">
+        <span class="btn-volver-atras" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        </span>
+        <span class="reportes-back-text">Volver a gestión de usuarios</span>
+      </a>
+    </section>
+
+    <section class="reportes-hero">
+      <p class="reportes-kicker">Administración</p>
+      <h1><%= esEdicion ? 'Editar cuenta' : 'Alta manual de cuentas' %></h1>
+      <p class="reportes-subtitle"><%= esEdicion ? 'Modifica los datos que necesites y guarda los cambios directamente desde administración.' : 'Selecciona si quieres registrar un usuario o una empresa y guarda la cuenta directamente en la base de datos.' %></p>
+    </section>
+
+    <section class="register-box" style="max-width: 760px;">
+      <h1><%= esEdicion ? 'Editar cuenta desde admin' : 'Crear cuenta desde admin' %></h1>
+      <p class="subtitle">Elige el tipo de registro para mostrar su formulario correspondiente.</p>
+
+      <div class="type-selector">
+        <div class="type-option" id="opt-usuario" onclick="selectType('usuario')">
+          <div class="type-icon">🐾</div>
+          <span class="type-label">Usuario</span>
+          <div class="type-desc">Alta de usuario o administrador</div>
+        </div>
+        <div class="type-option" id="opt-empresa" onclick="selectType('empresa')">
+          <div class="type-icon">🏢</div>
+          <span class="type-label">Empresa</span>
+          <div class="type-desc">Clínica, tienda o servicio</div>
+        </div>
+      </div>
+
+      <div id="selector-hint" class="perfil-empty" style="padding: 1.25rem; border: 1px dashed rgba(61,43,31,0.15); border-radius: 16px; margin-bottom: 1.5rem;">
+        <span class="perfil-empty-icon">📝</span>
+        <p>Selecciona una de las dos opciones para desplegar el formulario correspondiente.</p>
+      </div>
+
+      <form class="register-form" id="form-usuario" action="<%= esEdicion ? '/admin/adminPanel/gestionUsuarios/usuario/' + entidadId + '/editar' : '/admin/adminPanel/gestionUsuarios/registro/usuario' %>" method="POST">
+        <div class="form-group">
+          <label for="usuario-nombre_completo">Nombre completo</label>
+          <input type="text" id="usuario-nombre_completo" name="nombre_completo" placeholder="Ej: Ana García López"
+          value="<%= formType === 'usuario' && formData ? formData.nombre_completo : '' %>">
+          <span id="error-usuario-nombre_completo" class="error"></span>
+        </div>
+        <div class="form-group">
+          <label for="usuario-nombre_usuario">Nombre de usuario</label>
+          <input type="text" id="usuario-nombre_usuario" name="nombre_usuario" placeholder="Ej: ana_garcia"
+          value="<%= formType === 'usuario' && formData ? formData.nombre_usuario : '' %>">
+          <span id="error-usuario-nombre_usuario" class="error"></span>
+        </div>
+        <div class="form-group">
+          <label for="usuario-correo">Correo electrónico</label>
+          <input type="email" id="usuario-correo" name="correo" placeholder="ana@ejemplo.com"
+          value="<%= formType === 'usuario' && formData ? formData.correo : '' %>">
+          <span id="error-usuario-correo" class="error"></span>
+        </div>
+        <div class="form-group">
+          <label for="usuario-telefono">Teléfono</label>
+          <input type="number" id="usuario-telefono" name="telefono" placeholder="Ej: 612345678"
+          value="<%= formType === 'usuario' && formData ? formData.telefono : '' %>">
+          <span id="error-usuario-telefono" class="error"></span>
+        </div>
+        <div class="form-group">
+          <label for="usuario-password">Contraseña</label>
+          <input type="password" id="usuario-password" name="password" placeholder="<%= esEdicion ? 'Déjala en blanco para conservar la actual' : '••••••••' %>"
+          value="<%= !esEdicion && formType === 'usuario' && formData ? formData.password : '' %>">
+          <span id="error-usuario-password" class="error"></span>
+        </div>
+        <div class="form-group">
+          <label for="usuario-fecha_nacimiento">Fecha de nacimiento</label>
+          <input type="date" id="usuario-fecha_nacimiento" name="fecha_nacimiento"
+          value="<%= formType === 'usuario' && formData ? formData.fecha_nacimiento : '' %>">
+          <span id="error-usuario-fecha_nacimiento" class="error"></span>
+        </div>
+        <div class="form-group">
+          <label for="usuario-rol">Rol de la cuenta</label>
+          <select id="usuario-rol" name="rol">
+            <option value="user" <%= rolSeleccionado === 'user' ? 'selected' : '' %>>Usuario</option>
+            <option value="admin" <%= rolSeleccionado === 'admin' ? 'selected' : '' %>>Admin</option>
+          </select>
+        </div>
+
+        <% if (esEdicion) { %>
+          <div class="editar-section" style="margin-top: 1.5rem; padding: 1.2rem;">
+            <h2 class="editar-section-title">Controles administrativos</h2>
+            <p class="editar-section-hint">Desde aquí puedes activar o moderar la cuenta del usuario.</p>
+            <div class="editar-grid">
+              <div class="form-group">
+                <label for="usuario-activo">Estado de la cuenta</label>
+                <select id="usuario-activo" name="activo">
+                  <option value="1" <%= estadoActivoSeleccionado === '1' ? 'selected' : '' %>>Activa</option>
+                  <option value="0" <%= estadoActivoSeleccionado === '0' ? 'selected' : '' %>>Inactiva</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="usuario-ban">Ban</label>
+                <select id="usuario-ban" name="ban">
+                  <option value="0" <%= banSeleccionado === '0' ? 'selected' : '' %>>No</option>
+                  <option value="1" <%= banSeleccionado === '1' ? 'selected' : '' %>>Sí</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="usuario-suspendido">Suspensión</label>
+                <select id="usuario-suspendido" name="suspendido">
+                  <option value="0" <%= suspendidoSeleccionado === '0' ? 'selected' : '' %>>No</option>
+                  <option value="1" <%= suspendidoSeleccionado === '1' ? 'selected' : '' %>>Sí</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        <% } %>
+
+        <button type="submit" class="btn-submit"><%= esEdicion ? 'Guardar cambios' : 'Crear cuenta' %></button>
+      </form>
+
+      <form class="register-form" id="form-empresa" action="<%= esEdicion ? '/admin/adminPanel/gestionUsuarios/empresa/' + entidadId + '/editar' : '/admin/adminPanel/gestionUsuarios/registro/empresa' %>" method="POST">
+        <div class="form-group">
+          <label for="empresa-nombre">Nombre de la empresa</label>
+          <input type="text" id="empresa-nombre" name="nombre" placeholder="Ej: Clínica Veterinaria Sol"
+          value="<%= formType === 'empresa' && formData ? formData.nombre : '' %>">
+          <span id="empresa-nombre-error" class="error"></span>
+        </div>
+        <div class="form-group">
+          <label for="empresa-correo">Correo corporativo</label>
+          <input type="email" id="empresa-correo" name="correo" placeholder="contacto@empresa.com"
+          value="<%= formType === 'empresa' && formData ? formData.correo : '' %>">
+          <span id="empresa-correo-error" class="error"></span>
+        </div>
+        <div class="form-group">
+          <label for="empresa-telefono_contacto">Teléfono</label>
+          <input type="number" id="empresa-telefono_contacto" name="telefono_contacto" placeholder="Ej: 912345678"
+          value="<%= formType === 'empresa' && formData ? formData.telefono_contacto : '' %>">
+          <span id="empresa-telefono_contacto-error" class="error"></span>
+        </div>
+        <div class="form-group">
+          <label for="empresa-cif">CIF</label>
+          <input type="text" id="empresa-cif" name="cif" placeholder="Ej: B12345678" style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()"
+          value="<%= formType === 'empresa' && formData ? formData.cif : '' %>">
+          <span id="empresa-cif-error" class="error"></span>
+        </div>
+        <div class="form-group">
+          <label for="empresa-password">Contraseña</label>
+          <input type="password" id="empresa-password" name="password" placeholder="<%= esEdicion ? 'Déjala en blanco para conservar la actual' : '••••••••' %>"
+          value="<%= !esEdicion && formType === 'empresa' && formData ? formData.password : '' %>">
+          <span id="empresa-password-error" class="error"></span>
+        </div>
+        <div class="form-group">
+          <label for="empresa-tipo">Tipo de empresa</label>
+          <select id="empresa-tipo" name="tipo" onchange="toggleOtro(this)">
+            <option value="" disabled <%= !tipoEmpresaSeleccionado ? 'selected' : '' %>>Selecciona una opción</option>
+            <option value="clinica_veterinaria" <%= tipoEmpresaSeleccionado === 'clinica_veterinaria' ? 'selected' : '' %>>Clínica veterinaria</option>
+            <option value="tienda_animal" <%= tipoEmpresaSeleccionado === 'tienda_animal' ? 'selected' : '' %>>Tienda de animales</option>
+            <option value="peluquería_canina" <%= tipoEmpresaSeleccionado === 'peluquería_canina' ? 'selected' : '' %>>Peluquería canina</option>
+            <option value="hotel" <%= tipoEmpresaSeleccionado === 'hotel' ? 'selected' : '' %>>Residencia / Hotel para mascotas</option>
+            <option value="otro" <%= tipoEmpresaSeleccionado === 'otro' ? 'selected' : '' %>>Otro</option>
+          </select>
+          <span id="empresa-tipo-error" class="error"></span>
+        </div>
+        <div class="form-group" id="otro-group" <%= mostrarTipoOtro ? '' : 'hidden' %>>
+          <label for="empresa-tipo-otro">¿Qué otro tipo de empresa?</label>
+          <input type="text" id="empresa-tipo-otro" name="tipo_otro" placeholder="Describe tu tipo de empresa" value="<%= formType === 'empresa' && formData ? (formData.tipo_otro || '') : '' %>">
+          <span id="empresa-tipo-otro-error" class="error"></span>
+        </div>
+
+        <% if (esEdicion) { %>
+          <div class="editar-section" style="margin-top: 1.5rem; padding: 1.2rem;">
+            <h2 class="editar-section-title">Estado de la empresa</h2>
+            <p class="editar-section-hint">Puedes dejar la empresa activa o desactivarla desde administración.</p>
+            <div class="editar-grid">
+              <div class="form-group">
+                <label for="empresa-activo">Estado</label>
+                <select id="empresa-activo" name="activo">
+                  <option value="1" <%= estadoActivoSeleccionado === '1' ? 'selected' : '' %>>Activa</option>
+                  <option value="0" <%= estadoActivoSeleccionado === '0' ? 'selected' : '' %>>Inactiva</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        <% } %>
+
+        <button type="submit" class="btn-submit"><%= esEdicion ? 'Guardar cambios' : 'Crear cuenta' %></button>
+      </form>
+
+      <% if (!esEdicion) { %>
+      <div class="register-footer">
+        Alta conectada a base de datos desde administración.
+      </div>
+      <% } %>
+    </section>
+  </main>
+
+  <% if (esEdicion) { %>
+  <div class="modal-overlay" id="modalConfirmarCambiosAdmin" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="modalConfirmarCambiosAdminTitulo">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modalConfirmarCambiosAdminTitulo">¿Confirmar cambios?</h3>
+        <button type="button" class="modal-close" onclick="cerrarModalCambiosAdmin()">✕</button>
+      </div>
+      <ul class="modal-list" id="modalConfirmarCambiosAdminLista">
+        <li>Vas a aplicar cambios administrativos sobre esta cuenta. ¿Deseas continuar?</li>
+      </ul>
+      <div class="modal-footer" style="gap: 0.8rem;">
+        <button type="button" class="btn-outline-large" onclick="cerrarModalCambiosAdmin()">Cancelar</button>
+        <button type="button" class="btn-submit" id="confirmarCambiosAdminBtn" style="width:auto; padding: 0.75rem 1.5rem;">Confirmar cambios</button>
+      </div>
+    </div>
+  </div>
+  <% } %>
+
+  <%- include('plantillas/footer') %>
+
+  <script>
+    const formType = "<%= formType || '' %>";
+
+    function selectType(type) {
+      document.getElementById('opt-usuario').classList.toggle('active', type === 'usuario');
+      document.getElementById('opt-empresa').classList.toggle('active', type === 'empresa');
+
+      document.getElementById('form-usuario').classList.toggle('visible', type === 'usuario');
+      document.getElementById('form-empresa').classList.toggle('visible', type === 'empresa');
+
+      const selectorHint = document.getElementById('selector-hint');
+      if (selectorHint) {
+        selectorHint.style.display = type ? 'none' : 'flex';
+      }
+    }
+
+    function toggleOtro(select) {
+      const otroGroup = document.getElementById('otro-group');
+      const mostrar = select.value === 'otro';
+      otroGroup.hidden = !mostrar;
+      otroGroup.style.display = mostrar ? 'block' : 'none';
+    }
+
+    if (formType) {
+      selectType(formType);
+    }
+  </script>
+  <script>
+    window.adminRegistroModoEdicion = "<%= esEdicion ? 'true' : 'false' %>" === 'true';
+  </script>
+  <script src="/js/registro.js"></script>
+  <% if (esEdicion) { %>
+  <script>
+    (function () {
+      const modal = document.getElementById('modalConfirmarCambiosAdmin');
+      const lista = document.getElementById('modalConfirmarCambiosAdminLista');
+      const btnConfirmar = document.getElementById('confirmarCambiosAdminBtn');
+      let formPendiente = null;
+      let permitirEnvio = false;
+
+      window.cerrarModalCambiosAdmin = function cerrarModalCambiosAdmin() {
+        if (!modal) return;
+        modal.style.display = 'none';
+        formPendiente = null;
+      };
+
+      function abrirModal(formulario) {
+        if (!modal || !lista) return;
+
+        formPendiente = formulario;
+        lista.innerHTML = formulario.id === 'form-usuario'
+          ? '<li>Vas a actualizar el estado de la cuenta y las medidas de moderación del usuario.</li>'
+          : '<li>Vas a actualizar el estado de la empresa desde administración.</li>';
+        modal.style.display = 'flex';
+      }
+
+      function registrarConfirmacion(formId) {
+        const form = document.getElementById(formId);
+        if (!form) return;
+
+        form.addEventListener('submit', function (event) {
+          if (event.defaultPrevented || permitirEnvio) {
+            return;
+          }
+
+          event.preventDefault();
+          abrirModal(form);
+        });
+      }
+
+      registrarConfirmacion('form-usuario');
+      registrarConfirmacion('form-empresa');
+
+      if (btnConfirmar) {
+        btnConfirmar.addEventListener('click', function () {
+          if (!formPendiente) return;
+          permitirEnvio = true;
+          formPendiente.submit();
+        });
+      }
+
+      if (modal) {
+        modal.addEventListener('click', function (event) {
+          if (event.target === modal) {
+            window.cerrarModalCambiosAdmin();
+          }
+        });
+      }
+
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && modal && modal.style.display !== 'none') {
+          window.cerrarModalCambiosAdmin();
+        }
+      });
+    })();
+  </script>
+  <% } %>
+  <%- include('plantillas/modalErrores', { error: error, errores: errores }) %>
+
+</body>
+</html>

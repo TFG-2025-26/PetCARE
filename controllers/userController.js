@@ -35,7 +35,17 @@ const getPerfilUsuario = (req, res) => {
                     console.error('Error al recuperar las mascotas del usuario:', err);
                     return res.status(500).send('Error al recuperar las mascotas del usuario');
                 }
-                res.render('perfilUsuario', { perfil: results[0], mascotas: mascotas });
+
+                const usuarioSesion = req.session && req.session.usuario ? req.session.usuario : null;
+                const esPropia = !!(usuarioSesion && usuarioSesion.tipo === 'usuario' && Number(usuarioSesion.id) === usuarioId);
+                const puedeEditar = esPropia;
+
+                res.render('perfilUsuario', {
+                    perfil: results[0],
+                    mascotas: mascotas,
+                    esPropia,
+                    puedeEditar
+                });
             }); 
         })
     })
@@ -63,10 +73,15 @@ const getPerfilEmpresa = (req, res) => {
                 return res.status(403).send('Cuenta de empresa inactiva'); 
             }
 
+            const usuarioSesion = req.session && req.session.usuario ? req.session.usuario : null;
+            const esPropia = !!(usuarioSesion && usuarioSesion.tipo === 'empresa' && Number(usuarioSesion.id) === empresaId);
+            const puedeEditar = esPropia;
+
             res.render('perfilEmpresa', {
                 empresa: results[0], 
                 valoraciones: [], //TODO: Falta recoger bien las valoraciones
-                esPropia: true //TODO: Falta comprobar si la empresa es propia o no
+                esPropia,
+                puedeEditar
             })
         })
     })

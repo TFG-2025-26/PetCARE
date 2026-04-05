@@ -4,7 +4,7 @@ const express = require('express');
 const router = express.Router(); 
 const { body } = require('express-validator');
 const userController = require('../controllers/userController');
-const { isAuthenticated } = require('../middlewares/authMiddleware');
+const { isAuthenticated, isOwnUserProfile, isOwnCompanyProfile } = require('../middlewares/authMiddleware');
 const multer = require('multer');
 const path = require('path');
 
@@ -176,11 +176,11 @@ const validarEdicionEmpresa = [
 
 router.get('/perfilUsuario/:id', isAuthenticated, userController.getPerfilUsuario);
 router.get('/perfilEmpresa/:id', isAuthenticated, userController.getPerfilEmpresa);
-router.get('/perfilUsuario/:id/editar', isAuthenticated, userController.getEditarPerfilUsuario);
-router.get('/perfilEmpresa/:id/editar', isAuthenticated, userController.getEditarPerfilEmpresa);
-router.post('/perfilUsuario/:id/editar', isAuthenticated, upload.single('foto'), validarEdicionUsuario, userController.postEditarPerfilUsuario); 
-router.post('/perfilEmpresa/:id/editar', isAuthenticated, upload.single('foto'), validarEdicionEmpresa, userController.postEditarPerfilEmpresa);
-router.get('/eliminarCuentaUsuario/:id', isAuthenticated, userController.postEliminarCuentaUsuario);
-router.get('/eliminarCuentaEmpresa/:id', isAuthenticated, userController.postEliminarCuentaEmpresa);
+router.get('/perfilUsuario/:id/editar', isAuthenticated, isOwnUserProfile, userController.getEditarPerfilUsuario);
+router.get('/perfilEmpresa/:id/editar', isAuthenticated, isOwnCompanyProfile, userController.getEditarPerfilEmpresa);
+router.post('/perfilUsuario/:id/editar', isAuthenticated, isOwnUserProfile, upload.single('foto'), validarEdicionUsuario, userController.postEditarPerfilUsuario); 
+router.post('/perfilEmpresa/:id/editar', isAuthenticated, isOwnCompanyProfile, upload.single('foto'), validarEdicionEmpresa, userController.postEditarPerfilEmpresa);
+router.get('/eliminarCuentaUsuario/:id', isAuthenticated, isOwnUserProfile, userController.postEliminarCuentaUsuario);
+router.get('/eliminarCuentaEmpresa/:id', isAuthenticated, isOwnCompanyProfile, userController.postEliminarCuentaEmpresa);
 
 module.exports = router; 
