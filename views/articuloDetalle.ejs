@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= articulo.titulo %> — PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <%- include('plantillas/navbar') %>
+
+  <main class="foro-detalle-page articulo-detalle-page">
+
+    <div class="foro-detalle-header">
+        <a href="/content/articulos" class="editar-back">← Volver a los artículos</a>
+      <h1 class="foro-detalle-titulo"><%= articulo.titulo %></h1>
+
+      <div class="foro-detalle-meta">
+        <div class="foro-detalle-meta-left">
+          <span class="foro-detalle-autor">@<%= articulo.nombre_usuario %></span>
+          <span class="foro-detalle-sep">·</span>
+          <span class="foro-detalle-fecha"><%= new Date(articulo.fecha_publicacion).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' }) %></span>
+        </div>
+        <div class="foro-detalle-meta-right articulo-detalle-meta-right">
+          <span class="foro-stat">👁️ <%= articulo.visualizaciones || 0 %> visualizaciones</span>
+        </div>
+      </div>
+    </div>
+
+    <section class="foro-detalle-body articulo-detalle-body-card">
+      <% if (articulo.imagenSrc) { %>
+        <div class="articulo-detalle-imagen-wrap">
+          <img src="<%= articulo.imagenSrc %>" alt="Imagen del artículo <%= articulo.titulo %>" class="articulo-detalle-imagen">
+        </div>
+      <% } else { %>
+        <div class="articulo-detalle-imagen-wrap articulo-detalle-imagen-placeholder">
+          <span class="foros-empty-icon">📰</span>
+          <p>Este artículo todavía no tiene imagen destacada.</p>
+        </div>
+      <% } %>
+
+      <div class="articulo-detalle-texto-wrap">
+        <h2 class="foro-comentarios-titulo">Descripción</h2>
+        <p class="foro-detalle-desc articulo-detalle-desc"><%= articulo.cuerpo %></p>
+      </div>
+    </section>
+
+  </main>
+
+  <%- include('plantillas/footer') %>
+  <%- include('plantillas/modalErrores', { error: typeof error !== 'undefined' ? error : null, errores: typeof errores !== 'undefined' ? errores : [] }) %>
+
+</body>
+</html>

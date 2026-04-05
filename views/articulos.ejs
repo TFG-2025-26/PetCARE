@@ -36,7 +36,7 @@
         <p class="foros-subtitle">Contenido informativo y consejos útiles para el cuidado y bienestar de las mascotas.</p>
       </div>
       <% if (esAdmin) { %>
-        <div class="btn-large" style="cursor:default; opacity:0.9;">Panel editorial</div>
+        <div class="btn-large" onclick="crearArticulo()">+ Nuevo artículo</div>
       <% } %>
     </div>
 
@@ -62,7 +62,7 @@
               ? articulo.cuerpo.slice(0, 260) + '…'
               : articulo.cuerpo; %>
 
-          <article class="foro-card">
+          <article class="foro-card" role="link" tabindex="0" onclick="window.location.href='/content/articulos/<%= articulo.id_articulo %>'" onkeydown="if(event.key==='Enter'){ window.location.href='/content/articulos/<%= articulo.id_articulo %>'; }">
             <div class="foro-card-header">
               <div class="foro-card-header-left">
                 <span class="foro-autor">@<%= articulo.nombre_usuario %></span>
@@ -117,8 +117,48 @@
 
   </main>
 
+  <div id="modalArticulo" style="display:none;">
+    <div id="modalArticulo-contenido"></div>
+  </div>
+
   <%- include('plantillas/footer') %>
   <%- include('plantillas/modalErrores', { error: typeof error !== 'undefined' ? error : null, errores: typeof errores !== 'undefined' ? errores : [] }) %>
+
+  <script src="/js/validacionCrearArticulo.js"></script>
+  <script>
+    function esDocumentoCompleto(html) {
+      return /<!doctype\s+html|<html[\s>]/i.test(html || '');
+    }
+
+    async function crearArticulo() {
+      const url = '/content/articulos/crearArticulo';
+      try {
+        const response = await fetch(url, {
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+        const html = await response.text();
+
+        if (!response.ok || esDocumentoCompleto(html)) {
+          window.location.href = url;
+          return;
+        }
+
+        document.getElementById('modalArticulo-contenido').innerHTML = html;
+        document.getElementById('modalArticulo').style.display = 'flex';
+        initValidacionCrearArticulo();
+      } catch (error) {
+        window.location.href = url;
+      }
+    }
+
+    document.getElementById('modalArticulo').addEventListener('click', function (event) {
+      if (event.target === this) {
+        this.style.display = 'none';
+      }
+    });
+  </script>
 
 </body>
 </html>

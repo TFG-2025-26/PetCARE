@@ -265,8 +265,8 @@ textarea { resize: vertical; min-height: 80px; }
 #cancelar-eliminar-mascota, #cancelar-eliminar-registro { background: #c8b0a2; }
 
 /* ── Modal foro ── */
-#modalForo { position: fixed; inset: 0; background: rgba(61,43,31,0.45); backdrop-filter: blur(4px); z-index: 200; display: flex; align-items: flex-start; justify-content: center; padding: 4.5rem 1.5rem 2rem; overflow-y: auto; animation: fadeIn 0.2s ease both; }
-#modalForo-contenido { background: var(--white); border-radius: 24px; box-shadow: var(--shadow-lg); width: 100%; max-width: 700px; padding: 2rem; animation: fadeUp 0.3s ease both; }
+#modalForo, #modalArticulo { position: fixed; inset: 0; background: rgba(61,43,31,0.45); backdrop-filter: blur(4px); z-index: 200; display: flex; align-items: flex-start; justify-content: center; padding: 4.5rem 1.5rem 2rem; overflow-y: auto; animation: fadeIn 0.2s ease both; }
+#modalForo-contenido, #modalArticulo-contenido { background: var(--white); border-radius: 24px; box-shadow: var(--shadow-lg); width: 100%; max-width: 700px; padding: 2rem; animation: fadeUp 0.3s ease both; }
 
 /* ── Modal editar foro ── */
 #modalEditarForo { position: fixed; inset: 0; background: rgba(61,43,31,0.45); backdrop-filter: blur(4px); z-index: 200; display: flex; align-items: flex-start; justify-content: center; padding: 4.5rem 1.5rem 2rem; overflow-y: auto; animation: fadeIn 0.2s ease both; }
@@ -574,6 +574,14 @@ footer, .footer {
 .foro-detalle-eliminar:hover { text-decoration: underline; }
 .foro-detalle-body { margin-bottom: 1.5rem; }
 .foro-detalle-page .foro-detalle-body { background: var(--white); border-radius: var(--radius-lg); padding: 1.8rem; box-shadow: var(--shadow-sm); margin-bottom: 1.5rem; }
+.articulo-detalle-body-card { display: flex; flex-direction: column; gap: 1.4rem; overflow: hidden; }
+.articulo-detalle-imagen-wrap { width: 100%; min-height: 280px; border-radius: var(--radius-md); overflow: hidden; background: linear-gradient(135deg, rgba(237,229,212,0.95), rgba(255,255,255,0.95)); border: 1px solid rgba(61,43,31,0.08); display: flex; align-items: center; justify-content: center; }
+.articulo-detalle-imagen { width: 100%; max-height: 460px; object-fit: cover; display: block; }
+.articulo-detalle-imagen-placeholder { flex-direction: column; gap: 0.8rem; text-align: center; color: var(--muted); padding: 2rem; }
+.articulo-detalle-texto-wrap { display: flex; flex-direction: column; gap: 0.35rem; }
+.articulo-detalle-texto-wrap .foro-comentarios-titulo { margin-bottom: 0.2rem; }
+.articulo-detalle-desc { white-space: pre-line; }
+.articulo-detalle-meta-right { display: flex; align-items: center; }
 .foro-detalle-desc { font-size: 0.95rem; color: var(--text); line-height: 1.7; font-weight: 300; }
 .foro-detalle-divider { height: 1px; background: var(--warm); margin: 1.5rem 0; }
 .foro-detalle-comentarios { margin-bottom: 1rem; }

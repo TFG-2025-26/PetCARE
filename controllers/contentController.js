@@ -4,6 +4,27 @@ const { validationResult } = require('express-validator');
 const pool = require('../db');
 const { parse } = require('path');
 
+const obtenerMimeTypeImagen = (buffer) => {
+    if (!buffer || !Buffer.isBuffer(buffer) || buffer.length < 4) {
+        return 'image/jpeg';
+    }
+
+    const headerHex = buffer.subarray(0, 12).toString('hex');
+    if (headerHex.startsWith('89504e47')) {
+        return 'image/png';
+    }
+
+    if (buffer.subarray(0, 3).toString('hex') === 'ffd8ff') {
+        return 'image/jpeg';
+    }
+
+    if (buffer.subarray(0, 4).toString() === 'RIFF' && buffer.subarray(8, 12).toString() === 'WEBP') {
+        return 'image/webp';
+    }
+
+    return 'image/jpeg';
+};
+
 const getArticulos = (req, res) => {
     const pagina = parseInt(req.query.pagina, 10) || 1;
     const limite = 12;
@@ -80,6 +101,144 @@ const getArticulos = (req, res) => {
                     errores: []
                 });
             });
+        });
+    });
+};
+
+const getCrearArticulo = (req, res) => {
+    const esAjax = req.xhr || req.get('X-Requested-With') === 'XMLHttpRequest';
+    if (!esAjax) {
+        return res.redirect('/content/articulos');
+    }
+
+    res.render('plantillas/crearArticulo', {
+        usuario: req.session.usuario || null,
+        error: null,
+        errores: [],
+        articulo: { titulo: '', cuerpo: '' }
+    });
+};
+
+const postCrearArticulo = (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(400).render('plantillas/crearArticulo', {
+            usuario: req.session.usuario || null,
+            error: 'Por favor corrige los errores',
+            errores: errors.array(),
+            articulo: req.body
+        });
+    }
+
+    const { titulo, cuerpo } = req.body;
+    const imagen = req.file ? req.file.buffer : null;
+    const id_usuario = req.session.usuario.id;
+    const sqlInsertArticulo = 'INSERT INTO articulos (titulo, cuerpo, `fecha_publicación`, imagen, visualizaciones, activo, id_usuario) VALUES (?, ?, NOW(), ?, ?, ?, ?)';
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al conectar a la base de datos:', err);
+            return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
+        }
+
+        connection.query(sqlInsertArticulo, [titulo, cuerpo, imagen, 0, 1, id_usuario], (insertErr) => {
+            connection.release();
+
+            if (insertErr) {
+                console.error('Error al crear el artículo:', insertErr);
+                return res.status(500).render('error500', { mensaje: 'Error al crear el artículo' });
+            }
+
+            return res.json({ success: true, redirectUrl: '/content/articulos' });
+        });
+    });
+};
+
+const getArticuloDetalle = (req, res) => {
+    const articuloId = parseInt(req.params.id, 10);
+    const usuario = req.session.usuario || null;
+    const esAdmin = !!(usuario && usuario.rol === 'admin');
+
+    if (Number.isNaN(articuloId)) {
+        return res.status(400).send('ID de artículo inválido');
+    }
+
+    if (!req.session.articulosVistos) {
+        req.session.articulosVistos = {};
+    }
+
+    const articuloKey = String(articuloId);
+    const yaVistoEnSesion = req.session.articulosVistos[articuloKey] === true;
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al conectar a la base de datos:', err);
+            return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
+        }
+
+        const cargarArticuloDetalle = () => {
+            const sqlArticulo = `
+                SELECT
+                    a.id_articulo,
+                    a.titulo,
+                    a.cuerpo,
+                    a.imagen,
+                    a.visualizaciones,
+                    a.id_usuario,
+                    a.\`fecha_publicación\` AS fecha_publicacion,
+                    u.nombre_usuario
+                FROM articulos a
+                JOIN usuarios u ON a.id_usuario = u.id_usuario
+                WHERE a.id_articulo = ? AND a.activo = 1
+            `;
+
+            connection.query(sqlArticulo, [articuloId], (queryErr, results) => {
+                connection.release();
+
+                if (queryErr) {
+                    console.error('Error al obtener el detalle del artículo:', queryErr);
+                    return res.status(500).render('error500', { mensaje: 'Error al obtener el detalle del artículo' });
+                }
+
+                if (!results || results.length === 0) {
+                    return res.status(404).send('Artículo no encontrado');
+                }
+
+                const articulo = results[0];
+                articulo.imagenSrc = articulo.imagen
+                    ? `data:${obtenerMimeTypeImagen(articulo.imagen)};base64,${articulo.imagen.toString('base64')}`
+                    : null;
+
+                return res.render('articuloDetalle', {
+                    articulo,
+                    usuario,
+                    esAdmin,
+                    error: null,
+                    errores: []
+                });
+            });
+        };
+
+        if (yaVistoEnSesion) {
+            return cargarArticuloDetalle();
+        }
+
+        const sqlIncrementar = 'UPDATE articulos SET visualizaciones = COALESCE(visualizaciones, 0) + 1 WHERE id_articulo = ? AND activo = 1';
+        connection.query(sqlIncrementar, [articuloId], (incrementErr, incrementResult) => {
+            if (incrementErr) {
+                connection.release();
+                console.error('Error al actualizar las visualizaciones del artículo:', incrementErr);
+                return res.status(500).render('error500', { mensaje: 'Error al actualizar las visualizaciones del artículo' });
+            }
+
+            if (!incrementResult || incrementResult.affectedRows === 0) {
+                connection.release();
+                return res.status(404).send('Artículo no encontrado');
+            }
+
+            req.session.articulosVistos[articuloKey] = true;
+            return cargarArticuloDetalle();
         });
     });
 };
@@ -640,6 +799,9 @@ const postReportarComentario = (req, res) => {
 
 module.exports = {
     getArticulos,
+    getArticuloDetalle,
+    getCrearArticulo,
+    postCrearArticulo,
     getCrearForo, 
     postCrearForo,
     verForos,
