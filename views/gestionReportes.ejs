@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestion de Reportes - PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <%- include('plantillas/navbar') %>
+
+  <main class="reportes-page">
+    <section class="reportes-toolbar" aria-label="Acciones de navegacion y filtros">
+      <a href="/admin/adminPanel" class="reportes-back-link" aria-label="Volver al panel de administracion">
+        <span class="btn-volver-atras" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        </span>
+        <span class="reportes-back-text">Volver al panel</span>
+      </a>
+
+      <% const filtrosActivos = filtros && (filtros.tipo !== 'todos' || filtros.estado !== 'todos' || filtros.usuario); %>
+      <button type="button" id="toggleFiltroReportes" class="reportes-filter-toggle" aria-expanded="<%= filtrosActivos ? 'true' : 'false' %>" aria-controls="panelFiltroReportes">
+        <%= filtrosActivos ? 'Ocultar filtros' : 'Mostrar filtros' %>
+      </button>
+    </section>
+
+    <section class="reportes-hero">
+      <p class="reportes-kicker">Administracion</p>
+      <h1>Gestion de reportes</h1>
+      <p class="reportes-subtitle">Panel interno para revisar incidencias de usuarios, foros, comentarios y valoraciones.</p>
+    </section>
+
+    <section id="panelFiltroReportes" class="reportes-filter-panel" aria-label="Filtros de reportes" <%- filtrosActivos ? '' : 'hidden' %>>    
+      <form class="reportes-filter-form" action="/admin/adminPanel/gestionReportes/filtrar" method="GET" autocomplete="off">
+        <div class="filtro-group">
+          <label for="filtro-tipo-reporte">Tipo de reporte</label>
+          <select id="filtro-tipo-reporte" name="tipo">
+            <option value="todos" <%= (filtros && filtros.tipo === 'todos') ? 'selected' : '' %>>Todos</option>
+            <option value="usuarios" <%= (filtros && filtros.tipo === 'usuarios') ? 'selected' : '' %>>Usuarios</option>
+            <option value="foros" <%= (filtros && filtros.tipo === 'foros') ? 'selected' : '' %>>Foros</option>
+            <option value="comentarios" <%= (filtros && filtros.tipo === 'comentarios') ? 'selected' : '' %>>Comentarios</option>
+            <option value="valoraciones" <%= (filtros && filtros.tipo === 'valoraciones') ? 'selected' : '' %>>Valoraciones</option>
+          </select>
+        </div>
+
+        <div class="filtro-group">
+          <label for="filtro-estado-reporte">Estado</label>
+          <select id="filtro-estado-reporte" name="estado">
+            <option value="todos" <%= (filtros && filtros.estado === 'todos') ? 'selected' : '' %>>Todos</option>
+            <option value="pendiente" <%= (filtros && filtros.estado === 'pendiente') ? 'selected' : '' %>>Pendientes</option>
+            <option value="aceptado" <%= (filtros && filtros.estado === 'aceptado') ? 'selected' : '' %>>Aceptados</option>
+            <option value="rechazado" <%= (filtros && filtros.estado === 'rechazado') ? 'selected' : '' %>>Rechazados</option>
+          </select>
+        </div>
+
+        <div class="filtro-group filtro-keyword">
+          <label for="filtro-usuario-reporte">Buscar usuario (ID o nombre)</label>
+          <input type="text" id="filtro-usuario-reporte" name="usuario" placeholder="Ej: 12 o maria_92" value="<%= (filtros && filtros.usuario) ? filtros.usuario : '' %>">
+        </div>
+
+        <div class="reportes-filter-actions">
+          <button type="submit" class="btn-filtro">Aplicar</button>
+          <a href="/admin/adminPanel/gestionReportes/filtrar" class="btn-filtro-reset">Limpiar</a>
+        </div>
+      </form>
+    </section>
+
+    <section class="reportes-table-wrap" aria-label="Tabla de gestion de reportes">
+      <div class="reportes-table-scroll">
+        <table class="reportes-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Motivo</th>
+              <th>Autor del reporte</th>
+              <th>Usuario reportado</th>
+              <th>Evidencia</th>
+              <th>Acciones</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (!reportes || reportes.length === 0) { %>
+              <tr>
+                <td colspan="7" class="reportes-empty">No hay reportes registrados actualmente.</td>
+              </tr>
+            <% } %>
+
+            <% (reportes || []).forEach(reporte => {
+              const evidencia = reporte.contenido || reporte.titulo || reporte.comentario_valoracion || 'Sin evidencia disponible';
+              const estadoClase = `estado-${(reporte.estado || '').toLowerCase()}`;
+            %>
+              <tr>
+                <td class="reportes-clickable-cell">#<%= reporte.id_reporte %></td>
+                <td class="reportes-clickable-cell"><span class="chip-motivo"><%= reporte.motivo %></span></td>
+                <td class="reportes-clickable-cell"><%= reporte.nombre_usuario_autor || 'N/D' %></td>
+                <td class="reportes-clickable-cell"><%= reporte.nombre_usuario_reportado || 'N/D' %></td>
+                <td class="evidencia-cell reportes-clickable-cell"><%= evidencia %></td>
+                <td class="reportes-clickable-cell">
+                  <div class="reportes-actions">
+                    <form method="POST" action="/admin/adminPanel/gestionReportes/<%= reporte.id_reporte %>/acciones/denegar" style="display:inline;">
+                      <button type="submit" class="btn-accion-reporte btn-denegar">Denegar</button>
+                    </form>
+                    <form method="POST" action="/admin/adminPanel/gestionReportes/<%= reporte.id_reporte %>/acciones/aceptar" style="display:inline;">
+                      <button type="submit" class="btn-accion-reporte btn-aceptar">Aceptar</button>
+                    </form>
+                  </div>
+                </td>
+                <td class="reportes-clickable-cell">
+                  <span class="estado-chip <%= estadoClase %>"><%= reporte.estado %></span>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="modalDetalleReporte" style="display:none;" role="dialog" aria-modal="true">
+    <div id="modalDetalleReporte-contenido"></div>
+  </div>
+
+  <%- include('plantillas/footer') %>
+
+  <script>
+    (function () {
+      const toggleFiltrosBtn = document.getElementById('toggleFiltroReportes');
+      const panelFiltros = document.getElementById('panelFiltroReportes');
+      const modal = document.getElementById('modalDetalleReporte');
+      const modalContenido = document.getElementById('modalDetalleReporte-contenido');
+      const table = document.querySelector('.reportes-table');
+
+      if (toggleFiltrosBtn && panelFiltros) {
+        toggleFiltrosBtn.addEventListener('click', () => {
+          const isExpanded = toggleFiltrosBtn.getAttribute('aria-expanded') === 'true';
+          toggleFiltrosBtn.setAttribute('aria-expanded', String(!isExpanded));
+          toggleFiltrosBtn.textContent = isExpanded ? 'Mostrar filtros' : 'Ocultar filtros';
+          panelFiltros.hidden = isExpanded;
+        });
+      }
+
+      function esDocumentoCompleto(html) {
+        return /<!doctype\s+html|<html[\s>]/i.test(html || '');
+      }
+
+      function cerrarModal() {
+        modal.style.display = 'none';
+        modalContenido.innerHTML = '';
+      }
+
+      async function abrirDetalleReporte(idReporte) {
+        const url = `/admin/adminPanel/gestionReportes/${idReporte}`;
+        try {
+          const response = await fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+          });
+          const html = await response.text();
+          if (!response.ok || esDocumentoCompleto(html)) return;
+          modalContenido.innerHTML = html;
+          modal.style.display = 'flex';
+        } catch (e) {
+          console.error('Error al obtener detalle del reporte', e);
+        }
+      }
+
+      if (modal) {
+        modal.addEventListener('click', (event) => {
+          if (event.target === modal) cerrarModal();
+        });
+      }
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && modal && modal.style.display !== 'none') cerrarModal();
+      });
+
+      if (table) {
+        table.addEventListener('click', (event) => {
+          if (event.target.closest('.btn-accion-reporte') || event.target.closest('form')) return;
+
+          const cell = event.target.closest('.reportes-clickable-cell');
+          if (!cell) return;
+
+          const row = cell.closest('tr');
+          if (!row) return;
+
+          const idCell = row.querySelector('td:first-child');
+          const idText = idCell ? idCell.textContent.trim().replace('#', '') : null;
+          if (!idText) return;
+
+          abrirDetalleReporte(idText);
+        });
+      }
+    })();
+  </script>
+
+</body>
+</html>

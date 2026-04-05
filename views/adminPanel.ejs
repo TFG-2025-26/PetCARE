@@ -23,142 +23,33 @@
         <div class="admin-card-icon" aria-hidden="true">📰</div>
         <h2 id="admin-articulos-title">Gestión de Artículos</h2>
         <p>Revisión editorial, validación de contenidos y organización de publicaciones.</p>
-        <button type="button" class="btn-outline-large admin-card-btn">Próximamente</button>
+        <a href="/admin/adminPanel/gestionArticulos" class="admin-card-btn">Acceder</a>
       </article>
 
       <article class="admin-card" role="region" aria-labelledby="admin-usuarios-title">
         <div class="admin-card-icon" aria-hidden="true">👥</div>
         <h2 id="admin-usuarios-title">Gestión de Usuarios</h2>
         <p>Supervisión de cuentas, control de estados y acciones de moderación de perfil.</p>
-        <button type="button" class="btn-outline-large admin-card-btn">Próximamente</button>
+        <a href="/admin/adminPanel/gestionUsuarios" class="admin-card-btn">Acceder</a>
       </article>
 
       <article class="admin-card" role="region" aria-labelledby="admin-reportes-title">
         <div class="admin-card-icon" aria-hidden="true">🚩</div>
         <h2 id="admin-reportes-title">Gestión de Reportes</h2>
         <p>Análisis de incidencias, clasificación de reportes y resolución de conflictos.</p>
-        <button type="button" class="btn-outline-large admin-card-btn">Próximamente</button>
+        <a href="/admin/adminPanel/gestionReportes" class="admin-card-btn">Acceder</a>
       </article>
 
       <article class="admin-card" role="region" aria-labelledby="admin-foros-title">
         <div class="admin-card-icon" aria-hidden="true">💬</div>
         <h2 id="admin-foros-title">Gestión de Foros</h2>
         <p>Moderación de hilos y comentarios para mantener una comunidad segura y útil.</p>
-        <button type="button" class="btn-outline-large admin-card-btn">Próximamente</button>
+        <a href="/admin/adminPanel/gestionForos" class="admin-card-btn">Acceder</a>
       </article>
     </section>
   </main>
 
   <%- include('plantillas/footer') %>
-
-  <style>
-    .admin-page {
-      width: min(1200px, 100% - 2 * var(--page-gutter));
-      margin: 0 auto;
-      padding: clamp(2rem, 4vw, 3.5rem) 0 clamp(2.5rem, 5vw, 4rem);
-      display: flex;
-      flex-direction: column;
-      gap: 1.8rem;
-      animation: fadeUp 0.45s ease both;
-    }
-
-    .admin-hero {
-      background: linear-gradient(135deg, rgba(237, 229, 212, 0.95), rgba(255, 255, 255, 0.95));
-      border: 1px solid rgba(61, 43, 31, 0.08);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
-      padding: clamp(1.2rem, 3vw, 2rem);
-    }
-
-    .admin-kicker {
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--amber);
-      margin-bottom: 0.35rem;
-    }
-
-    .admin-hero h1 {
-      font-family: 'Fraunces', serif;
-      font-size: clamp(1.8rem, 4vw, 2.5rem);
-      color: var(--brown);
-      margin-bottom: 0.35rem;
-      line-height: 1.1;
-    }
-
-    .admin-subtitle {
-      color: var(--muted);
-      font-size: 1rem;
-      max-width: 760px;
-    }
-
-    .admin-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 1rem;
-    }
-
-    .admin-card {
-      background: var(--white);
-      border: 1px solid rgba(61, 43, 31, 0.08);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-sm);
-      padding: 1.25rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.8rem;
-      min-height: 220px;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .admin-card:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow-md);
-    }
-
-    .admin-card-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      background: rgba(200, 135, 58, 0.14);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.35rem;
-    }
-
-    .admin-card h2 {
-      font-family: 'Fraunces', serif;
-      font-size: 1.28rem;
-      color: var(--brown);
-      line-height: 1.2;
-    }
-
-    .admin-card p {
-      color: var(--muted);
-      line-height: 1.5;
-      flex: 1;
-    }
-
-    .admin-card-btn {
-      align-self: flex-start;
-      padding: 0.62rem 1rem;
-      font-size: 0.88rem;
-      pointer-events: none;
-      opacity: 0.9;
-    }
-
-    @media (max-width: 900px) {
-      .admin-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .admin-card {
-        min-height: 200px;
-      }
-    }
-  </style>
 
 </body>
 </html>

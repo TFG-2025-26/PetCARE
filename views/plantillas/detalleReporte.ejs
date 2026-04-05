@@ -1,0 +1,58 @@
+<div class="foro-detalle-header">
+  <div class="foro-detalle-top">
+    <h2 class="foro-detalle-titulo">Reporte #<%= reporte.id_reporte %></h2>
+    <button class="foro-detalle-cerrar" type="button" onclick="document.getElementById('modalDetalleReporte').style.display='none'" aria-label="Cerrar">✕</button>
+  </div>
+</div>
+
+<ul class="reportes-modal-list">
+  <li>
+    <strong>Motivo:</strong>
+    <span class="chip-motivo"><%= reporte.motivo %></span>
+  </li>
+  <li>
+    <strong>Estado:</strong>
+    <span class="estado-chip estado-<%= reporte.estado %>"><%= reporte.estado %></span>
+  </li>
+  <li>
+    <strong>Fecha:</strong>
+    <%= new Date(reporte.fecha).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' }) %>
+  </li>
+  <li>
+    <strong>Autor del reporte:</strong>
+    <%= reporte.nombre_usuario_autor || 'N/D' %>
+    <% if (reporte.id_autor) { %>(ID: <%= reporte.id_autor %>)<% } %>
+  </li>
+  <li>
+    <strong>Usuario reportado:</strong>
+    <%= reporte.nombre_usuario_reportado || 'N/D' %>
+    <% if (reporte.id_usuario_reportado) { %>(ID: <%= reporte.id_usuario_reportado %>)<% } %>
+  </li>
+  <% if (reporte.id_foro) { %>
+  <li>
+    <strong>Foro (ID <%= reporte.id_foro %>):</strong>
+    <%= reporte.titulo || 'Sin título' %>
+  </li>
+  <% } %>
+  <% if (reporte.id_comentario) { %>
+  <li>
+    <strong>Comentario (ID <%= reporte.id_comentario %>):</strong>
+    <%= reporte.contenido || 'Sin contenido' %>
+  </li>
+  <% } %>
+  <% if (reporte.id_valoracion) { %>
+  <li>
+    <strong>Valoración (ID <%= reporte.id_valoracion %>):</strong>
+    <%= reporte.comentario_valoracion || 'Sin comentario' %>
+  </li>
+  <% } %>
+</ul>
+
+<div class="reportes-actions" style="margin-top: 1.5rem;">
+  <form method="POST" action="/admin/adminPanel/gestionReportes/<%= reporte.id_reporte %>/acciones/denegar" style="display:inline;">
+    <button type="submit" class="btn-accion-reporte btn-denegar" <%= reporte.estado === 'rechazado' ? 'disabled' : '' %>>Denegar</button>
+  </form>
+  <form method="POST" action="/admin/adminPanel/gestionReportes/<%= reporte.id_reporte %>/acciones/aceptar" style="display:inline;">
+    <button type="submit" class="btn-accion-reporte btn-aceptar" <%= reporte.estado === 'aceptado' ? 'disabled' : '' %>>Aceptar</button>
+  </form>
+</div>
