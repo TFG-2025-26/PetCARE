@@ -91,6 +91,141 @@ const filtrarReportes = (req, res) => {
     });
 };
 
+const getGestionUsuarios = (req, res) => {
+    res.redirect('/admin/adminPanel/gestionUsuarios/filtrar?tab=usuarios');
+};
+
+const filtrarUsuarios = (req, res) => {
+    const busqueda = (req.query.busqueda || '').trim();
+    const mostrarInactivos = ['1', 'true', 'on'].includes(String(req.query.inactivos || '').toLowerCase());
+    const compactaRaw = req.query.compacta;
+    const vistaCompacta = Array.isArray(compactaRaw)
+        ? compactaRaw.some(valor => ['1', 'true', 'on'].includes(String(valor).toLowerCase()))
+        : compactaRaw === undefined
+            ? true
+            : ['1', 'true', 'on'].includes(String(compactaRaw).toLowerCase());
+
+    const tabsValidas = ['usuarios', 'empresas'];
+    const tabActiva = tabsValidas.includes(req.query.tab) ? req.query.tab : 'usuarios';
+
+    const condicionesUsuarios = ["u.rol <> 'admin'"];
+    const paramsUsuarios = [];
+
+    if (!mostrarInactivos) {
+        condicionesUsuarios.push('u.activo = 1');
+    }
+
+    if (busqueda) {
+        const idNum = parseInt(busqueda, 10);
+        if (!isNaN(idNum)) {
+            condicionesUsuarios.push('(u.id_usuario = ? OR u.nombre_usuario LIKE ? OR u.nombre_completo LIKE ?)');
+            paramsUsuarios.push(idNum, `%${busqueda}%`, `%${busqueda}%`);
+        } else {
+            condicionesUsuarios.push('(u.nombre_usuario LIKE ? OR u.nombre_completo LIKE ?)');
+            paramsUsuarios.push(`%${busqueda}%`, `%${busqueda}%`);
+        }
+    }
+
+    const queryUsuarios = `
+        SELECT
+            u.id_usuario,
+            u.nombre_usuario,
+            u.nombre_completo,
+            DATE_FORMAT(u.fecha_nacimiento, '%d/%m/%Y') AS fecha_nacimiento_formateada,
+            u.ciudad,
+            u.pais,
+            u.telefono,
+            u.correo,
+            u.bio,
+            u.rol,
+            u.codigo_postal,
+            u.genero,
+            u.trabajo,
+            u.ban,
+            u.suspendido,
+            u.activo,
+            CASE WHEN u.foto IS NOT NULL THEN 1 ELSE 0 END AS tiene_foto,
+            CONCAT('/user/perfilUsuario/', u.id_usuario) AS perfil_url,
+            CONCAT('/user/perfilUsuario/', u.id_usuario, '/editar') AS editar_url
+        FROM usuarios u
+        WHERE ${condicionesUsuarios.join(' AND ')}
+        ORDER BY u.activo DESC, u.nombre_usuario ASC
+    `;
+
+    const condicionesEmpresas = ['1 = 1'];
+    const paramsEmpresas = [];
+
+    if (!mostrarInactivos) {
+        condicionesEmpresas.push('e.activo = 1');
+    }
+
+    if (busqueda) {
+        const idNum = parseInt(busqueda, 10);
+        if (!isNaN(idNum)) {
+            condicionesEmpresas.push('(e.id_empresa = ? OR e.nombre LIKE ?)');
+            paramsEmpresas.push(idNum, `%${busqueda}%`);
+        } else {
+            condicionesEmpresas.push('e.nombre LIKE ?');
+            paramsEmpresas.push(`%${busqueda}%`);
+        }
+    }
+
+    const queryEmpresas = `
+        SELECT
+            e.id_empresa,
+            e.nombre,
+            e.correo,
+            e.telefono_contacto,
+            e.CIF,
+            e.tipo,
+            e.tipo_otro,
+            e.descripcion,
+            e.ubicacion,
+            e.activo,
+            CASE WHEN e.foto IS NOT NULL THEN 1 ELSE 0 END AS tiene_foto,
+            COALESCE(NULLIF(e.tipo_otro, ''), e.tipo) AS tipo_mostrado,
+            CONCAT('/user/perfilEmpresa/', e.id_empresa) AS perfil_url,
+            CONCAT('/user/perfilEmpresa/', e.id_empresa, '/editar') AS editar_url
+        FROM empresas e
+        WHERE ${condicionesEmpresas.join(' AND ')}
+        ORDER BY e.activo DESC, e.nombre ASC
+    `;
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al conectar a la base de datos: ', err);
+            return res.status(500).send('Error al conectar a la base de datos');
+        }
+
+        connection.query(queryUsuarios, paramsUsuarios, (errorUsuarios, usuarios) => {
+            if (errorUsuarios) {
+                connection.release();
+                console.error('Error al obtener la tabla de usuarios: ', errorUsuarios);
+                return res.status(500).send('Error al obtener la tabla de usuarios');
+            }
+
+            connection.query(queryEmpresas, paramsEmpresas, (errorEmpresas, empresas) => {
+                connection.release();
+                if (errorEmpresas) {
+                    console.error('Error al obtener la tabla de empresas: ', errorEmpresas);
+                    return res.status(500).send('Error al obtener la tabla de empresas');
+                }
+
+                res.render('gestionUsuarios', {
+                    usuarios,
+                    empresas,
+                    filtros: {
+                        busqueda,
+                        mostrarInactivos,
+                        vistaCompacta,
+                        tab: tabActiva
+                    }
+                });
+            });
+        });
+    });
+};
+
 const getDetalleReporte = (req, res) => {
     const esAjax = req.xhr || req.get('X-Requested-With') === 'XMLHttpRequest';
 
@@ -171,13 +306,55 @@ const aplicarAccionReporte = (req, res) => {
     });
 }
 
+const eliminarUsuarioGestion = (req, res) => {
+    const tipo = req.params.tipo;
+    const id = parseInt(req.params.id, 10);
+
+    const configuracion = {
+        usuario: { tabla: 'usuarios', idCampo: 'id_usuario' },
+        empresa: { tabla: 'empresas', idCampo: 'id_empresa' }
+    };
+
+    if (!configuracion[tipo] || isNaN(id)) {
+        return res.status(400).send('Solicitud de eliminación inválida');
+    }
+
+    const { tabla, idCampo } = configuracion[tipo];
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al conectar a la base de datos: ', err);
+            return res.status(500).send('Error al conectar a la base de datos');
+        }
+
+        const query = `UPDATE ${tabla} SET activo = 0 WHERE ${idCampo} = ?`;
+        connection.query(query, [id], (error, result) => {
+            connection.release();
+            if (error) {
+                console.error('Error al desactivar la cuenta desde administración: ', error);
+                return res.status(500).send('Error al desactivar la cuenta');
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(404).send('Cuenta no encontrada');
+            }
+
+            const destino = req.get('Referrer') || '/admin/adminPanel/gestionUsuarios/filtrar';
+            res.redirect(destino);
+        });
+    });
+};
+
 const editarAccionReporte = (req, res) => {}
 
 module.exports = {
     getAdminPanel,
     getGestionReportes,
     filtrarReportes,
+    getGestionUsuarios,
+    filtrarUsuarios,
     getDetalleReporte,
     aplicarAccionReporte,
+    eliminarUsuarioGestion,
     editarAccionReporte
 }; 

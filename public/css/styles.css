@@ -241,7 +241,7 @@ textarea { resize: vertical; min-height: 80px; }
 /* ══════════════════════════════════════════
    MODAL
 ══════════════════════════════════════════ */
-.modal-overlay { position: fixed; inset: 0; background: rgba(61,43,31,0.45); backdrop-filter: blur(4px); z-index: 200; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s ease both; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(61,43,31,0.45); backdrop-filter: blur(4px); z-index: 1200; display: flex; align-items: center; justify-content: center; padding: 1.5rem; overflow-y: auto; animation: fadeIn 0.2s ease both; }
 .modal-box { background: var(--white); border-radius: 24px; box-shadow: var(--shadow-lg); padding: 2rem; width: 100%; max-width: 420px; animation: fadeUp 0.3s ease both; }
 .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
 .modal-header h3 { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 700; color: var(--brown); }
@@ -1218,6 +1218,224 @@ footer, .footer {
    padding-bottom: 0;
 }
 
+/* ══════════════════════════════════════════
+    GESTION DE USUARIOS
+══════════════════════════════════════════ */
+.gestion-usuarios-tabs {
+   display: flex;
+   align-items: center;
+   gap: 0.75rem;
+   flex-wrap: wrap;
+}
+
+.gestion-usuarios-tab {
+   display: inline-flex;
+   align-items: center;
+   gap: 0.55rem;
+   padding: 0.7rem 1rem;
+   border-radius: var(--radius-pill);
+   border: 1px solid rgba(61,43,31,0.12);
+   background: var(--white);
+   color: var(--brown);
+   text-decoration: none;
+   font-weight: 600;
+   transition: all 0.2s ease;
+}
+
+.gestion-usuarios-tab:hover {
+   transform: translateY(-1px);
+   border-color: rgba(61,43,31,0.24);
+   box-shadow: var(--shadow-sm);
+}
+
+.gestion-usuarios-tab.is-active {
+   background: var(--brown);
+   color: var(--white);
+   border-color: var(--brown);
+   box-shadow: var(--shadow-sm);
+}
+
+.gestion-usuarios-tab-count {
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+   min-width: 1.7rem;
+   height: 1.7rem;
+   border-radius: 999px;
+   background: rgba(255,255,255,0.18);
+   font-size: 0.78rem;
+   padding: 0 0.4rem;
+}
+
+.gestion-usuarios-filter-panel {
+   padding: 1rem 1.1rem;
+}
+
+.gestion-usuarios-filter-form {
+   display: grid;
+   grid-template-columns: minmax(280px, 1.5fr) auto auto;
+   gap: 0.9rem 1rem;
+   align-items: end;
+}
+
+.gestion-usuarios-search-group {
+   min-width: 0;
+}
+
+.gestion-usuarios-search-group input {
+   width: 100%;
+}
+
+.gestion-usuarios-inline-options {
+   display: flex;
+   align-items: center;
+   gap: 0.75rem;
+   flex-wrap: wrap;
+   min-height: 46px;
+}
+
+.gestion-usuarios-checkbox-label {
+   display: inline-flex;
+   align-items: center;
+   gap: 0.55rem;
+   font-size: 0.92rem;
+   color: var(--text);
+   cursor: pointer;
+   white-space: nowrap;
+   padding: 0.7rem 0.9rem;
+   border-radius: var(--radius-pill);
+   border: 1px solid rgba(61,43,31,0.12);
+   background: rgba(245,240,232,0.5);
+}
+
+.gestion-usuarios-checkbox-label input {
+   width: 1rem;
+   height: 1rem;
+   accent-color: var(--green);
+}
+
+.gestion-usuarios-filter-actions {
+   align-self: center;
+}
+
+.gestion-usuarios-table-wrap {
+   display: flex;
+   flex-direction: column;
+}
+
+.gestion-usuarios-table {
+   min-width: 900px;
+}
+
+.gestion-usuarios-table--compact {
+   min-width: 900px;
+}
+
+.gestion-usuarios-table--full {
+   min-width: 1650px;
+}
+
+.gestion-usuarios-table--compact tbody td {
+   padding: 0.78rem 0.9rem;
+}
+
+.gestion-usuarios-table--regular tbody td {
+   padding: 1rem 1.05rem;
+}
+
+.gestion-usuarios-table--full th,
+.gestion-usuarios-table--full td {
+   white-space: nowrap;
+}
+
+.gestion-usuarios-table--full .gestion-usuarios-multiline-cell {
+   white-space: normal;
+   min-width: 220px;
+   max-width: 320px;
+   line-height: 1.45;
+}
+
+.gestion-usuarios-row {
+   cursor: pointer;
+   transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gestion-usuarios-row:hover {
+   background: rgba(245,240,232,0.55);
+}
+
+.gestion-usuarios-row:focus-visible {
+   outline: 2px solid rgba(79,124,66,0.35);
+   outline-offset: -2px;
+}
+
+.gestion-usuarios-row--selected {
+   background: rgba(79,124,66,0.12);
+}
+
+.gestion-usuarios-row--inactive {
+   opacity: 0.82;
+}
+
+.gestion-usuarios-main-text {
+   display: block;
+   font-weight: 500;
+   color: var(--text);
+}
+
+.gestion-usuarios-footer {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   gap: 1rem;
+   flex-wrap: wrap;
+   border-top: 1px solid rgba(61,43,31,0.08);
+   padding: 1rem;
+   background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(245,240,232,0.96));
+}
+
+.gestion-usuarios-hint {
+   margin: 0;
+   color: var(--muted);
+   font-size: 0.88rem;
+}
+
+.gestion-usuarios-actions {
+   margin-left: auto;
+   flex-wrap: wrap;
+}
+
+.gestion-usuarios-btn-neutral {
+   background: rgba(61,43,31,0.08);
+   color: var(--brown);
+   border: 1px solid rgba(61,43,31,0.16);
+}
+
+.gestion-usuarios-btn-neutral:hover:not(:disabled) {
+   background: rgba(61,43,31,0.14);
+}
+
+.btn-accion-reporte:disabled {
+   cursor: not-allowed;
+   opacity: 0.55;
+   transform: none;
+}
+
+@media (max-width: 900px) {
+   .gestion-usuarios-filter-form {
+      grid-template-columns: 1fr;
+   }
+
+   .gestion-usuarios-inline-options {
+      min-height: unset;
+   }
+
+   .gestion-usuarios-filter-actions {
+      width: 100%;
+      margin-left: 0;
+   }
+}
+
 @media (max-width: 768px) {
    .reportes-page {
       padding-top: 1.5rem;
@@ -1235,6 +1453,19 @@ footer, .footer {
 
    .reportes-filter-actions .btn-filtro,
    .reportes-filter-actions .btn-filtro-reset {
+      flex: 1;
+   }
+
+   .gestion-usuarios-footer {
+      align-items: stretch;
+   }
+
+   .gestion-usuarios-actions {
+      width: 100%;
+      margin-left: 0;
+   }
+
+   .gestion-usuarios-actions > * {
       flex: 1;
    }
 }
