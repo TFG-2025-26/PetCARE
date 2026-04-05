@@ -296,7 +296,7 @@
           <%= mostrandoUsuarios ? 'Selecciona un usuario para editarlo o desactivarlo.' : 'Selecciona una empresa para editarla o desactivarla.' %>
         </p>
         <div class="reportes-actions gestion-usuarios-actions">
-          <a href="/auth/register" class="btn-accion-reporte btn-aceptar">Añadir</a>
+          <a href="/admin/adminPanel/gestionUsuarios/registro?tipo=<%= mostrandoUsuarios ? 'usuario' : 'empresa' %>" class="btn-accion-reporte btn-aceptar">Añadir</a>
           <button type="button" id="btnEditarUsuarioGestion" class="btn-accion-reporte gestion-usuarios-btn-neutral" disabled>Editar</button>
           <button type="button" id="btnEliminarUsuarioGestion" class="btn-accion-reporte btn-denegar" disabled>Eliminar</button>
         </div>

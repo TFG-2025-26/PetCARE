@@ -36,7 +36,9 @@
           <% } else { %>
             <span class="perfil-avatar-initials empresa-initial"><%= empresa.nombre.charAt(0).toUpperCase() %></span>
           <% } %>
-          <button class="perfil-avatar-edit" title="Cambiar logo">＋</button>
+          <% if (esPropia) { %>
+            <button class="perfil-avatar-edit" title="Cambiar logo">＋</button>
+          <% } %>
         </div>
         <h1 class="perfil-nombre"><%= empresa.nombre %></h1>
         <span class="perfil-badge empresa-badge"><%= tipoEmpresaMostrado %></span>
@@ -70,10 +72,12 @@
       </div>
 
       <!-- Acciones -->
+      <% if (esPropia) { %>
       <div class="perfil-actions">
         <a href="/user/perfilEmpresa/<%= empresa.id_empresa %>/editar" class="btn-perfil-edit">Editar perfil</a>
         <a href="/logout" class="btn-perfil-danger">Cerrar sesión</a>
       </div>
+      <% } %>
 
     </aside>
 

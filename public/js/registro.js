@@ -3,6 +3,7 @@
 // Selección de formularios
 const usuarioForm = document.getElementById("form-usuario");
 const empresaForm = document.getElementById("form-empresa");
+const esModoEdicionAdmin = Boolean(window.adminRegistroModoEdicion);
 
 // Selección de elementos - Usuario
 const usuarioNombreCompletoInput = document.getElementById("usuario-nombre_completo"); 
@@ -100,6 +101,11 @@ function validarPasswordUsuario() {
     let passwordUsuarioValid = true;
     const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
+    if (esModoEdicionAdmin && usuarioPasswordInput.value.trim() === '') {
+        usuarioPasswordError.textContent = "";
+        return true;
+    }
+
     if (/\s/.test(usuarioPasswordInput.value)) {
         usuarioPasswordError.textContent = "La contraseña no puede contener espacios en blanco.";
         passwordUsuarioValid = false;
@@ -186,6 +192,12 @@ function validarCifEmpresa() {
 function validarPasswordEmpresa() {
     let passwordEmpresaValid = true;
     const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+    if (esModoEdicionAdmin && empresaPasswordInput.value.trim() === '') {
+        empresaPasswordError.textContent = "";
+        return true;
+    }
+
     // que no contenga espacios en blanco
     if (/\s/.test(empresaPasswordInput.value)) {
         empresaPasswordError.textContent = "La contraseña no puede contener espacios en blanco.";
