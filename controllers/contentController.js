@@ -4,6 +4,86 @@ const { validationResult } = require('express-validator');
 const pool = require('../db');
 const { parse } = require('path');
 
+const getArticulos = (req, res) => {
+    const pagina = parseInt(req.query.pagina, 10) || 1;
+    const limite = 12;
+    const offset = (pagina - 1) * limite;
+    const keyword = (req.query.keyword || '').trim();
+    const usuario = req.session.usuario || null;
+    const esAdmin = !!(usuario && usuario.rol === 'admin');
+
+    const condiciones = ['a.activo = ?'];
+    const params = [1];
+
+    if (keyword) {
+        condiciones.push('(a.titulo LIKE ? OR a.cuerpo LIKE ? OR u.nombre_usuario LIKE ?)');
+        params.push(`%${keyword}%`, `%${keyword}%`, `%${keyword}%`);
+    }
+
+    const where = `WHERE ${condiciones.join(' AND ')}`;
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al conectar a la base de datos:', err);
+            return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
+        }
+
+        const countQuery = `
+            SELECT COUNT(*) AS total
+            FROM articulos a
+            JOIN usuarios u ON a.id_usuario = u.id_usuario
+            ${where}
+        `;
+
+        connection.query(countQuery, params, (countErr, countResults) => {
+            if (countErr) {
+                connection.release();
+                console.error('Error al contar los artículos:', countErr);
+                return res.status(500).render('error500', { mensaje: 'Error al obtener los artículos' });
+            }
+
+            const total = countResults[0].total;
+            const query = `
+                SELECT
+                    a.id_articulo,
+                    a.titulo,
+                    a.cuerpo,
+                    a.visualizaciones,
+                    a.id_usuario,
+                    a.activo,
+                    a.\`fecha_publicación\` AS fecha_publicacion,
+                    u.nombre_usuario
+                FROM articulos a
+                JOIN usuarios u ON a.id_usuario = u.id_usuario
+                ${where}
+                ORDER BY a.\`fecha_publicación\` DESC
+                LIMIT ? OFFSET ?
+            `;
+
+            connection.query(query, [...params, limite, offset], (queryErr, articulos) => {
+                connection.release();
+
+                if (queryErr) {
+                    console.error('Error al obtener los artículos:', queryErr);
+                    return res.status(500).render('error500', { mensaje: 'Error al obtener los artículos' });
+                }
+
+                return res.render('articulos', {
+                    articulos,
+                    total,
+                    totalPaginas: Math.ceil(total / limite),
+                    paginaActual: pagina,
+                    filtros: { keyword },
+                    usuario,
+                    esAdmin,
+                    error: null,
+                    errores: []
+                });
+            });
+        });
+    });
+};
+
 const verForos = (req, res) => {
     const pagina = req.query.pagina || 1;
     const categoria = req.query.categoria || '';
@@ -559,6 +639,7 @@ const postReportarComentario = (req, res) => {
 };
 
 module.exports = {
+    getArticulos,
     getCrearForo, 
     postCrearForo,
     verForos,

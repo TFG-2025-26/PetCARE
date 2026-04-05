@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Artículos — PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <%- include('plantillas/navbar') %>
+
+  <main class="foros-page">
+
+    <% if (esAdmin) { %>
+      <section class="reportes-toolbar" aria-label="Acciones de navegación de administración">
+        <a href="/admin/adminPanel" class="reportes-back-link" aria-label="Volver al panel de administración">
+          <span class="btn-volver-atras" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+          </span>
+          <span class="reportes-back-text">Volver al panel</span>
+        </a>
+      </section>
+
+      <section class="reportes-hero" aria-labelledby="admin-articulos-vista-title">
+        <p class="reportes-kicker">Administración</p>
+        <h1 id="admin-articulos-vista-title">Gestión de artículos</h1>
+        <p class="reportes-subtitle">Vista editorial para revisar las publicaciones activas de PetCare desde administración.</p>
+      </section>
+    <% } %>
+
+    <div class="foros-header">
+      <div>
+        <h1>Artículos</h1>
+        <p class="foros-subtitle">Contenido informativo y consejos útiles para el cuidado y bienestar de las mascotas.</p>
+      </div>
+      <% if (esAdmin) { %>
+        <div class="btn-large" style="cursor:default; opacity:0.9;">Panel editorial</div>
+      <% } %>
+    </div>
+
+    <form action="/content/articulos" method="GET" class="foros-filtros">
+      <div class="filtro-group filtro-keyword">
+        <label for="keyword">Palabra clave</label>
+        <input type="text" id="keyword" name="keyword" placeholder="Buscar en artículos..." value="<%= typeof filtros !== 'undefined' && filtros.keyword ? filtros.keyword : '' %>">
+      </div>
+      <div class="filtro-acciones">
+        <button type="submit" class="btn-filtro">Buscar</button>
+        <a href="/content/articulos" class="btn-filtro-reset">Limpiar</a>
+      </div>
+    </form>
+
+    <% if (typeof articulos !== 'undefined' && articulos.length > 0) { %>
+      <div class="foros-info">
+        <span><%= total %> artículo<%= total !== 1 ? 's' : '' %></span>
+      </div>
+
+      <div class="foros-list">
+        <% articulos.forEach(function(articulo) { %>
+          <% const cuerpoPreview = articulo.cuerpo && articulo.cuerpo.length > 260
+              ? articulo.cuerpo.slice(0, 260) + '…'
+              : articulo.cuerpo; %>
+
+          <article class="foro-card">
+            <div class="foro-card-header">
+              <div class="foro-card-header-left">
+                <span class="foro-autor">@<%= articulo.nombre_usuario %></span>
+                <span class="foro-categoria"><%= esAdmin ? ('ID #' + articulo.id_articulo) : 'Artículo' %></span>
+              </div>
+              <span class="foro-fecha"><%= new Date(articulo.fecha_publicacion).toLocaleDateString('es-ES') %></span>
+            </div>
+
+            <div class="foro-card-body">
+              <h2 class="foro-titulo"><%= articulo.titulo %></h2>
+              <p class="foro-desc"><%= cuerpoPreview %></p>
+            </div>
+
+            <div class="foro-card-footer">
+              <span class="foro-fecha">
+                Publicado el <%= new Date(articulo.fecha_publicacion).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' }) %>
+              </span>
+              <span class="foro-stat">👁️ <%= articulo.visualizaciones || 0 %></span>
+            </div>
+          </article>
+        <% }) %>
+      </div>
+
+      <% if (totalPaginas > 1) { %>
+        <nav class="foros-paginacion">
+          <% if (paginaActual > 1) { %>
+            <a href="/content/articulos?pagina=<%= paginaActual - 1 %>&keyword=<%= typeof filtros !== 'undefined' ? filtros.keyword || '' : '' %>" class="pag-btn">←</a>
+          <% } %>
+
+          <% for (let i = 1; i <= totalPaginas; i++) { %>
+            <% if (i === 1 || i === totalPaginas || (i >= paginaActual - 2 && i <= paginaActual + 2)) { %>
+              <a href="/content/articulos?pagina=<%= i %>&keyword=<%= typeof filtros !== 'undefined' ? filtros.keyword || '' : '' %>"
+                 class="pag-btn <%= i === paginaActual ? 'pag-active' : '' %>"><%= i %></a>
+            <% } else if (i === paginaActual - 3 || i === paginaActual + 3) { %>
+              <span class="pag-dots">…</span>
+            <% } %>
+          <% } %>
+
+          <% if (paginaActual < totalPaginas) { %>
+            <a href="/content/articulos?pagina=<%= paginaActual + 1 %>&keyword=<%= typeof filtros !== 'undefined' ? filtros.keyword || '' : '' %>" class="pag-btn">→</a>
+          <% } %>
+        </nav>
+      <% } %>
+
+    <% } else { %>
+      <div class="foros-empty">
+        <span class="foros-empty-icon">📰</span>
+        <p>No se encontraron artículos con esos criterios.</p>
+        <a href="/content/articulos" class="btn-outline-large">Ver todos los artículos</a>
+      </div>
+    <% } %>
+
+  </main>
+
+  <%- include('plantillas/footer') %>
+  <%- include('plantillas/modalErrores', { error: typeof error !== 'undefined' ? error : null, errores: typeof errores !== 'undefined' ? errores : [] }) %>
+
+</body>
+</html>

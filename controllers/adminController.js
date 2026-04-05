@@ -95,6 +95,10 @@ const getGestionUsuarios = (req, res) => {
     res.redirect('/admin/adminPanel/gestionUsuarios/filtrar?tab=usuarios');
 };
 
+const getGestionArticulos = (req, res) => {
+    res.redirect('/content/articulos');
+};
+
 const renderAdminRegistroView = (res, {
     formType = '',
     formData = null,
@@ -912,6 +916,7 @@ module.exports = {
     getGestionReportes,
     filtrarReportes,
     getGestionUsuarios,
+    getGestionArticulos,
     getAdminRegistroUsuario,
     postAdminRegistroUsuario,
     postAdminRegistroEmpresa,

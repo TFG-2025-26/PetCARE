@@ -163,6 +163,7 @@ const validarAdminEdicionEmpresa = [
 router.use(isAdminAuthenticated);
 
 router.get('/adminPanel', adminController.getAdminPanel);
+router.get('/adminPanel/gestionArticulos', adminController.getGestionArticulos);
 router.get('/adminPanel/gestionUsuarios', adminController.getGestionUsuarios);
 router.get('/adminPanel/gestionUsuarios/filtrar', adminController.filtrarUsuarios);
 router.get('/adminPanel/gestionUsuarios/registro', adminController.getAdminRegistroUsuario);
