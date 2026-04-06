@@ -66,7 +66,7 @@
             </div>
 
             <div class="cartilla-contenido">
-                <div class="seccion-cartilla activa" id="citas">
+                <div class="seccion-cartilla activa" id="citas" data-has-registros="<%= citas && citas.length > 0 ? 'true' : 'false' %>">
                     <button class="acordeon-titulo">Citas</button>
                     <div class="acordeon-contenido">
                         <% if (citas && citas.length > 0) { %>
@@ -143,7 +143,7 @@
                         <% } %>
                     </div>
                 </div>
-                <div class="seccion-cartilla activa" id="vacunas">
+                <div class="seccion-cartilla activa" id="vacunas" data-has-registros="<%= vacunas && vacunas.length > 0 ? 'true' : 'false' %>">
                     <button class="acordeon-titulo">Vacunas</button>
                     <div class="acordeon-contenido">
                         <% if (vacunas && vacunas.length > 0) { %>
@@ -216,7 +216,7 @@
                         <% } %>
                     </div>
                 </div>
-                <div class="seccion-cartilla activa" id="tratamientos">
+                <div class="seccion-cartilla activa" id="tratamientos" data-has-registros="<%= tratamientos && tratamientos.length > 0 ? 'true' : 'false' %>">
                     <button class="acordeon-titulo">Tratamientos</button>
                     <div class="acordeon-contenido">
                         <% if (tratamientos && tratamientos.length > 0) { %>
@@ -301,7 +301,7 @@
                         <% } %>
                     </div>
                 </div>
-                <div class="seccion-cartilla activa" id="patologias">
+                <div class="seccion-cartilla activa" id="patologias" data-has-registros="<%= condiciones && condiciones.length > 0 ? 'true' : 'false' %>">
                     <button class="acordeon-titulo">Patologías</button>
                     <div class="acordeon-contenido">
                         <% if (condiciones && condiciones.length > 0) { %>
@@ -382,6 +382,7 @@
                         <% } %>
                     </div>
                 </div>
+                <p id="cartilla-sin-datos-todos" class="cartilla-vacia" hidden>No hay datos registrados en la cartilla.</p>
             </div>
             <div class="añadir_registro_movil" hidden>
                 <a id="añadir_registro_cartilla_movil" href="/pets/cartilla/add-registro/<%= pet.id_cartilla %>">+ Añadir registro</a>
@@ -392,8 +393,8 @@
         </section>
 
         <!-- Modal eliminar mascota -->
-        <div id="modal" class="overlay">
-        <div class="modal">
+        <div id="modal-eliminar-mascota" class="modal-overlay" style="display: none;">
+        <div class="modal-box">
             <h3>¿Seguro que quieres dejar a <%= pet.nombre_mascota%> en libertad?</h3>
             <p>Esta acción no se puede deshacer.</p>
             <div class="botones-modal">
@@ -407,8 +408,8 @@
         </div>
 
         <!-- Modal eliminar registro -->
-        <div id="modal-eliminar-registro" class="overlay">
-        <div class="modal">
+        <div id="modal-eliminar-registro" class="modal-overlay" style="display: none;">
+        <div class="modal-box">
             <h3>¿Seguro que quieres eliminar <span id="frase-registro-modal">este registro</span>?</h3>
             <p>Esta acción no se puede deshacer.</p>
             <div class="botones-modal">
