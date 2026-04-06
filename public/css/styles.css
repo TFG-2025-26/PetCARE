@@ -848,3 +848,256 @@ footer, .footer {
   .pet-card-wrapper { width: 100%; }
   .pet-card { width: 100%; }
 }
+
+/* ══════════════════════════════════════════
+   PUBLICAR ANUNCIO
+══════════════════════════════════════════ */
+.publicar-anuncio-page {
+  flex: 1;
+  padding: 3rem var(--page-gutter) 4rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.publicar-anuncio-box {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  padding: 3rem;
+  width: 100%;
+  max-width: 800px;
+  animation: fadeUp 0.5s ease both;
+}
+
+.publicar-anuncio-box h1 {
+  font-family: 'Fraunces', serif;
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--brown);
+  letter-spacing: -0.03em;
+  margin-bottom: 0.4rem;
+}
+
+.publicar-anuncio-box .subtitle {
+  font-size: 0.95rem;
+  color: var(--muted);
+  font-weight: 300;
+  margin-bottom: 2rem;
+}
+
+.tipo-anuncio-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
+.tipo-anuncio-option { border: 2px solid var(--warm); border-radius: 16px; padding: 1.2rem 1rem; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s, transform 0.15s; user-select: none; }
+.tipo-anuncio-option:hover, .tipo-anuncio-option.active { border-color: var(--amber); background: #fffaf4; transform: translateY(-2px); }
+.tipo-anuncio-option .tipo-anuncio-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+.tipo-anuncio-option .tipo-anuncio-label { font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 600; color: var(--brown); display: block; }
+.tipo-anuncio-option .tipo-anuncio-desc { font-size: 0.78rem; color: var(--muted); margin-top: 0.2rem; }
+
+
+.anuncio-seccion{
+   background: var(--cream);
+   border: 1px solid rgba(61, 43, 31, 0.08);
+   border-radius: var(--radius-md);
+   padding: 1.5rem;
+   margin-bottom: 1.5rem;
+}
+
+.anuncio-seccion-titulo{
+   font-family: 'Fraunces', serif;
+   font-size: 1.1rem;
+   font-weight: 600;
+   color: var(--brown);
+   margin-bottom: 0.3rem;
+}
+
+.anuncio-seccion-desc{
+   font-size: 0.85rem;
+   color: var(--muted);
+}
+
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-group-full { grid-column: 1 / -1; }
+
+.form-opcional { font-weight: 300; color: var(--muted); font-size: 0.8rem}
+
+.franja{
+   display: flex;
+   gap: 1rem;
+   width: 100%;
+   margin-bottom: 1.5rem;
+   background-color: var(--white);
+   padding: 1rem;
+   border-radius: var(--radius-md);
+   border: 1px solid rgba(61, 43, 31, 0.08);
+}
+
+.franja > .form-group {
+   flex: 1;
+}
+
+.franja-eliminar {
+   align-self: center;
+   flex-shrink: 0;
+   background: none;
+   border: none;
+   color: var(--muted);
+   font-size: 1.2rem;
+   line-height: 1;
+   cursor: pointer;
+   padding: 0.3rem 0.5rem;
+   border-radius: var(--radius-sm);
+   transition: color 0.2s, background 0.2s;
+}
+
+.franja-eliminar:hover {
+   color: var(--danger);
+   background: var(--danger-bg);
+}
+
+#btn-add-franja{
+   font-family: 'DM Sans', sans-serif;
+   font-size: 0.9rem;
+   font-weight: 500;
+   color: var(--amber);
+   background: none;
+   border: 1.5px dashed var(--amber);
+   border-radius: var(--radius-pill);
+   padding: 0.5rem 1.2rem;
+   cursor: pointer;
+   transition: background 0.2s;
+   margin-top: 0.25rem;
+   display: block;
+   margin-left: auto;
+}
+
+#btn-add-franja:hover:not(:disabled) {
+   background: rgba(200,135,58,0.06);
+}
+
+#btn-add-franja:disabled{
+   background: none;
+   color: var(--muted);
+   border: 1.5px dashed var(--muted);
+   border-radius: var(--radius-pill);
+   cursor: not-allowed;
+   border-color: var(--muted);
+}
+
+
+/* ── Recurrente: pills días ── */
+.dias-pills {
+   display: flex;
+   gap: 0.5rem;
+   flex-wrap: wrap;
+   margin-top: 1.5rem;
+   margin-bottom: 1.5rem;
+}
+
+.dia-pill {
+   cursor: pointer;
+}
+
+.dia-pill input[type="checkbox"] {
+   display: none;
+}
+
+.dia-pill span {
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+   padding: 0.4rem 1rem;
+   border-radius: var(--radius-pill);
+   border: 2px solid var(--warm);
+   background: var(--white);
+   font-family: 'DM Sans', sans-serif;
+   font-weight: 500;
+   font-size: 0.85rem;
+   color: var(--brown);
+   transition: border-color 0.2s, background 0.2s, color 0.2s;
+   user-select: none;
+   white-space: nowrap;
+}
+
+.dia-pill span:hover {
+   border-color: var(--amber);
+}
+
+.dia-pill:has(input:checked) span {
+   border-color: var(--amber);
+   background: var(--amber);
+   color: var(--white);
+}
+
+/* ── Recurrente: franjas por día ── */
+.dia-franjas {
+   margin-bottom: 1rem;
+   background-color: var(--white);
+   padding: 1rem;
+   border-radius: var(--radius-md);
+   border: 1px solid rgba(61, 43, 31, 0.08);
+}
+
+.dia-franjas-header {
+   margin-bottom: 0.6rem;
+}
+
+.dia-franjas-nombre {
+   font-size: 1rem;
+   font-weight: 600;
+   color: var(--brown);
+   text-transform: capitalize;
+}
+
+.franja-recurrente {
+   display: flex;
+   gap: 1rem;
+   width: 100%;
+   margin-bottom: 0.6rem;
+   background: var(--white);
+   padding: 0.75rem 1rem;
+   border-radius: var(--radius-md);
+   border: 1px solid rgba(61, 43, 31, 0.08);
+}
+
+.franja-recurrente > .form-group {
+   flex: 1;
+}
+
+.btn-add-slot-dia {
+   font-family: 'DM Sans', sans-serif;
+   font-size: 0.82rem;
+   font-weight: 500;
+   color: var(--amber);
+   background: none;
+   border: 1.5px dashed var(--amber);
+   border-radius: var(--radius-pill);
+   padding: 0.35rem 0.9rem;
+   cursor: pointer;
+   transition: background 0.2s;
+   margin-top: 0.1rem;
+   display: block;
+   margin-left: auto;
+}
+
+.btn-add-slot-dia:hover:not(:disabled) {
+   background: rgba(200,135,58,0.06);
+}
+
+.btn-add-slot-dia:disabled {
+   opacity: 0.4;
+   cursor: not-allowed;
+}
+
+.publicar-anuncio-footer {
+   display: flex;
+   justify-content: flex-end;
+   padding-top: 0.5rem;
+}
+
+
+@media (max-width: 600px) {
+   .tipo-anuncio-selector { grid-template-columns: 1fr; }
+   .franja { flex-direction: column; }
+   .form-row-2 { grid-template-columns: 1fr; }
+   .franja-recurrente { flex-direction: column; }
+}

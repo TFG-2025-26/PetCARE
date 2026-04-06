@@ -37,19 +37,18 @@ const authRoutes = require('./routes/authRouter');
 const userRoutes = require('./routes/userRouter');
 const petRoutes = require('./routes/petRouter');
 const contentRoutes = require('./routes/contentRouter');
+const servicesRoutes = require('./routes/servicesRouter');
 
 app.get('/', (req, res) => {
     res.render('inicio');
-});
-
-app.get('/servicios', (req, res) => {
-    res.render('servicios');
 });
 
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
 app.use('/pets', isAuthenticated, petRoutes);
 app.use('/content', isAuthenticated, contentRoutes);
+app.use('/services', servicesRoutes);
+
 
 // Manejo de errores
 app.use((req, res) => {

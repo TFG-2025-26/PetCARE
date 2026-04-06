@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Publicar Anuncio - PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <%- include('plantillas/navbar') %>
+
+    <main class="publicar-anuncio-page">
+      <div class="publicar-anuncio-box">
+
+        <h1>Publicar anuncio</h1>
+        <p class="subtitle">¿Qué tipo de disponibilidad ofreces?</p>
+
+        <!-- Selector de tipo -->
+        <div class="tipo-anuncio-selector">
+          <div class="tipo-anuncio-option" id="opt-puntual" onclick="seleccionarTipo('puntual')">
+            <div class="tipo-anuncio-icon">📅</div>
+            <span class="tipo-anuncio-label">Puntual</span>
+            <div class="tipo-anuncio-desc">Fechas concretas en el calendario</div>
+          </div>
+          <div class="tipo-anuncio-option" id="opt-recurrente" onclick="seleccionarTipo('recurrente')">
+            <div class="tipo-anuncio-icon">🔁</div>
+            <span class="tipo-anuncio-label">Recurrente</span>
+            <div class="tipo-anuncio-desc">Días de la semana fijos</div>
+          </div>
+        </div>
+
+        <!-- Formulario de anuncio -->
+        <form id="form-anuncio" action="/services/publicar-anuncio" method="POST" style="display:none;" novalidate>
+            <input type="hidden" name="tipo" id="input-tipo" value="">
+
+            <!-- Datos anuncio -->
+             <div class="anuncio-seccion">
+                <h2 class="anuncio-seccion-titulo">Información del anuncio</h2>
+
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label for="tipo_servicio">Tipo de servicio</label>
+                        <select id="tipo_servicio" name="tipo_servicio" required>
+                            <option value="" disabled selected>Seleccione un tipo</option>
+                            <option value="cuidador">Cuidado de mascotas</option>
+                            <option value="transporte">Transporte de mascotas</option>
+                            <option value="entrenador">Entrenador</option>
+                        </select>
+                        <span class="error" id="error-tipo_servicio"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="precio_hora">Precio por hora (€)</label>
+                        <input type="number" id="precio_hora" name="precio_hora" min="0" max="999" placeholder="Ej: 15" required>
+                        <span class="error" id="error-precio_hora"></span>
+                    </div>
+                    <div class="form-group form-group-full">
+                        <label for="tipo_mascota">Tipo de mascota</label>
+                        <select id="tipo_mascota" name="tipo_mascota" required>
+                            <option value="" disabled selected>Seleccione un tipo</option>
+                            <option value="perro">Perro</option>
+                            <option value="gato">Gato</option>
+                            <option value="roedor">Roedor</option>
+                            <option value="reptil">Reptil</option>
+                            <option value="pez">Pez</option>
+                            <option value="ave">Ave</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                        <span class="error" id="error-tipo_mascota"></span>
+                    </div>
+                    <div class="form-group form-group-full">
+                        <label for="descripcion">Descripción <span class="form-opcional">(opcional)</span></label>
+                        <textarea id="descripcion" name="descripcion" rows="4" maxlength="500" placeholder="Describe tu servicio: experiencia, zona, cómo trabajas..."></textarea>
+                        <span class="error" id="error-descripcion"></span>
+                    </div>
+                </div>
+             </div>
+
+
+             <!-- Disponibilidad puntual-->
+             <div id="seccion-puntual" class="anuncio-seccion" style="display: none;">
+                <h2 class="anuncio-seccion-titulo">Disponibilidad</h2>
+                <p class="anuncio-seccion-desc">Añade hasta 10 franjas de disponibilidad con su fecha y horario</p>
+                <div id="franjas-container">
+                    <div class="franja">
+                        <div class="form-group">
+                            <label>Fecha</label>
+                            <input type="date" name="disponibilidad[0][fecha]" required>
+                            <span class="error" id="error-fecha-0"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Hora inicio</label>
+                            <input type="time" name="disponibilidad[0][hora_inicio]" required>
+                            <span class="error" id="error-hora_inicio-0"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Hora fin</label>
+                            <input type="time" name="disponibilidad[0][hora_fin]" required>
+                            <span class="error" id="error-hora_fin-0"></span>
+                        </div>
+                        <button type="button" class="franja-eliminar" aria-label="Eliminar franja" style="visibility: hidden;">&times;</button>
+                    </div>
+                </div>
+                <button type="button" id="btn-add-franja">+ Añadir franja</button>
+             </div>
+
+
+            <!-- Disponibilidad recurrente-->
+             <div id="seccion-recurrente" class="anuncio-seccion" style="display: none;">
+                <h2 class="anuncio-seccion-titulo">Días de disponibilidad</h2>
+                <p class="anuncio-seccion-desc">Selecciona los días de la semana y el horario en el que estás disponible</p>
+
+                <!-- Pills días de la semana -->
+                <div class="dias-pills">
+                    <label class="dia-pill">
+                        <input type="checkbox" value="lunes" onchange="toggleDia('lunes', this.checked)">
+                        <span>Lunes</span>
+                    </label>
+                    <label class="dia-pill">
+                        <input type="checkbox" value="martes" onchange="toggleDia('martes', this.checked)">
+                        <span>Martes</span>
+                    </label>
+                    <label class="dia-pill">
+                        <input type="checkbox" value="miercoles" onchange="toggleDia('miercoles', this.checked)">
+                        <span>Miércoles</span>
+                    </label>
+                    <label class="dia-pill">
+                        <input type="checkbox" value="jueves" onchange="toggleDia('jueves', this.checked)">
+                        <span>Jueves</span>
+                    </label>
+                    <label class="dia-pill">
+                        <input type="checkbox" value="viernes" onchange="toggleDia('viernes', this.checked)">
+                        <span>Viernes</span>
+                    </label>
+                    <label class="dia-pill">
+                        <input type="checkbox" value="sabado" onchange="toggleDia('sabado', this.checked)">
+                        <span>Sábado</span>
+                    </label>
+                    <label class="dia-pill">
+                        <input type="checkbox" value="domingo" onchange="toggleDia('domingo', this.checked)">
+                        <span>Domingo</span>
+                    </label>
+                </div>
+
+                <span class="error" id="error-dias"></span>
+
+                <!-- Franjas por día -->
+                <div id="franjas-recurrente-container">
+
+                    <div id="franjas-lunes" class="dia-franjas" data-dia="lunes" style="display:none;">
+                        <div class="dia-franjas-header"><span class="dia-franjas-nombre">Lunes</span></div>
+                        <div class="dia-slots" id="slots-lunes">
+                            <div class="franja-recurrente">
+                                <div class="form-group">
+                                    <label>Hora inicio</label>
+                                    <input type="time" name="recurrente[lunes][0][hora_inicio]" disabled>
+                                    <span class="error" id="error-rec-inicio-lunes-0"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label>Hora fin</label>
+                                    <input type="time" name="recurrente[lunes][0][hora_fin]" disabled>
+                                    <span class="error" id="error-rec-fin-lunes-0"></span>
+                                </div>
+                                <button type="button" class="franja-eliminar franja-eliminar-slot" style="visibility:hidden;" aria-label="Eliminar franja">&times;</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-add-slot-dia" data-dia="lunes">+ Añadir franja</button>
+                    </div>
+
+                    <div id="franjas-martes" class="dia-franjas" data-dia="martes" style="display:none;">
+                        <div class="dia-franjas-header"><span class="dia-franjas-nombre">Martes</span></div>
+                        <div class="dia-slots" id="slots-martes">
+                            <div class="franja-recurrente">
+                                <div class="form-group">
+                                    <label>Hora inicio</label>
+                                    <input type="time" name="recurrente[martes][0][hora_inicio]" disabled>
+                                    <span class="error" id="error-rec-inicio-martes-0"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label>Hora fin</label>
+                                    <input type="time" name="recurrente[martes][0][hora_fin]" disabled>
+                                    <span class="error" id="error-rec-fin-martes-0"></span>
+                                </div>
+                                <button type="button" class="franja-eliminar franja-eliminar-slot" style="visibility:hidden;" aria-label="Eliminar franja">&times;</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-add-slot-dia" data-dia="martes">+ Añadir franja</button>
+                    </div>
+
+                    <div id="franjas-miercoles" class="dia-franjas" data-dia="miercoles" style="display:none;">
+                        <div class="dia-franjas-header"><span class="dia-franjas-nombre">Miércoles</span></div>
+                        <div class="dia-slots" id="slots-miercoles">
+                            <div class="franja-recurrente">
+                                <div class="form-group">
+                                    <label>Hora inicio</label>
+                                    <input type="time" name="recurrente[miercoles][0][hora_inicio]" disabled>
+                                    <span class="error" id="error-rec-inicio-miercoles-0"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label>Hora fin</label>
+                                    <input type="time" name="recurrente[miercoles][0][hora_fin]" disabled>
+                                    <span class="error" id="error-rec-fin-miercoles-0"></span>
+                                </div>
+                                <button type="button" class="franja-eliminar franja-eliminar-slot" style="visibility:hidden;" aria-label="Eliminar franja">&times;</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-add-slot-dia" data-dia="miercoles">+ Añadir franja</button>
+                    </div>
+
+                    <div id="franjas-jueves" class="dia-franjas" data-dia="jueves" style="display:none;">
+                        <div class="dia-franjas-header"><span class="dia-franjas-nombre">Jueves</span></div>
+                        <div class="dia-slots" id="slots-jueves">
+                            <div class="franja-recurrente">
+                                <div class="form-group">
+                                    <label>Hora inicio</label>
+                                    <input type="time" name="recurrente[jueves][0][hora_inicio]" disabled>
+                                    <span class="error" id="error-rec-inicio-jueves-0"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label>Hora fin</label>
+                                    <input type="time" name="recurrente[jueves][0][hora_fin]" disabled>
+                                    <span class="error" id="error-rec-fin-jueves-0"></span>
+                                </div>
+                                <button type="button" class="franja-eliminar franja-eliminar-slot" style="visibility:hidden;" aria-label="Eliminar franja">&times;</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-add-slot-dia" data-dia="jueves">+ Añadir franja</button>
+                    </div>
+
+                    <div id="franjas-viernes" class="dia-franjas" data-dia="viernes" style="display:none;">
+                        <div class="dia-franjas-header"><span class="dia-franjas-nombre">Viernes</span></div>
+                        <div class="dia-slots" id="slots-viernes">
+                            <div class="franja-recurrente">
+                                <div class="form-group">
+                                    <label>Hora inicio</label>
+                                    <input type="time" name="recurrente[viernes][0][hora_inicio]" disabled>
+                                    <span class="error" id="error-rec-inicio-viernes-0"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label>Hora fin</label>
+                                    <input type="time" name="recurrente[viernes][0][hora_fin]" disabled>
+                                    <span class="error" id="error-rec-fin-viernes-0"></span>
+                                </div>
+                                <button type="button" class="franja-eliminar franja-eliminar-slot" style="visibility:hidden;" aria-label="Eliminar franja">&times;</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-add-slot-dia" data-dia="viernes">+ Añadir franja</button>
+                    </div>
+
+                    <div id="franjas-sabado" class="dia-franjas" data-dia="sabado" style="display:none;">
+                        <div class="dia-franjas-header"><span class="dia-franjas-nombre">Sábado</span></div>
+                        <div class="dia-slots" id="slots-sabado">
+                            <div class="franja-recurrente">
+                                <div class="form-group">
+                                    <label>Hora inicio</label>
+                                    <input type="time" name="recurrente[sabado][0][hora_inicio]" disabled>
+                                    <span class="error" id="error-rec-inicio-sabado-0"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label>Hora fin</label>
+                                    <input type="time" name="recurrente[sabado][0][hora_fin]" disabled>
+                                    <span class="error" id="error-rec-fin-sabado-0"></span>
+                                </div>
+                                <button type="button" class="franja-eliminar franja-eliminar-slot" style="visibility:hidden;" aria-label="Eliminar franja">&times;</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-add-slot-dia" data-dia="sabado">+ Añadir franja</button>
+                    </div>
+
+                    <div id="franjas-domingo" class="dia-franjas" data-dia="domingo" style="display:none;">
+                        <div class="dia-franjas-header"><span class="dia-franjas-nombre">Domingo</span></div>
+                        <div class="dia-slots" id="slots-domingo">
+                            <div class="franja-recurrente">
+                                <div class="form-group">
+                                    <label>Hora inicio</label>
+                                    <input type="time" name="recurrente[domingo][0][hora_inicio]" disabled>
+                                    <span class="error" id="error-rec-inicio-domingo-0"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label>Hora fin</label>
+                                    <input type="time" name="recurrente[domingo][0][hora_fin]" disabled>
+                                    <span class="error" id="error-rec-fin-domingo-0"></span>
+                                </div>
+                                <button type="button" class="franja-eliminar franja-eliminar-slot" style="visibility:hidden;" aria-label="Eliminar franja">&times;</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-add-slot-dia" data-dia="domingo">+ Añadir franja</button>
+                    </div>
+
+                </div>
+             </div>
+
+             <div class="publicar-anuncio-footer">
+                <button type="submit" class="btn-submit">Publicar anuncio</button>
+             </div>
+
+        </form>
+        
+      </div>
+    </main>
+
+    <%- include('plantillas/modalErrores.ejs') %>
+
+    <%- include('plantillas/footer') %>
+
+    <script src="/js/publicarAnuncio.js"></script>
+</body>
+</html>
