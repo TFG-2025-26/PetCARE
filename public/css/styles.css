@@ -237,6 +237,14 @@ textarea { resize: vertical; min-height: 80px; }
 .form-grid-editar-tratamiento .form-group-observaciones-tratamiento { grid-area: observ; }
 .form-grid-editar-tratamiento .btn-editar-tratamiento { grid-area: boton; }
 
+.form-grid-editar-patologia { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; grid-template-areas: "nombre fecha" "tipo estado" "descripcion descripcion" "boton boton"; }
+.form-grid-editar-patologia .form-group-nombre-patologia { grid-area: nombre; }
+.form-grid-editar-patologia .form-group-fecha-diagnostico { grid-area: fecha; }
+.form-grid-editar-patologia .form-group-tipo-patologia { grid-area: tipo; }
+.form-grid-editar-patologia .form-group-estado-patologia { grid-area: estado; }
+.form-grid-editar-patologia .form-group-descripcion-patologia { grid-area: descripcion; }
+.form-grid-editar-patologia .btn-editar-patologia { grid-area: boton; }
+
 .form-buttons { display: flex; gap: 1rem; grid-column: 1/-1; justify-content: center; align-items: center; }
 .form-buttons .btn-editar-cita, .form-buttons .btn-editar-vacuna, .form-buttons .btn-editar-tratamiento, .form-buttons .btn-editar-patologia { margin-top: 0; }
 .form-container { animation: fadeUp 0.5s ease both; }
@@ -1103,6 +1111,366 @@ footer, .footer {
    .form-row-2 { grid-template-columns: 1fr; }
    .franja-recurrente { flex-direction: column; }
 }
+
+/* ══════════════════════════════════════════
+    VER ANUNCIOS
+══════════════════════════════════════════ */
+
+.main-anuncios {
+   flex: 1;
+   display: flex;
+   flex-direction: column;
+   gap: 1.5rem;
+}
+
+.titulo-anuncios {
+   font-family: 'Fraunces', serif;
+   font-size: 1.8rem;
+   font-weight: 900;
+   color: var(--brown);
+   padding: 2rem 1rem 1rem 1rem;
+   text-align: center;
+}
+
+.filtros-container {
+   background-color: var(--warm);
+   padding: 1rem 4rem;
+   border-radius: var(--radius-md);
+   border: 1px solid rgba(61, 43, 31, 0.08);
+   margin: 0 2rem;
+
+}
+
+.filtros-anuncios {
+   display: flex;
+   gap: 1rem;
+   flex-wrap: wrap;
+   padding-bottom: 1rem;
+
+}
+
+.filtros-anuncios select, .filtros-anuncios input, .filtros-ordenar select {
+   flex: 1;
+   padding: 0.75rem 1rem;
+   border: 1.5px solid var(--warm); border-radius: var(--radius-sm);
+   font-family: 'DM Sans', sans-serif; font-size: 0.95rem;
+   color: var(--text); background: var(--cream);
+   outline: none; transition: border-color 0.2s, background 0.2s;
+}
+
+#boton-aplicar-filtros {
+   background: var(--amber); color: var(--brown);
+   border: none; border-radius: var(--radius-pill);
+   padding: 0.75rem 1.5rem;
+   font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 900;
+   cursor: pointer; transition: background 0.2s, transform 0.15s;
+}
+
+#boton-aplicar-filtros:hover {
+   background: var(--amber-light); transform: translateY(-2px);
+}
+
+.filtros-ordenar {
+   display: flex;
+   flex-direction: column;
+   gap: 1rem;
+   padding: 1rem 0;
+   border-top: 1px solid var(--muted);
+}
+
+
+
+
+/* Anuncios */
+
+.anuncios-container {
+   display: flex;
+   flex-direction: column;
+   gap: 1.5rem;
+   padding: 2rem 6rem 0 6rem;
+}
+
+.tarjeta-anuncio {
+   background: var(--white);
+   border-radius: var(--radius-lg);
+   box-shadow: var(--shadow-md);
+   padding: 2rem;
+   display: flex;
+   flex-direction: column;
+   gap: 1rem;
+   border: 1px solid rgba(61, 43, 31, 0.08);
+   border-left: 6px solid var(--muted)
+}
+
+.tarjeta-anuncio-contenido{
+   display: grid;
+   grid-template-columns: 1fr 2fr 0.5fr;
+   padding-bottom: 0.5rem;
+}
+
+.info-perfil-anuncio img {
+   width: 128px;
+   height: 128px;
+   border-radius: 50%;
+   object-fit: cover;
+}
+
+.info-perfil-anuncio {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   gap: 0.5rem;
+}
+
+.info-perfil-anuncio p {
+   font-size: 1rem;
+   color: var(--brown);
+   font-weight: 600;
+   font-family: 'Fraunces', serif;
+   word-wrap: break-word;
+
+}
+
+.info-perfil-anuncio span {
+   font-size: 0.85rem;
+   color: var(--muted);
+}
+
+.seccion-centro-anuncio {
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   gap: 0.5rem;
+   padding-left: 2rem;
+   padding-right: 2rem;
+   border-left: 2px solid rgba(61, 43, 31, 0.08);
+   border-right: 2px solid rgba(61, 43, 31, 0.08);
+   padding-bottom: 0.5rem;
+}
+
+.descripcion-anuncio{
+   flex: 2;
+   padding-top: 1rem;
+   padding-bottom: 1rem;
+   background-color: #eae5e2;
+   border-radius: var(--radius-md);
+   padding: 1.5rem;
+   margin: 1rem 0;
+}
+
+.descripcion-anuncio p {
+   color: var(--muted);
+   line-height: 1.4;
+   font-size: 1rem;
+   word-break: break-all;
+}
+
+.atributos-anuncio {
+   flex: 1;
+   text-transform: capitalize;
+   display: flex;
+   gap: 1rem;
+   flex-wrap: wrap;
+}
+
+.atributo-anuncio{
+   flex: 1;
+   background: var(--warm);
+   border-radius: var(--radius-pill);
+   font-size: 0.85rem;
+   padding: 0.8rem;
+   color: var(--brown);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+
+.atributo-tipo-servicio{
+   background-color: rgba(160, 100, 190, 0.18);
+   border: 1px solid rgba(160, 100, 190, 0.5);
+}
+
+.atributo-mascota {
+   background-color: rgba(100, 170, 110, 0.22);
+   border: 1px solid rgba(100, 170, 110, 0.55);
+}
+
+.atributo-tipo-anuncio {
+   background-color: rgba(210, 130, 100, 0.22);
+   border: 1px solid rgba(210, 130, 100, 0.55);
+}
+
+.seccion-dcha-anuncio{
+   display: flex;
+   flex-direction: column;
+   align-items: flex-end;
+   gap: 0.5rem;
+   justify-content: space-between;
+   padding-left: 1rem;
+}
+
+.tarjeta-anuncio-disponibilidad {
+   border-top: 2px solid rgba(122, 101, 88, 0.3);
+   padding-top: 1rem;
+}
+
+.precio-anuncio p {
+   font-size: 1.25rem;
+   font-weight: 700;
+   color: var(--brown);
+   text-align: center;
+}
+
+.precio-anuncio span {
+   font-size: 0.95rem;
+   color: var(--muted);
+}
+
+
+#btn-contacto {
+   background: var(--green);
+   color: var(--white);
+   border: none;
+   border-radius: var(--radius-pill);
+   padding: 0.75rem 1.5rem;
+   font-family: 'DM Sans', sans-serif;
+   font-size: 1rem;
+   font-weight: 500;
+   cursor: pointer;
+   transition: background 0.2s, transform 0.15s;
+   text-decoration: none;
+}
+
+#btn-contacto:hover {
+   background: var(--green-hover);
+   transform: translateY(-2px);
+}
+
+.no-anuncios {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   padding: 2rem;
+   background-color: #eae5e2;
+   border-radius: var(--radius-md);
+   border: 1px solid rgba(61, 43, 31, 0.08);
+}
+
+.no-anuncios p {
+   font-size: 1.25rem;
+   color: var(--muted);
+}
+
+.ver-mas-anuncios-container {
+   display: flex;
+   justify-content: center;
+   padding: 0 0 1.5rem 0;
+}
+
+#ver-mas-anuncios {
+   background: none;
+   border: 1.5px dashed var(--muted);
+   border-radius: var(--radius-pill);
+   padding: 0.75rem 1.5rem;
+   font-family: 'DM Sans', sans-serif;
+   font-size: 1rem;
+   color: var(--muted);
+   cursor: pointer;
+   transition: background 0.2s, border-color 0.2s;
+}
+#ver-mas-anuncios:hover {
+   background: rgba(61, 43, 31, 0.08);
+   border-color: var(--brown);
+}
+
+.disponibilidad-titulo {
+   font-family: 'Fraunces', serif;
+   font-size: 1.1rem;
+   font-weight: 600;
+   color: var(--brown);
+   margin-bottom: 0.8rem;
+}
+
+.disponibilidad-recurrente {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1.1rem 0.6rem;
+    justify-content: center;
+}
+
+.fila-dia {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.day-tag {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--brown);
+    background: var(--cream);
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-pill);
+    text-transform: capitalize;
+    min-width: 82px;
+    text-align: center;
+    border: 1px solid rgba(61, 43, 31, 0.12);
+}
+
+.slot {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--brown);
+    background: rgba(200, 135, 58, 0.15);
+    padding: 0.25rem 0.65rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid rgba(200, 135, 58, 0.4);
+}
+
+.disponibilidad-puntual {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.1rem 1rem;
+    justify-content: center;
+}
+
+.date-chip {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    background: var(--cream);
+    border: 1px solid rgba(61, 43, 31, 0.1);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 0.75rem;
+}
+
+.date-chip .date {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--brown);
+    text-align: center;
+    padding-bottom: 0.35rem;
+    margin-bottom: 0.35rem;
+    border-bottom: 1px solid rgba(61, 43, 31, 0.15);
+}
+
+@media (max-width: 760px) {
+   .anuncios-container { padding: 1.5rem; }
+   .tarjeta-anuncio-contenido { grid-template-columns: 1fr; }
+   .seccion-centro-anuncio { padding-left: 0; padding-right: 0; padding-bottom: 1rem; border: none;}
+   .seccion-dcha-anuncio { align-items: center; }
+}
+
+@media (max-width: 450px) {
+   .atributos-anuncio { flex-direction: column;}
+}
+
+/* ══════════════════════════════════════════
    PANEL DE ADMINISTRACIÓN
 ══════════════════════════════════════════ */
 .admin-page {
