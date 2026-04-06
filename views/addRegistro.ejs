@@ -55,7 +55,6 @@
             <div class="editar-cita-container">
                 <h2>Agregar Cita</h2>
                 <form action="/pets/cartilla/add-cita" method="POST" id="citaAddForm">
-                    <input type="hidden" name="tipo" value="cita">
                     <input type="hidden" name="id_cartilla" value="<%= id_cartilla || '' %>">
                     <div class="form-grid-editar-cita">
                         <div class="form-group form-group-clinica">
@@ -94,7 +93,6 @@
             <div class="editar-vacuna-container">
                 <h2>Agregar Vacuna</h2>
                 <form action="/pets/cartilla/add-vacuna" method="POST" id="vacunaAddForm">
-                    <input type="hidden" name="tipo" value="vacuna">
                     <input type="hidden" name="id_cartilla" value="<%= id_cartilla || '' %>">
                     <div class="form-grid-editar-vacuna">
                         <div class="form-group form-group-nombre-vacuna">
@@ -128,7 +126,6 @@
             <div class="editar-tratamiento-container">
                 <h2>Agregar Tratamiento</h2>
                 <form action="/pets/cartilla/add-tratamiento" method="POST" id="tratamientoAddForm">
-                    <input type="hidden" name="tipo" value="tratamiento">
                     <input type="hidden" name="id_cartilla" value="<%= id_cartilla || '' %>">
                     <div class="form-grid-editar-tratamiento">
                         <div class="form-group form-group-medicamento">
@@ -177,7 +174,6 @@
             <div class="editar-patologia-container">
                 <h2>Agregar Patología</h2>
                 <form action="/pets/cartilla/add-patologia" method="POST" id="patologiaAddForm">
-                    <input type="hidden" name="tipo" value="patologia">
                     <input type="hidden" name="id_cartilla" value="<%= id_cartilla || '' %>">
                     <div class="form-grid-editar-patologia">
                         <div class="form-group form-group-nombre-patologia">
