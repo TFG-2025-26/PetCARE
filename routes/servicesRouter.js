@@ -62,8 +62,8 @@ const anuncioValidationRules = [
 
 router.get('/', servicesController.getServicios);
 router.get('/anuncios', servicesController.getAnuncios);
-router.get('/publicar-anuncio', servicesController.getPublicarAnuncio);
-router.post('/publicar-anuncio', anuncioValidationRules, servicesController.postPublicarAnuncio);
+router.get('/publicar-anuncio', isAuthenticated, servicesController.getPublicarAnuncio);
+router.post('/publicar-anuncio', isAuthenticated, anuncioValidationRules, servicesController.postPublicarAnuncio);
 
 
 module.exports = router;
