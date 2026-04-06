@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 05-04-2026 a las 17:45:42
+-- Tiempo de generación: 06-04-2026 a las 03:16:00
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -29,6 +29,7 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `anuncios` (
   `id_anuncio` int(11) NOT NULL,
+  `tipo_anuncio` enum('puntual','recurrente') NOT NULL,
   `descripcion` text DEFAULT NULL,
   `tipo_mascota` enum('perro','gato','roedor','reptil','pez','ave','otro') NOT NULL,
   `precio_hora` int(11) NOT NULL,
