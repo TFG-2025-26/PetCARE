@@ -25,6 +25,12 @@
         </div>
         <div class="foro-detalle-meta-right articulo-detalle-meta-right">
           <span class="foro-stat">👁️ <%= articulo.visualizaciones || 0 %> visualizaciones</span>
+          <% if (esAdmin) { %>
+            <span class="foro-detalle-sep">·</span>
+            <a href="#" onclick="editarArticulo(event)" class="foro-detalle-editar">Editar ✏️</a>
+            <span class="foro-detalle-sep">·</span>
+            <a href="#" onclick="abrirModalEliminarArticulo(event)" class="foro-detalle-eliminar">Eliminar 🗑️</a>
+          <% } %>
         </div>
       </div>
     </div>
@@ -49,8 +55,84 @@
 
   </main>
 
+  <div id="modalArticulo" style="display:none;">
+    <div id="modalArticulo-contenido"></div>
+  </div>
+
+  <div class="modal-overlay" id="modalEliminarArticulo" style="display:none;">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>¿Eliminar artículo?</h3>
+        <button class="modal-close" type="button" onclick="cerrarModalEliminarArticulo()">✕</button>
+      </div>
+      <ul class="modal-list">
+        <li>
+          Esta acción ocultará el artículo y dejará de aparecer en los listados activos.
+        </li>
+      </ul>
+      <div class="modal-footer" style="gap: 0.8rem;">
+        <button class="btn-outline-large" type="button" onclick="cerrarModalEliminarArticulo()">Cancelar</button>
+        <a href="#" id="btnEliminarArticulo" class="btn-perfil-danger">Eliminar artículo</a>
+      </div>
+    </div>
+  </div>
+
   <%- include('plantillas/footer') %>
   <%- include('plantillas/modalErrores', { error: typeof error !== 'undefined' ? error : null, errores: typeof errores !== 'undefined' ? errores : [] }) %>
+
+  <script src="/js/validacionCrearArticulo.js"></script>
+  <script>
+    function esDocumentoCompleto(html) {
+      return /<!doctype\s+html|<html[\s>]/i.test(html || '');
+    }
+
+    async function editarArticulo(event) {
+      event.preventDefault();
+
+      const url = '/admin/adminPanel/gestionArticulos/<%= articulo.id_articulo %>/editar';
+      try {
+        const response = await fetch(url, {
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+        const html = await response.text();
+
+        if (!response.ok || esDocumentoCompleto(html)) {
+          window.location.href = url;
+          return;
+        }
+
+        document.getElementById('modalArticulo-contenido').innerHTML = html;
+        document.getElementById('modalArticulo').style.display = 'flex';
+        initValidacionCrearArticulo();
+      } catch (error) {
+        window.location.href = url;
+      }
+    }
+
+    function abrirModalEliminarArticulo(event) {
+      event.preventDefault();
+      document.getElementById('btnEliminarArticulo').href = '/admin/adminPanel/gestionArticulos/<%= articulo.id_articulo %>/eliminar';
+      document.getElementById('modalEliminarArticulo').style.display = 'flex';
+    }
+
+    function cerrarModalEliminarArticulo() {
+      document.getElementById('modalEliminarArticulo').style.display = 'none';
+    }
+
+    document.getElementById('modalArticulo').addEventListener('click', function (event) {
+      if (event.target === this) {
+        this.style.display = 'none';
+      }
+    });
+
+    document.getElementById('modalEliminarArticulo').addEventListener('click', function (event) {
+      if (event.target === this) {
+        cerrarModalEliminarArticulo();
+      }
+    });
+  </script>
 
 </body>
 </html>

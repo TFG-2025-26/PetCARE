@@ -581,7 +581,7 @@ footer, .footer {
 .articulo-detalle-texto-wrap { display: flex; flex-direction: column; gap: 0.35rem; }
 .articulo-detalle-texto-wrap .foro-comentarios-titulo { margin-bottom: 0.2rem; }
 .articulo-detalle-desc { white-space: pre-line; }
-.articulo-detalle-meta-right { display: flex; align-items: center; }
+.articulo-detalle-meta-right { display: flex; align-items: center; gap: 0.45rem; }
 .foro-detalle-desc { font-size: 0.95rem; color: var(--text); line-height: 1.7; font-weight: 300; }
 .foro-detalle-divider { height: 1px; background: var(--warm); margin: 1.5rem 0; }
 .foro-detalle-comentarios { margin-bottom: 1rem; }

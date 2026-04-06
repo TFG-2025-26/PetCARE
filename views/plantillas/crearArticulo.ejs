@@ -1,11 +1,11 @@
 <div class="foro-detalle-header">
   <div class="foro-detalle-top">
-    <h2 class="foro-detalle-titulo">Crear artículo</h2>
+    <h2 class="foro-detalle-titulo"><%= tituloModal || 'Crear artículo' %></h2>
     <button class="foro-detalle-cerrar" onclick="document.getElementById('modalArticulo').style.display='none'">✕</button>
   </div>
 </div>
 
-<form action="/content/articulos/crearArticulo" id="crearArticuloForm" method="POST" enctype="multipart/form-data">
+<form action="<%= formAction || '/admin/adminPanel/gestionArticulos/crearArticulo' %>" id="crearArticuloForm" method="POST" enctype="multipart/form-data">
   <div class="form-group">
     <label for="crear-articulo-titulo">Título</label>
     <input type="text" id="crear-articulo-titulo" name="titulo"
@@ -21,14 +21,20 @@
   </div>
 
   <div class="form-group">
-    <label for="crear-articulo-imagen">Imagen</label>
+    <label for="crear-articulo-imagen">Imagen <%= modoEdicion ? '(opcional)' : '' %></label>
+    <% if (modoEdicion && articulo.imagenSrc) { %>
+      <div class="articulo-detalle-imagen-wrap" style="margin-bottom: 0.75rem; min-height: 180px;">
+        <img src="<%= articulo.imagenSrc %>" alt="Imagen actual del artículo <%= articulo.titulo || '' %>" class="articulo-detalle-imagen" style="max-height: 220px;">
+      </div>
+      <p style="margin: 0 0 0.6rem; color: var(--muted); font-size: 0.95rem;">Si seleccionas una nueva imagen, reemplazará a la actual.</p>
+    <% } %>
     <input type="file" id="crear-articulo-imagen" name="imagen" accept="image/png,image/jpeg,image/webp">
     <span id="error-articulo-imagen" class="error"></span>
   </div>
 
   <div class="foro-comentario-actions" style="margin-top: 1rem;">
     <button type="submit" class="btn-submit" style="width:auto; padding: 0.6rem 1.5rem;">
-      Publicar artículo
+      <%= submitLabel || 'Publicar artículo' %>
     </button>
   </div>
 </form>
