@@ -35,7 +35,17 @@ const getPerfilUsuario = (req, res) => {
                     console.error('Error al recuperar las mascotas del usuario:', err);
                     return res.status(500).send('Error al recuperar las mascotas del usuario');
                 }
-                res.render('perfilUsuario', { usuario: results[0], mascotas: mascotas });
+
+                const usuarioSesion = req.session && req.session.usuario ? req.session.usuario : null;
+                const esPropia = !!(usuarioSesion && usuarioSesion.tipo === 'usuario' && Number(usuarioSesion.id) === usuarioId);
+                const puedeEditar = esPropia;
+
+                res.render('perfilUsuario', {
+                    perfil: results[0],
+                    mascotas: mascotas,
+                    esPropia,
+                    puedeEditar
+                });
             }); 
         })
     })
@@ -63,10 +73,15 @@ const getPerfilEmpresa = (req, res) => {
                 return res.status(403).send('Cuenta de empresa inactiva'); 
             }
 
+            const usuarioSesion = req.session && req.session.usuario ? req.session.usuario : null;
+            const esPropia = !!(usuarioSesion && usuarioSesion.tipo === 'empresa' && Number(usuarioSesion.id) === empresaId);
+            const puedeEditar = esPropia;
+
             res.render('perfilEmpresa', {
                 empresa: results[0], 
                 valoraciones: [], //TODO: Falta recoger bien las valoraciones
-                esPropia: true //TODO: Falta comprobar si la empresa es propia o no
+                esPropia,
+                puedeEditar
             })
         })
     })
@@ -92,7 +107,7 @@ const getEditarPerfilUsuario = (req, res) => {
             } else if (results[0].activo === 0) { // Comprobar si el usuario está activo
                 return res.status(403).send('Cuenta de usuario inactiva');
             }
-            res.render('editarPerfilUsuario', { usuario: results[0] });
+            res.render('editarPerfilUsuario', { perfil: results[0] });
         })
     })
 };
@@ -144,7 +159,7 @@ const postEditarPerfilUsuario = (req, res) => {
     // Comprobar si hay errores de validación
     if (!errors.isEmpty()) {
         return res.status(400).render('editarPerfilUsuario', { 
-            usuario: usuarioActual, 
+            perfil: usuarioActual, 
             error: 'Por favor corrige los errores en el formulario', 
             errores: errors.array()
         }); 
@@ -184,7 +199,7 @@ const postEditarPerfilUsuario = (req, res) => {
                 if (results.length > 0) {
                     connection.release();
                     return res.status(400).render('editarPerfilUsuario', {
-                        usuario: usuarioActual,
+                        perfil: usuarioActual,
                         error: 'El correo electrónico ya está en uso',
                         errores: []
                     });
@@ -199,7 +214,7 @@ const postEditarPerfilUsuario = (req, res) => {
                     if (results.length > 0) {
                         connection.release();
                         return res.status(400).render('editarPerfilUsuario', {
-                            usuario: usuarioActual,
+                            perfil: usuarioActual,
                             error: 'El nombre de usuario ya está en uso',
                             errores: []
                         });
@@ -214,7 +229,7 @@ const postEditarPerfilUsuario = (req, res) => {
                         if (results.length > 0) {
                             connection.release();
                             return res.status(400).render('editarPerfilUsuario', {
-                                usuario: usuarioActual,
+                                perfil: usuarioActual,
                                 error: 'El teléfono ya está en uso',
                                 errores: []
                             });
@@ -230,7 +245,7 @@ const postEditarPerfilUsuario = (req, res) => {
                             if (password_nueva && results[0].contraseña !== password_actual) {
                                 connection.release();
                                 return res.status(400).render('editarPerfilUsuario', {
-                                    usuario: usuarioActual,
+                                    perfil: usuarioActual,
                                     error: 'La contraseña actual no es correcta',
                                     errores: []
                                 });

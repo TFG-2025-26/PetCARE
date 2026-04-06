@@ -38,6 +38,7 @@ const userRoutes = require('./routes/userRouter');
 const petRoutes = require('./routes/petRouter');
 const contentRoutes = require('./routes/contentRouter');
 const servicesRoutes = require('./routes/servicesRouter');
+const adminRoutes = require('./routes/adminRouter');
 
 app.get('/', (req, res) => {
     res.render('inicio');
@@ -49,6 +50,7 @@ app.use('/pets', isAuthenticated, petRoutes);
 app.use('/content', isAuthenticated, contentRoutes);
 app.use('/services', servicesRoutes);
 
+app.use('/admin', isAuthenticated, adminRoutes);
 
 // Manejo de errores
 app.use((req, res) => {

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administración — PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <%- include('plantillas/navbar') %>
+
+  <main class="admin-page">
+    <section class="admin-hero">
+      <p class="admin-kicker">Administración</p>
+      <h1>Panel de administrador</h1>
+      <p class="admin-subtitle">Centro de control interno para moderar y gestionar la plataforma.</p>
+    </section>
+
+    <section class="admin-grid" aria-label="Funcionalidades del administrador">
+      <article class="admin-card" role="region" aria-labelledby="admin-articulos-title">
+        <div class="admin-card-icon" aria-hidden="true">📰</div>
+        <h2 id="admin-articulos-title">Gestión de Artículos</h2>
+        <p>Revisión editorial, validación de contenidos y organización de publicaciones.</p>
+        <a href="/admin/adminPanel/gestionArticulos" class="admin-card-btn">Acceder</a>
+      </article>
+
+      <article class="admin-card" role="region" aria-labelledby="admin-usuarios-title">
+        <div class="admin-card-icon" aria-hidden="true">👥</div>
+        <h2 id="admin-usuarios-title">Gestión de Usuarios</h2>
+        <p>Supervisión de cuentas, control de estados y acciones de moderación de perfil.</p>
+        <a href="/admin/adminPanel/gestionUsuarios" class="admin-card-btn">Acceder</a>
+      </article>
+
+      <article class="admin-card" role="region" aria-labelledby="admin-reportes-title">
+        <div class="admin-card-icon" aria-hidden="true">🚩</div>
+        <h2 id="admin-reportes-title">Gestión de Reportes</h2>
+        <p>Análisis de incidencias, clasificación de reportes y resolución de conflictos.</p>
+        <a href="/admin/adminPanel/gestionReportes" class="admin-card-btn">Acceder</a>
+      </article>
+
+      <article class="admin-card" role="region" aria-labelledby="admin-foros-title">
+        <div class="admin-card-icon" aria-hidden="true">💬</div>
+        <h2 id="admin-foros-title">Gestión de Foros</h2>
+        <p>Moderación de hilos y comentarios para mantener una comunidad segura y útil.</p>
+        <a href="/admin/adminPanel/gestionForos" class="admin-card-btn">Acceder</a>
+      </article>
+    </section>
+  </main>
+
+  <%- include('plantillas/footer') %>
+
+</body>
+</html>

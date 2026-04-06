@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestion de Usuarios - PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <%- include('plantillas/navbar') %>
+
+  <% 
+    const filtrosActivos = filtros && (filtros.mostrarInactivos || filtros.busqueda || filtros.vistaCompacta === false);
+    const tabActiva = filtros && filtros.tab === 'empresas' ? 'empresas' : 'usuarios';
+    const busquedaActual = (filtros && filtros.busqueda) ? filtros.busqueda : '';
+    const mostrarInactivosActual = filtros && filtros.mostrarInactivos;
+    const vistaCompactaActual = !filtros || filtros.vistaCompacta !== false;
+    const queryBase = `busqueda=${encodeURIComponent(busquedaActual)}&inactivos=${mostrarInactivosActual ? '1' : '0'}&compacta=${vistaCompactaActual ? '1' : '0'}`;
+    const mostrandoUsuarios = tabActiva === 'usuarios';
+    const etiquetaBusqueda = mostrandoUsuarios ? 'Buscar usuario (ID, alias o nombre)' : 'Buscar empresa (ID o nombre)';
+    const placeholderBusqueda = mostrandoUsuarios ? 'Ej: 8, lucia_92 o Lucía Pérez' : 'Ej: 3 o Clínica Sol';
+    const formatearTexto = (valor) => valor ? String(valor).replace(/_/g, ' ') : 'N/D';
+    const etiquetaBool = (valor, si = 'Sí', no = 'No') => Number(valor) === 1 ? si : no;
+    const claseBool = (valor) => Number(valor) === 1 ? 'estado-aceptado' : 'estado-rechazado';
+  %>
+
+  <main class="reportes-page gestion-usuarios-page">
+    <section class="reportes-toolbar" aria-label="Acciones de navegacion y filtros">
+      <a href="/admin/adminPanel" class="reportes-back-link" aria-label="Volver al panel de administracion">
+        <span class="btn-volver-atras" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        </span>
+        <span class="reportes-back-text">Volver al panel</span>
+      </a>
+
+      <button type="button" id="toggleFiltroUsuarios" class="reportes-filter-toggle" aria-expanded="<%= filtrosActivos ? 'true' : 'false' %>" aria-controls="panelFiltroUsuarios">
+        <%= filtrosActivos ? 'Ocultar filtros' : 'Mostrar filtros' %>
+      </button>
+    </section>
+
+    <section class="reportes-hero">
+      <p class="reportes-kicker">Administracion</p>
+      <h1>Gestion de usuarios</h1>
+      <p class="reportes-subtitle">Separa la supervisión de cuentas en dos pestañas claras: usuarios y empresas.</p>
+    </section>
+
+    <nav class="gestion-usuarios-tabs" aria-label="Cambiar entre tablas de usuarios y empresas">
+      <a href="/admin/adminPanel/gestionUsuarios/filtrar?tab=usuarios&<%= queryBase %>" class="gestion-usuarios-tab <%= mostrandoUsuarios ? 'is-active' : '' %>">
+        <span>Usuarios</span>
+        <span class="gestion-usuarios-tab-count"><%= (usuarios || []).length %></span>
+      </a>
+      <a href="/admin/adminPanel/gestionUsuarios/filtrar?tab=empresas&<%= queryBase %>" class="gestion-usuarios-tab <%= !mostrandoUsuarios ? 'is-active' : '' %>">
+        <span>Empresas</span>
+        <span class="gestion-usuarios-tab-count"><%= (empresas || []).length %></span>
+      </a>
+    </nav>
+
+    <section id="panelFiltroUsuarios" class="reportes-filter-panel gestion-usuarios-filter-panel" aria-label="Filtros de la tabla activa" <%- filtrosActivos ? '' : 'hidden' %>>
+      <form class="gestion-usuarios-filter-form" action="/admin/adminPanel/gestionUsuarios/filtrar" method="GET" autocomplete="off">
+        <input type="hidden" name="tab" value="<%= tabActiva %>">
+        <input type="hidden" name="compacta" value="0">
+
+        <div class="filtro-group filtro-keyword gestion-usuarios-search-group">
+          <label for="filtro-busqueda-gestion-usuarios"><%= etiquetaBusqueda %></label>
+          <input type="text" id="filtro-busqueda-gestion-usuarios" name="busqueda" placeholder="<%= placeholderBusqueda %>" value="<%= busquedaActual %>">
+        </div>
+
+        <div class="gestion-usuarios-inline-options">
+          <label for="filtro-inactivos-gestion" class="gestion-usuarios-checkbox-label">
+            <input type="checkbox" id="filtro-inactivos-gestion" name="inactivos" value="1" <%= mostrarInactivosActual ? 'checked' : '' %>>
+            <span>Mostrar inactivos</span>
+          </label>
+
+          <label for="filtro-compacta-gestion" class="gestion-usuarios-checkbox-label">
+            <input type="checkbox" id="filtro-compacta-gestion" name="compacta" value="1" <%= vistaCompactaActual ? 'checked' : '' %>>
+            <span>Vista compacta</span>
+          </label>
+        </div>
+
+        <div class="reportes-filter-actions gestion-usuarios-filter-actions">
+          <button type="submit" class="btn-filtro">Aplicar</button>
+          <a href="/admin/adminPanel/gestionUsuarios/filtrar?tab=<%= tabActiva %>" class="btn-filtro-reset">Limpiar</a>
+        </div>
+      </form>
+    </section>
+
+    <section class="reportes-table-wrap gestion-usuarios-table-wrap" aria-label="Tabla de gestion de usuarios y empresas">
+      <div class="reportes-table-scroll">
+        <% if (mostrandoUsuarios) { %>
+          <% if (vistaCompactaActual) { %>
+            <table class="reportes-table gestion-usuarios-table gestion-usuarios-table--compact">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre de usuario</th>
+                  <th>Nombre completo</th>
+                  <th>Correo</th>
+                  <th>Telefono</th>
+                  <th>Fecha nacimiento</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (!usuarios || usuarios.length === 0) { %>
+                  <tr>
+                    <td colspan="7" class="reportes-empty">No hay usuarios que coincidan con los filtros seleccionados.</td>
+                  </tr>
+                <% } %>
+
+                <% (usuarios || []).forEach(item => { %>
+                  <tr
+                    class="gestion-usuarios-row <%= item.activo ? '' : 'gestion-usuarios-row--inactive' %>"
+                    data-edit-url="<%= item.editar_url %>"
+                    data-profile-url="<%= item.perfil_url %>"
+                    data-delete-url="/admin/adminPanel/gestionUsuarios/usuario/<%= item.id_usuario %>/eliminar"
+                    data-nombre="<%= item.nombre_usuario %>"
+                    tabindex="0"
+                    aria-selected="false"
+                  >
+                    <td>#<%= item.id_usuario %></td>
+                    <td><span class="gestion-usuarios-main-text"><%= item.nombre_usuario %></span></td>
+                    <td><%= item.nombre_completo || 'N/D' %></td>
+                    <td><%= item.correo || 'N/D' %></td>
+                    <td><%= item.telefono || 'N/D' %></td>
+                    <td><%= item.fecha_nacimiento_formateada || 'N/D' %></td>
+                    <td>
+                      <span class="estado-chip <%= item.activo ? 'estado-aceptado' : 'estado-rechazado' %>"><%= item.activo ? 'Activo' : 'Inactivo' %></span>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          <% } else { %>
+            <table class="reportes-table gestion-usuarios-table gestion-usuarios-table--regular gestion-usuarios-table--full">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre de usuario</th>
+                  <th>Nombre completo</th>
+                  <th>Correo</th>
+                  <th>Telefono</th>
+                  <th>Fecha nacimiento</th>
+                  <th>Ciudad</th>
+                  <th>Pais</th>
+                  <th>Codigo postal</th>
+                  <th>Genero</th>
+                  <th>Trabajo</th>
+                  <th>Rol</th>
+                  <th>Bio</th>
+                  <th>Foto</th>
+                  <th>Ban</th>
+                  <th>Suspendido</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (!usuarios || usuarios.length === 0) { %>
+                  <tr>
+                    <td colspan="17" class="reportes-empty">No hay usuarios que coincidan con los filtros seleccionados.</td>
+                  </tr>
+                <% } %>
+
+                <% (usuarios || []).forEach(item => { %>
+                  <tr
+                    class="gestion-usuarios-row <%= item.activo ? '' : 'gestion-usuarios-row--inactive' %>"
+                    data-edit-url="<%= item.editar_url %>"
+                    data-profile-url="<%= item.perfil_url %>"
+                    data-delete-url="/admin/adminPanel/gestionUsuarios/usuario/<%= item.id_usuario %>/eliminar"
+                    data-nombre="<%= item.nombre_usuario %>"
+                    tabindex="0"
+                    aria-selected="false"
+                  >
+                    <td>#<%= item.id_usuario %></td>
+                    <td><span class="gestion-usuarios-main-text"><%= item.nombre_usuario %></span></td>
+                    <td><%= item.nombre_completo || 'N/D' %></td>
+                    <td><%= item.correo || 'N/D' %></td>
+                    <td><%= item.telefono || 'N/D' %></td>
+                    <td><%= item.fecha_nacimiento_formateada || 'N/D' %></td>
+                    <td><%= item.ciudad || 'N/D' %></td>
+                    <td><%= item.pais || 'N/D' %></td>
+                    <td><%= item.codigo_postal || 'N/D' %></td>
+                    <td><%= formatearTexto(item.genero) %></td>
+                    <td><%= item.trabajo || 'N/D' %></td>
+                    <td><%= item.rol || 'N/D' %></td>
+                    <td><div class="gestion-usuarios-multiline-cell"><%= item.bio || 'Sin bio' %></div></td>
+                    <td><span class="estado-chip <%= claseBool(item.tiene_foto) %>"><%= etiquetaBool(item.tiene_foto) %></span></td>
+                    <td><span class="estado-chip <%= claseBool(item.ban) %>"><%= etiquetaBool(item.ban, 'Sí', 'No') %></span></td>
+                    <td><span class="estado-chip <%= claseBool(item.suspendido) %>"><%= etiquetaBool(item.suspendido, 'Sí', 'No') %></span></td>
+                    <td><span class="estado-chip <%= item.activo ? 'estado-aceptado' : 'estado-rechazado' %>"><%= item.activo ? 'Activo' : 'Inactivo' %></span></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          <% } %>
+        <% } else { %>
+          <% if (vistaCompactaActual) { %>
+            <table class="reportes-table gestion-usuarios-table gestion-usuarios-table--compact">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Empresa</th>
+                  <th>Correo</th>
+                  <th>Telefono</th>
+                  <th>CIF</th>
+                  <th>Tipo</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (!empresas || empresas.length === 0) { %>
+                  <tr>
+                    <td colspan="7" class="reportes-empty">No hay empresas que coincidan con los filtros seleccionados.</td>
+                  </tr>
+                <% } %>
+
+                <% (empresas || []).forEach(item => { %>
+                  <tr
+                    class="gestion-usuarios-row <%= item.activo ? '' : 'gestion-usuarios-row--inactive' %>"
+                    data-edit-url="<%= item.editar_url %>"
+                    data-profile-url="<%= item.perfil_url %>"
+                    data-delete-url="/admin/adminPanel/gestionUsuarios/empresa/<%= item.id_empresa %>/eliminar"
+                    data-nombre="<%= item.nombre %>"
+                    tabindex="0"
+                    aria-selected="false"
+                  >
+                    <td>#<%= item.id_empresa %></td>
+                    <td><span class="gestion-usuarios-main-text"><%= item.nombre %></span></td>
+                    <td><%= item.correo || 'N/D' %></td>
+                    <td><%= item.telefono_contacto || 'N/D' %></td>
+                    <td><%= item.CIF || 'N/D' %></td>
+                    <td><%= formatearTexto(item.tipo_mostrado) %></td>
+                    <td>
+                      <span class="estado-chip <%= item.activo ? 'estado-aceptado' : 'estado-rechazado' %>"><%= item.activo ? 'Activa' : 'Inactiva' %></span>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          <% } else { %>
+            <table class="reportes-table gestion-usuarios-table gestion-usuarios-table--regular gestion-usuarios-table--full">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Empresa</th>
+                  <th>Correo</th>
+                  <th>Telefono</th>
+                  <th>CIF</th>
+                  <th>Tipo</th>
+                  <th>Tipo otro</th>
+                  <th>Ubicacion</th>
+                  <th>Descripcion</th>
+                  <th>Foto</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (!empresas || empresas.length === 0) { %>
+                  <tr>
+                    <td colspan="11" class="reportes-empty">No hay empresas que coincidan con los filtros seleccionados.</td>
+                  </tr>
+                <% } %>
+
+                <% (empresas || []).forEach(item => { %>
+                  <tr
+                    class="gestion-usuarios-row <%= item.activo ? '' : 'gestion-usuarios-row--inactive' %>"
+                    data-edit-url="<%= item.editar_url %>"
+                    data-profile-url="<%= item.perfil_url %>"
+                    data-delete-url="/admin/adminPanel/gestionUsuarios/empresa/<%= item.id_empresa %>/eliminar"
+                    data-nombre="<%= item.nombre %>"
+                    tabindex="0"
+                    aria-selected="false"
+                  >
+                    <td>#<%= item.id_empresa %></td>
+                    <td><span class="gestion-usuarios-main-text"><%= item.nombre %></span></td>
+                    <td><%= item.correo || 'N/D' %></td>
+                    <td><%= item.telefono_contacto || 'N/D' %></td>
+                    <td><%= item.CIF || 'N/D' %></td>
+                    <td><%= formatearTexto(item.tipo) %></td>
+                    <td><%= item.tipo_otro || 'N/D' %></td>
+                    <td><%= item.ubicacion || 'N/D' %></td>
+                    <td><div class="gestion-usuarios-multiline-cell"><%= item.descripcion || 'Sin descripcion' %></div></td>
+                    <td><span class="estado-chip <%= claseBool(item.tiene_foto) %>"><%= etiquetaBool(item.tiene_foto) %></span></td>
+                    <td><span class="estado-chip <%= item.activo ? 'estado-aceptado' : 'estado-rechazado' %>"><%= item.activo ? 'Activa' : 'Inactiva' %></span></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          <% } %>
+        <% } %>
+      </div>
+
+      <div class="gestion-usuarios-footer">
+        <p class="gestion-usuarios-hint">
+          <%= mostrandoUsuarios ? 'Selecciona un usuario para editarlo o desactivarlo.' : 'Selecciona una empresa para editarla o desactivarla.' %>
+        </p>
+        <div class="reportes-actions gestion-usuarios-actions">
+          <a href="/admin/adminPanel/gestionUsuarios/registro?tipo=<%= mostrandoUsuarios ? 'usuario' : 'empresa' %>" class="btn-accion-reporte btn-aceptar">Añadir</a>
+          <button type="button" id="btnEditarUsuarioGestion" class="btn-accion-reporte gestion-usuarios-btn-neutral" disabled>Editar</button>
+          <button type="button" id="btnEliminarUsuarioGestion" class="btn-accion-reporte btn-denegar" disabled>Eliminar</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="modal-overlay" id="modalEliminarGestionUsuario" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="modalEliminarGestionUsuarioTitulo">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modalEliminarGestionUsuarioTitulo">¿Eliminar cuenta?</h3>
+        <button type="button" class="modal-close" id="cerrarModalEliminarGestionUsuario">✕</button>
+      </div>
+      <ul class="modal-list">
+        <li>
+          Esta acción desactivará la cuenta de <strong id="nombreCuentaEliminarGestion">la selección actual</strong>.
+          No podrá acceder con ese correo ni con sus credenciales mientras siga inactiva.
+        </li>
+      </ul>
+      <div class="modal-footer" style="gap: 0.8rem;">
+        <button type="button" class="btn-outline-large" id="cancelarModalEliminarGestionUsuario">Cancelar</button>
+        <form id="formEliminarUsuarioGestion" method="POST" action="">
+          <button type="submit" class="btn-perfil-danger">Eliminar cuenta</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <%- include('plantillas/footer') %>
+
+  <script>
+    (function () {
+      const toggleFiltrosBtn = document.getElementById('toggleFiltroUsuarios');
+      const panelFiltros = document.getElementById('panelFiltroUsuarios');
+      const rows = Array.from(document.querySelectorAll('.gestion-usuarios-row'));
+      const btnEditar = document.getElementById('btnEditarUsuarioGestion');
+      const btnEliminar = document.getElementById('btnEliminarUsuarioGestion');
+      const formEliminar = document.getElementById('formEliminarUsuarioGestion');
+      const modalEliminar = document.getElementById('modalEliminarGestionUsuario');
+      const cerrarModalBtn = document.getElementById('cerrarModalEliminarGestionUsuario');
+      const cancelarModalBtn = document.getElementById('cancelarModalEliminarGestionUsuario');
+      const nombreCuentaEliminar = document.getElementById('nombreCuentaEliminarGestion');
+      let selectedRow = null;
+
+      if (toggleFiltrosBtn && panelFiltros) {
+        toggleFiltrosBtn.addEventListener('click', () => {
+          const isExpanded = toggleFiltrosBtn.getAttribute('aria-expanded') === 'true';
+          toggleFiltrosBtn.setAttribute('aria-expanded', String(!isExpanded));
+          toggleFiltrosBtn.textContent = isExpanded ? 'Mostrar filtros' : 'Ocultar filtros';
+          panelFiltros.hidden = isExpanded;
+        });
+      }
+
+      function actualizarAcciones(row) {
+        const tieneSeleccion = !!row;
+        btnEditar.disabled = !tieneSeleccion;
+        btnEliminar.disabled = !tieneSeleccion;
+        btnEditar.dataset.url = tieneSeleccion ? row.dataset.editUrl : '';
+        formEliminar.action = tieneSeleccion ? row.dataset.deleteUrl : '';
+      }
+
+      function seleccionarFila(row) {
+        rows.forEach((item) => {
+          item.classList.remove('gestion-usuarios-row--selected');
+          item.setAttribute('aria-selected', 'false');
+        });
+
+        selectedRow = row || null;
+
+        if (selectedRow) {
+          selectedRow.classList.add('gestion-usuarios-row--selected');
+          selectedRow.setAttribute('aria-selected', 'true');
+        }
+
+        actualizarAcciones(selectedRow);
+      }
+
+      rows.forEach((row) => {
+        row.addEventListener('click', () => seleccionarFila(row));
+
+        row.addEventListener('dblclick', () => {
+          const profileUrl = row.dataset.profileUrl;
+          if (profileUrl) window.location.href = profileUrl;
+        });
+
+        row.addEventListener('keydown', (event) => {
+          if (event.key === ' ' || event.key === 'Spacebar') {
+            event.preventDefault();
+            seleccionarFila(row);
+          }
+
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            const profileUrl = row.dataset.profileUrl;
+            if (profileUrl) window.location.href = profileUrl;
+          }
+        });
+      });
+
+      if (btnEditar) {
+        btnEditar.addEventListener('click', () => {
+          const editUrl = btnEditar.dataset.url;
+          if (editUrl) window.location.href = editUrl;
+        });
+      }
+
+      function abrirModalEliminar() {
+        if (!selectedRow || !modalEliminar || !formEliminar) return;
+
+        const nombre = selectedRow.dataset.nombre || 'esta cuenta';
+        nombreCuentaEliminar.textContent = nombre;
+        formEliminar.action = selectedRow.dataset.deleteUrl || '';
+        modalEliminar.style.display = 'flex';
+      }
+
+      function cerrarModalEliminar() {
+        if (!modalEliminar) return;
+        modalEliminar.style.display = 'none';
+      }
+
+      if (btnEliminar) {
+        btnEliminar.addEventListener('click', () => {
+          if (!selectedRow) return;
+          abrirModalEliminar();
+        });
+      }
+
+      if (cerrarModalBtn) {
+        cerrarModalBtn.addEventListener('click', cerrarModalEliminar);
+      }
+
+      if (cancelarModalBtn) {
+        cancelarModalBtn.addEventListener('click', cerrarModalEliminar);
+      }
+
+      if (modalEliminar) {
+        modalEliminar.addEventListener('click', (event) => {
+          if (event.target === modalEliminar) {
+            cerrarModalEliminar();
+          }
+        });
+      }
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && modalEliminar && modalEliminar.style.display !== 'none') {
+          cerrarModalEliminar();
+        }
+      });
+
+      actualizarAcciones(null);
+    })();
+  </script>
+
+</body>
+</html>

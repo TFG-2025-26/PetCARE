@@ -106,7 +106,8 @@ const postRegisterUsuario = (req, res) => {
                             id:     results.insertId,
                             nombre_completo: nombre_completo, 
                             nombre_usuario: nombre_usuario, 
-                            tipo:   'usuario'
+                            tipo: 'usuario',
+                            rol: 'user'
                         };
                         res.redirect('/');
                     });
@@ -265,7 +266,8 @@ const postLoginUsuario = (req, res) => {
                 id: usuario.id_usuario,
                 nombre_usuario: usuario.nombre_usuario,
                 nombre_completo: usuario.nombre_completo,
-                tipo: 'usuario'
+                tipo: 'usuario', 
+                rol: usuario.rol
             };
             res.redirect('/');
         }); 
