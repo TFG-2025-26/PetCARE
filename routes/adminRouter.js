@@ -188,6 +188,7 @@ router.use(isAdminAuthenticated);
 
 router.get('/adminPanel', adminController.getAdminPanel);
 router.get('/adminPanel/gestionArticulos', adminController.getGestionArticulos);
+router.get('/adminPanel/gestionForos', adminController.getGestionForos);
 router.get('/adminPanel/gestionArticulos/crearArticulo', contentController.getCrearArticulo);
 router.post('/adminPanel/gestionArticulos/crearArticulo', uploadArticulo.single('imagen'), validarCreacionArticulo, contentController.postCrearArticulo);
 router.get('/adminPanel/gestionArticulos/:id_articulo/editar', contentController.getEditarArticulo);

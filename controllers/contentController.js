@@ -54,6 +54,29 @@ const renderFormularioArticulo = (req, res, {
     });
 };
 
+const esAdminSesion = (usuario) => !!(usuario && usuario.rol === 'admin');
+
+const puedeGestionarContenido = (usuario, propietarioId) => {
+    if (!usuario) {
+        return false;
+    }
+
+    return esAdminSesion(usuario) || Number(usuario.id) === Number(propietarioId);
+};
+
+const renderFormularioEditarComentario = (req, res, {
+    comentario = {},
+    error = null,
+    errores = []
+} = {}) => {
+    return res.render('plantillas/modificarComentario', {
+        usuario: req.session.usuario || null,
+        error,
+        errores,
+        comentario
+    });
+};
+
 const getArticulos = (req, res) => {
     const pagina = parseInt(req.query.pagina, 10) || 1;
     const limite = 12;
@@ -428,6 +451,8 @@ const verForos = (req, res) => {
 
 const verForo = (req, res) => {
     const foroId = parseInt(req.params.id, 10);
+    const usuario = req.session.usuario || null;
+    const esAdmin = esAdminSesion(usuario);
 
     if (Number.isNaN(foroId)) {
         return res.status(400).send('ID de foro inválido');
@@ -439,45 +464,57 @@ const verForo = (req, res) => {
             return res.status(500).send('Error al conectar a la base de datos');
         }
 
-        const sql_foro = `SELECT f.*, u.nombre_usuario 
-                                  FROM foros f 
-                                  JOIN usuarios u ON f.id_usuario = u.id_usuario 
-                                  WHERE f.id_foro = ?`;
+        const sqlForo = `
+            SELECT f.*, u.nombre_usuario
+            FROM foros f
+            JOIN usuarios u ON f.id_usuario = u.id_usuario
+            WHERE f.id_foro = ? AND f.activo = 1
+        `;
 
-        connection.query(sql_foro, [foroId], (err, results) => {
-            connection.release();
-            if (err) {
-                console.error('Error al obtener el foro:', err);
+        connection.query(sqlForo, [foroId], (foroErr, results) => {
+            if (foroErr) {
+                connection.release();
+                console.error('Error al obtener el foro:', foroErr);
                 return res.status(500).send('Error al obtener el foro');
-            } else if (results.length === 0) {
+            }
+
+            if (!results || results.length === 0) {
+                connection.release();
                 return res.status(404).send('Foro no encontrado');
-            } else {
-                const sql_comentarios = `SELECT c.*, u.nombre_usuario 
-                                        FROM comentarios c 
-                                        JOIN usuarios u ON c.id_usuario = u.id_usuario
-                                        WHERE c.id_foro = ? 
-                                        ORDER BY c.fecha_publicacion ASC`;
-                
-                connection.query(sql_comentarios, [foroId], (err, commentResults) => {
-                    if (err) {
-                        console.error('Error al obtener los comentarios:', err);
-                        return res.status(500).send('Error al obtener los comentarios');
-                    }
+            }
 
-                    const reporteExito = req.query.reporte === 'ok';
-                    const tipoReporte = req.query.tipo === 'comentario' ? 'comentario' : 'foro';
+            const sqlComentarios = `
+                SELECT c.*, COALESCE(u.nombre_usuario, 'Usuario eliminado') AS nombre_usuario
+                FROM comentarios c
+                LEFT JOIN usuarios u ON c.id_usuario = u.id_usuario
+                WHERE c.id_foro = ?
+                ORDER BY c.fecha_publicacion ASC
+            `;
 
-                    res.render('foroDetalle', { 
-                        foro: results[0],
-                        comentarios: commentResults, 
-                        usuario: req.session.usuario || null,
-                        reporteExito,
-                        tipoReporte
-                    }); 
-                }); 
-            }   
-        }); 
-    }); 
+            connection.query(sqlComentarios, [foroId], (comentariosErr, commentResults) => {
+                connection.release();
+
+                if (comentariosErr) {
+                    console.error('Error al obtener los comentarios:', comentariosErr);
+                    return res.status(500).send('Error al obtener los comentarios');
+                }
+
+                const reporteExito = req.query.reporte === 'ok';
+                const tipoReporte = req.query.tipo === 'comentario' ? 'comentario' : 'foro';
+
+                return res.render('foroDetalle', {
+                    foro: results[0],
+                    comentarios: commentResults,
+                    usuario,
+                    esAdmin,
+                    reporteExito,
+                    tipoReporte,
+                    error: null,
+                    errores: []
+                });
+            });
+        });
+    });
 };
 
 const getCrearForo = (req, res) => {
@@ -538,14 +575,16 @@ const postCrearForo = (req, res) => {
 };
 
 const filtrarForos = (req, res) => {
-    const pagina = parseInt(req.query.pagina) || 1;
+    const pagina = parseInt(req.query.pagina, 10) || 1;
     const limite = 20;
     const offset = (pagina - 1) * limite;
     const categoria = req.query.categoria || '';
     const keyword = req.query.keyword || '';
+    const usuario = req.session.usuario || null;
+    const esAdmin = esAdminSesion(usuario);
 
-    let condiciones = ['f.activo = ?'];
-    let params = [1];
+    const condiciones = ['f.activo = ?'];
+    const params = [1];
 
     if (categoria) {
         condiciones.push('f.categoria = ?');
@@ -556,7 +595,7 @@ const filtrarForos = (req, res) => {
         params.push(`%${keyword}%`, `%${keyword}%`);
     }
 
-    const where = condiciones.length > 0 ? 'WHERE ' + condiciones.join(' AND ') : '';
+    const where = 'WHERE ' + condiciones.join(' AND ');
 
     pool.getConnection((err, connection) => {
         if (err) {
@@ -564,21 +603,19 @@ const filtrarForos = (req, res) => {
             return res.status(500).send('Error al obtener la conexión a la base de datos');
         }
 
-        // 1. Contar total
-        connection.query(`SELECT COUNT(*) as total FROM foros f ${where}`, params, (err, countResults) => {
-            if (err) {
+        connection.query(`SELECT COUNT(*) as total FROM foros f ${where}`, params, (countErr, countResults) => {
+            if (countErr) {
                 connection.release();
-                console.error('Error al contar los foros:', err);
+                console.error('Error al contar los foros:', countErr);
                 return res.status(500).send('Error al obtener los foros');
             }
 
             const total = countResults[0].total;
 
-            // 2. Obtener foros de la página actual
             connection.query(
                 `SELECT f.*, u.nombre_usuario, COALESCE(c.num_respuestas, 0) AS num_respuestas
-                 FROM foros f 
-                 JOIN usuarios u ON f.id_usuario = u.id_usuario 
+                 FROM foros f
+                 JOIN usuarios u ON f.id_usuario = u.id_usuario
                  LEFT JOIN (
                      SELECT id_foro, COUNT(*) AS num_respuestas
                      FROM comentarios
@@ -588,20 +625,21 @@ const filtrarForos = (req, res) => {
                  ORDER BY f.fecha_publicacion DESC
                  LIMIT ? OFFSET ?`,
                 [...params, limite, offset],
-                (err, results) => {
+                (queryErr, results) => {
                     connection.release();
-                    if (err) {
-                        console.error('Error al obtener los foros:', err);
+                    if (queryErr) {
+                        console.error('Error al obtener los foros:', queryErr);
                         return res.status(500).send('Error al obtener los foros');
                     }
 
-                    res.render('foros', {
+                    return res.render('foros', {
                         foros: results,
-                        total: total,
+                        total,
                         totalPaginas: Math.ceil(total / limite),
                         paginaActual: pagina,
                         filtros: { categoria, keyword },
-                        usuario: req.session.usuario || null,
+                        usuario,
+                        esAdmin,
                         error: null,
                         errores: []
                     });
@@ -613,50 +651,63 @@ const filtrarForos = (req, res) => {
 
 const getEditarForo = (req, res) => {
     const foroId = parseInt(req.params.id, 10);
-    const usuarioId = parseInt(req.params.id_usuario, 10);
     const esAjax = req.xhr || req.get('X-Requested-With') === 'XMLHttpRequest';
+    const usuario = req.session.usuario || null;
+
+    if (Number.isNaN(foroId)) {
+        return res.status(400).send('ID de foro inválido');
+    }
 
     if (!esAjax) {
         return res.redirect(`/content/foros/${foroId}`);
     }
 
     pool.getConnection((err, connection) => {
-        // Comprobar si hubo un error al conectar a la base de datos
         if (err) {
             console.error('Error al conectar a la base de datos:', err);
             return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
         }
 
-        // Obtener el foro para editar
-        connection.query('SELECT * FROM foros WHERE id_foro = ? AND id_usuario = ?', [foroId, usuarioId], (err, results) => {
+        connection.query('SELECT * FROM foros WHERE id_foro = ? AND activo = 1', [foroId], (queryErr, results) => {
             connection.release();
-            if (err) {
-                console.error('Error al obtener el foro:', err);
+
+            if (queryErr) {
+                console.error('Error al obtener el foro:', queryErr);
                 return res.status(500).send('Error al obtener el foro');
             }
-            if (results.length === 0) {
-                return res.status(404).send('Foro no encontrado o no tienes permiso para editarlo');
+
+            if (!results || results.length === 0) {
+                return res.status(404).send('Foro no encontrado');
             }
 
-            res.render('plantillas/modificarForo', {
-                usuario: req.session.usuario || null,
+            if (!puedeGestionarContenido(usuario, results[0].id_usuario)) {
+                return res.status(403).send('No tienes permiso para editar este foro');
+            }
+
+            return res.render('plantillas/modificarForo', {
+                usuario,
                 error: null,
                 errores: [],
                 foro: results[0]
             });
-        }); 
-    }); 
+        });
+    });
 };
 
 const postEditarForo = (req, res) => {
     const foroId = parseInt(req.params.id, 10);
     const usuarioId = parseInt(req.params.id_usuario, 10);
     const { titulo, descripcion, categoria } = req.body;
+    const usuario = req.session.usuario || null;
+
+    if (Number.isNaN(foroId)) {
+        return res.status(400).send('ID de foro inválido');
+    }
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.render('plantillas/modificarForo', {
-            usuario: req.session.usuario || null,
+        return res.status(400).render('plantillas/modificarForo', {
+            usuario,
             error: 'Por favor corrige los errores',
             errores: errors.array(),
             foro: {
@@ -668,26 +719,30 @@ const postEditarForo = (req, res) => {
     }
 
     pool.getConnection((err, connection) => {
-        // Comprobar si hubo un error al conectar a la base de datos
         if (err) {
             console.error('Error al conectar a la base de datos:', err);
             return res.status(500).send('Error al conectar a la base de datos');
         }
 
-        // Obtener el foro para editar
-        connection.query('SELECT * FROM foros WHERE id_foro = ? AND id_usuario = ?', [foroId, usuarioId], (err, results) => {
-            if (err) {
+        connection.query('SELECT id_usuario FROM foros WHERE id_foro = ? AND activo = 1', [foroId], (queryErr, results) => {
+            if (queryErr) {
                 connection.release();
-                console.error('Error al obtener el foro:', err);
+                console.error('Error al obtener el foro:', queryErr);
                 return res.status(500).render('error500', { mensaje: 'Error al obtener el foro' });
             }
-            if (results.length === 0) {
+
+            if (!results || results.length === 0) {
                 connection.release();
-                return res.status(404).send('Foro no encontrado o no tienes permiso para editarlo');
+                return res.status(404).send('Foro no encontrado');
             }
 
-            const sql_update_foro = 'UPDATE foros SET titulo = ?, descripcion = ?, categoria = ? WHERE id_foro = ? AND id_usuario = ?';
-            connection.query(sql_update_foro, [titulo, descripcion, categoria, foroId, usuarioId], (updateErr, updateResult) => {
+            if (!puedeGestionarContenido(usuario, results[0].id_usuario)) {
+                connection.release();
+                return res.status(403).send('No tienes permiso para editar este foro');
+            }
+
+            const sqlUpdateForo = 'UPDATE foros SET titulo = ?, descripcion = ?, categoria = ? WHERE id_foro = ? AND activo = 1';
+            connection.query(sqlUpdateForo, [titulo, descripcion, categoria, foroId], (updateErr, updateResult) => {
                 connection.release();
 
                 if (updateErr) {
@@ -699,16 +754,16 @@ const postEditarForo = (req, res) => {
                     return res.status(404).send('Foro no encontrado o sin permisos para editarlo');
                 }
 
-                res.json({ success: true, redirectUrl: `/content/foros/${foroId}` });
-            }); 
-        }); 
-    }); 
+                return res.json({ success: true, redirectUrl: `/content/foros/${foroId}` });
+            });
+        });
+    });
 };
 
 const eliminarForo = (req, res) => {
     const foroId = parseInt(req.params.id, 10);
     const usuarioId = parseInt(req.params.id_usuario, 10);
-    const usuario = req.session.usuario;
+    const usuario = req.session.usuario || null;
 
     if (Number.isNaN(foroId) || Number.isNaN(usuarioId)) {
         return res.status(400).send('Parámetros inválidos');
@@ -718,28 +773,42 @@ const eliminarForo = (req, res) => {
         return res.status(401).send('Debes iniciar sesión para realizar esta acción');
     }
 
-    // Comprobación adicional: el id de usuario del enlace debe coincidir con la sesión activa.
-    if (usuario.id !== usuarioId) {
-        return res.status(403).send('No tienes permiso para eliminar este foro');
-    }
-
     pool.getConnection((err, connection) => {
         if (err) {
             console.error('Error al conectar a la base de datos:', err);
             return res.status(500).send('Error al conectar a la base de datos');
         }
-        connection.query('UPDATE foros SET activo = 0 WHERE id_foro = ? AND id_usuario = ? AND activo = 1', [foroId, usuarioId], (err, result) => {
-            connection.release();
-            if (err) {
-                console.error('Error al eliminar el foro:', err);
+
+        connection.query('SELECT id_usuario FROM foros WHERE id_foro = ? AND activo = 1', [foroId], (queryErr, results) => {
+            if (queryErr) {
+                connection.release();
+                console.error('Error al obtener el foro para eliminarlo:', queryErr);
                 return res.status(500).send('Error al eliminar el foro');
             }
 
-            if (result.affectedRows === 0) {
-                return res.status(404).send('Foro no encontrado o sin permisos para eliminarlo');
+            if (!results || results.length === 0) {
+                connection.release();
+                return res.status(404).send('Foro no encontrado o ya eliminado');
             }
 
-            res.redirect('/content/foros');
+            if (!puedeGestionarContenido(usuario, results[0].id_usuario)) {
+                connection.release();
+                return res.status(403).send('No tienes permiso para eliminar este foro');
+            }
+
+            connection.query('UPDATE foros SET activo = 0 WHERE id_foro = ? AND activo = 1', [foroId], (deleteErr, result) => {
+                connection.release();
+                if (deleteErr) {
+                    console.error('Error al eliminar el foro:', deleteErr);
+                    return res.status(500).send('Error al eliminar el foro');
+                }
+
+                if (result.affectedRows === 0) {
+                    return res.status(404).send('Foro no encontrado o ya eliminado');
+                }
+
+                return res.redirect('/content/foros');
+            });
         });
     });
 };
@@ -786,41 +855,188 @@ const eliminarComentario = (req, res) => {
     const foroId = parseInt(req.params.id, 10);
     const usuarioId = parseInt(req.params.id_usuario, 10);
     const comentarioId = parseInt(req.params.id_comentario, 10);
-    const usuario = req.session.usuario;
+    const usuario = req.session.usuario || null;
 
     if (Number.isNaN(foroId) || Number.isNaN(usuarioId) || Number.isNaN(comentarioId)) {
         return res.status(400).send('Parámetros inválidos');
     }
 
-    // Comprobación adicional: el id de usuario del enlace debe coincidir con la sesión activa.
-    if (usuario.id !== usuarioId) {
-        return res.status(403).send('No tienes permiso para eliminar este comentario');
+    if (!usuario) {
+        return res.status(401).send('Debes iniciar sesión para realizar esta acción');
     }
 
-    // Aquí iría la lógica para eliminar el comentario de la base de datos
     pool.getConnection((err, connection) => {
         if (err) {
             console.error('Error al conectar a la base de datos:', err);
             return res.status(500).send('Error al conectar a la base de datos');
         }
-        const sql_eliminar_comentario = 'DELETE FROM comentarios WHERE id_comentario = ? AND id_usuario = ?';
-        connection.query(sql_eliminar_comentario, [comentarioId, usuarioId], (err, result) => {
-            connection.release();
-            if (err) {
-                console.error('Error al eliminar el comentario:', err);
+
+        const sqlComentario = 'SELECT id_usuario FROM comentarios WHERE id_comentario = ? AND id_foro = ?';
+        connection.query(sqlComentario, [comentarioId, foroId], (queryErr, results) => {
+            if (queryErr) {
+                connection.release();
+                console.error('Error al obtener el comentario:', queryErr);
                 return res.status(500).send('Error al eliminar el comentario');
             }
-            if (result.affectedRows === 0) {
-                return res.status(404).send('Comentario no encontrado o sin permisos para eliminarlo');
+
+            if (!results || results.length === 0) {
+                connection.release();
+                return res.status(404).send('Comentario no encontrado');
             }
-            res.redirect(`/content/foros/${foroId}`);
+
+            if (!puedeGestionarContenido(usuario, results[0].id_usuario)) {
+                connection.release();
+                return res.status(403).send('No tienes permiso para eliminar este comentario');
+            }
+
+            const sqlEliminarComentario = 'DELETE FROM comentarios WHERE id_comentario = ? AND id_foro = ?';
+            connection.query(sqlEliminarComentario, [comentarioId, foroId], (deleteErr, result) => {
+                connection.release();
+                if (deleteErr) {
+                    console.error('Error al eliminar el comentario:', deleteErr);
+                    return res.status(500).send('Error al eliminar el comentario');
+                }
+                if (result.affectedRows === 0) {
+                    return res.status(404).send('Comentario no encontrado o sin permisos para eliminarlo');
+                }
+                return res.redirect(`/content/foros/${foroId}`);
+            });
         });
     });
 };
 
-const getEditarComentario = (req, res) => {};
+const getEditarComentario = (req, res) => {
+    const foroId = parseInt(req.params.id, 10);
+    const comentarioId = parseInt(req.params.id_comentario, 10);
+    const esAjax = req.xhr || req.get('X-Requested-With') === 'XMLHttpRequest';
+    const usuario = req.session.usuario || null;
 
-const postEditarComentario = (req, res) => {};
+    if (Number.isNaN(foroId) || Number.isNaN(comentarioId)) {
+        return res.status(400).send('Parámetros inválidos');
+    }
+
+    if (!esAjax) {
+        return res.redirect(`/content/foros/${foroId}`);
+    }
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al conectar a la base de datos:', err);
+            return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
+        }
+
+        const sqlComentario = `
+            SELECT c.*, COALESCE(u.nombre_usuario, 'Usuario eliminado') AS nombre_usuario
+            FROM comentarios c
+            LEFT JOIN usuarios u ON c.id_usuario = u.id_usuario
+            WHERE c.id_comentario = ? AND c.id_foro = ?
+        `;
+
+        connection.query(sqlComentario, [comentarioId, foroId], (queryErr, results) => {
+            connection.release();
+
+            if (queryErr) {
+                console.error('Error al obtener el comentario:', queryErr);
+                return res.status(500).send('Error al obtener el comentario');
+            }
+
+            if (!results || results.length === 0) {
+                return res.status(404).send('Comentario no encontrado');
+            }
+
+            if (!puedeGestionarContenido(usuario, results[0].id_usuario)) {
+                return res.status(403).send('No tienes permiso para editar este comentario');
+            }
+
+            return renderFormularioEditarComentario(req, res, {
+                comentario: results[0],
+                error: null,
+                errores: []
+            });
+        });
+    });
+};
+
+const postEditarComentario = (req, res) => {
+    const foroId = parseInt(req.params.id, 10);
+    const comentarioId = parseInt(req.params.id_comentario, 10);
+    const usuario = req.session.usuario || null;
+    const contenido = (req.body.contenido || '').trim();
+    const errores = [];
+
+    if (Number.isNaN(foroId) || Number.isNaN(comentarioId)) {
+        return res.status(400).send('Parámetros inválidos');
+    }
+
+    if (!contenido) {
+        errores.push({ msg: 'El comentario no puede estar vacío.' });
+    }
+
+    if (contenido.length > 2000) {
+        errores.push({ msg: 'El comentario no puede superar los 2000 caracteres.' });
+    }
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al conectar a la base de datos:', err);
+            return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
+        }
+
+        const sqlComentario = `
+            SELECT c.*, COALESCE(u.nombre_usuario, 'Usuario eliminado') AS nombre_usuario
+            FROM comentarios c
+            LEFT JOIN usuarios u ON c.id_usuario = u.id_usuario
+            WHERE c.id_comentario = ? AND c.id_foro = ?
+        `;
+
+        connection.query(sqlComentario, [comentarioId, foroId], (queryErr, results) => {
+            if (queryErr) {
+                connection.release();
+                console.error('Error al obtener el comentario:', queryErr);
+                return res.status(500).render('error500', { mensaje: 'Error al obtener el comentario' });
+            }
+
+            if (!results || results.length === 0) {
+                connection.release();
+                return res.status(404).send('Comentario no encontrado');
+            }
+
+            if (!puedeGestionarContenido(usuario, results[0].id_usuario)) {
+                connection.release();
+                return res.status(403).send('No tienes permiso para editar este comentario');
+            }
+
+            if (errores.length > 0) {
+                connection.release();
+                return res.status(400).render('plantillas/modificarComentario', {
+                    usuario,
+                    error: 'Por favor corrige los errores',
+                    errores,
+                    comentario: {
+                        ...results[0],
+                        contenido
+                    }
+                });
+            }
+
+            const sqlUpdateComentario = 'UPDATE comentarios SET contenido = ?, editado = 1 WHERE id_comentario = ? AND id_foro = ?';
+            connection.query(sqlUpdateComentario, [contenido, comentarioId, foroId], (updateErr, result) => {
+                connection.release();
+
+                if (updateErr) {
+                    console.error('Error al editar el comentario:', updateErr);
+                    return res.status(500).render('error500', { mensaje: 'Error al editar el comentario' });
+                }
+
+                if (result.affectedRows === 0) {
+                    return res.status(404).send('Comentario no encontrado o sin permisos para editarlo');
+                }
+
+                return res.json({ success: true, redirectUrl: `/content/foros/${foroId}` });
+            });
+        });
+    });
+};
 
 const getReportarForo = (req, res) => {
     const esAjax = req.xhr || req.get('X-Requested-With') === 'XMLHttpRequest';

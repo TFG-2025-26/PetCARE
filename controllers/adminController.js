@@ -99,6 +99,10 @@ const getGestionArticulos = (req, res) => {
     res.redirect('/content/articulos');
 };
 
+const getGestionForos = (req, res) => {
+    res.redirect('/content/foros');
+};
+
 const renderAdminRegistroView = (res, {
     formType = '',
     formData = null,
@@ -917,6 +921,7 @@ module.exports = {
     filtrarReportes,
     getGestionUsuarios,
     getGestionArticulos,
+    getGestionForos,
     getAdminRegistroUsuario,
     postAdminRegistroUsuario,
     postAdminRegistroEmpresa,
