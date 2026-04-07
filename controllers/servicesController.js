@@ -39,7 +39,7 @@ const getAnuncios = (req, res) => {
     `;
     const params = [];
 
-    if (tipoAnuncio) {
+    if (tipoAnuncio && tipoAnuncio !== 'puntual/recurrente') {
         query += ` AND a.tipo_anuncio = ?`;
         params.push(tipoAnuncio);
     }
@@ -215,12 +215,90 @@ const postPublicarAnuncio = (req, res) => {
     }
 }
 
+const empresas = (req, res) =>{
+    res.render('empresas');
+}
 
+const getEmpresas = (req, res) => {
+    const pagina = parseInt(req.query.pagina) || 1;
+    const limite = parseInt(req.query.limite) || 10;
+    const offset = (pagina - 1) * limite;
+
+    const { nombre, tipoEmpresa, valoracionMin } = req.query;
+
+    let query = `
+        SELECT
+            e.id_empresa,
+            e.nombre,
+            e.tipo,
+            e.tipo_otro,
+            e.descripcion,
+            e.ubicacion,
+            e.foto,
+            COALESCE(AVG(v.puntuacion), 0) AS valoracion_media
+        FROM empresas e
+        LEFT JOIN valoraciones v ON v.id_empresa = e.id_empresa
+        WHERE e.activo = 1
+    `;
+    const params = [];
+
+    if (nombre) {
+        query += ` AND e.nombre LIKE ?`;
+        params.push(`%${nombre}%`);
+    }
+    if (tipoEmpresa) {
+        query += ` AND e.tipo = ?`;
+        params.push(tipoEmpresa);
+    }
+
+    query += ` GROUP BY e.id_empresa`;
+
+    if (valoracionMin) {
+        query += ` HAVING valoracion_media >= ?`;
+        params.push(parseFloat(valoracionMin));
+    }
+
+    query += ` ORDER BY e.id_empresa DESC LIMIT ? OFFSET ?`;
+    params.push(limite + 1, offset);
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error("Error al conectar a la base de datos:", err);
+            return res.status(500).json({ error: "Error al conectar a la base de datos" });
+        }
+
+        connection.query(query, params, (err, empresasResult) => {
+            connection.release();
+            if (err) {
+                console.error("Error al obtener las empresas:", err);
+                return res.status(500).json({ error: "Error al obtener las empresas" });
+            }
+
+            const hayMasPaginas = empresasResult.length > limite;
+            if (hayMasPaginas) empresasResult.pop();
+
+            empresasResult.forEach(e => {
+                if (e.foto) {
+                    const buf = Buffer.from(e.foto);
+                    const mime = (buf[0] === 0x89) ? 'image/png' : 'image/jpeg';
+                    e.foto = `data:${mime};base64,` + buf.toString('base64');
+                }
+                if (!e.descripcion || e.descripcion.trim() === '') {
+                    e.descripcion = 'Esta empresa no ha añadido una descripción.';
+                }
+            });
+
+            return res.json({ empresas: empresasResult, hayMasPaginas });
+        });
+    });
+}
 
 module.exports = {
     anuncios,
     getAnuncios,
     getPublicarAnuncio,
     postPublicarAnuncio,
-    getServicios
+    getServicios,
+    empresas,
+    getEmpresas
 };

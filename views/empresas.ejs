@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Empresas - PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="full-height-layout">
+    <%- include('plantillas/navbar') %> 
+
+    <main class="main-empresas">
+        <h1 class="titulo-empresas">Empresas</h1>
+        <div class="filtros-empresas-container">
+            <div class="input-buscar-empresa">
+                <input type="text" id="filtro-nombre-empresa" placeholder="Buscar por nombre de empresa">
+                <button id="btn-buscar-empresa">&#128269;</button>
+            </div>
+            <button id="btn-filtros-empresas" onclick="abrirModalFiltros()">&#8801; Filtros</button>
+        </div>
+        
+        <div class="empresas-container" id="empresas-container">
+            
+        </div>
+
+        <div class="ver-mas-empresas-container">
+            <button id="ver-mas-empresas" disabled>Ver más</button>
+        </div>
+
+
+        <!-- Modal filtros empresas -->
+        <div id="modal-filtros-empresas" class="modal-overlay" style="display: none;">
+        <div class="modal-box">
+            <div class="modal-empresas">
+                <h3>Filtros de empresas</h3>
+                <p>Selecciona los filtros que deseas aplicar.</p>
+                <div class="filtros-modal-empresas">
+                    <div class="filtro-tipo-empresa-container">
+                        <p class="filtro-label">Tipo de empresa</p>
+                        <div class="btn-group-filtro" id="filtro-tipo-empresa">
+                            <button class="btn-filtro-opcion activo" data-value="">Todas</button>
+                            <button class="btn-filtro-opcion" data-value="clinica_veterinaria">Clínica Veterinaria</button>
+                            <button class="btn-filtro-opcion" data-value="tienda_animal">Tienda</button>
+                            <button class="btn-filtro-opcion" data-value="hotel">Hotel</button>
+                            <button class="btn-filtro-opcion" data-value="peluquería_canina">Peluquería</button>
+                            <button class="btn-filtro-opcion" data-value="otro">Otros</button>
+                        </div>
+                    </div>
+                    <div class="filtro-valoracion-empresa-container">
+                        <p class="filtro-label">Valoración mínima</p>
+                        <div class="btn-group-filtro" id="filtro-valoracion-empresa">
+                            <button class="btn-filtro-opcion activo" data-value="">Cualquiera</button>
+                            <button class="btn-filtro-opcion" data-value="1">1 ★</button>
+                            <button class="btn-filtro-opcion" data-value="2">2 ★</button>
+                            <button class="btn-filtro-opcion" data-value="3">3 ★</button>
+                            <button class="btn-filtro-opcion" data-value="4">4 ★</button>
+                            <button class="btn-filtro-opcion" data-value="5">5 ★</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="botones-modal">
+                    <button id="cerrar-modal-filtros-empresas" onclick="cerrarModalFiltros()">Cerrar</button>
+                    <button id="aplicar-filtros-empresas">Aplicar filtros</button>
+                </div>
+            </div>
+        </div>
+        </div>
+        
+    </main>
+
+
+    <%- include('plantillas/footer') %>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="/js/empresas.js"></script>
+
+</body>
+</html>
+

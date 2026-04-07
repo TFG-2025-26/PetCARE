@@ -281,7 +281,15 @@ function renderizarAnuncios(listaAnuncios) {
 
 $(document).ready(function(){
 
-    // Cargamos los primeros 10 anuncios nada más entrar
+    // Leemos query params para filtros preseleccionados (ej. desde servicios.ejs)
+    const params = new URLSearchParams(window.location.search);
+    const tipoServicioParam = params.get('tipoServicio');
+    if (tipoServicioParam) {
+        $('#filtro-tipo-servicio').val(tipoServicioParam);
+        filtrosActuales.tipoServicio = tipoServicioParam;
+    }
+
+    // Cargamos los primeros anuncios nada más entrar
     fetchAnuncios(false);
 
     // Eventos filtros
