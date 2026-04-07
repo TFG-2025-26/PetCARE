@@ -27,10 +27,13 @@ function aplicarFiltros() {
 
     // Recogemos los valores de los filtros
     filtrosActuales.tipoAnuncio = $('#filtro-tipo-anuncio').val();
-    filtrosActuales.tipoServicio = $('#filtro-tipo-servicio').val();
-    filtrosActuales.tipoAnimal = $('#filtro-animal').val();
+    const tipoServicio = $('#filtro-tipo-servicio').val();
+    filtrosActuales.tipoServicio = tipoServicio === 'todos-servicios' ? '' : tipoServicio;
+    const tipoAnimal = $('#filtro-animal').val();
+    filtrosActuales.tipoAnimal = tipoAnimal === 'todos-animales' ? '' : tipoAnimal;
     filtrosActuales.precioMax = $('#filtro-precio-max').val();
-    filtrosActuales.valoracionMin = $('#filtro-valoracion').val();
+    const valoracionMin = $('#filtro-valoracion').val();
+    filtrosActuales.valoracionMin = valoracionMin === 'todas-valoraciones' ? '' : valoracionMin;
 
     // Reseteamos el estado
     anuncios = [];
@@ -73,7 +76,7 @@ function fetchAnuncios(acumular) {
             paginaActual++;
 
             if(data.hayMasPaginas) {
-                $('#ver-mas-anuncios').prop('disabled', false).text('Ver más');
+                $('#ver-mas-anuncios').show().prop('disabled', false).text('Ver más');
             }
             else {
                 $('#ver-mas-anuncios').hide();
@@ -129,7 +132,7 @@ function agruparDisponibilidad(disponibilidades, tipo) {
             grupos[clave].push(disp);
         });
         return grupos;
-    } else {
+    } else if (tipo === 'recurrente') {
         const ordenSemana = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
         disponibilidades.forEach(function(disp) {
             const clave = disp.dia_semana;
@@ -141,6 +144,31 @@ function agruparDisponibilidad(disponibilidades, tipo) {
             if (grupos[dia]) gruposOrdenados[dia] = grupos[dia];
         });
         return gruposOrdenados;
+    }
+    else if (tipo === 'puntual/recurrente') {
+        const puntuales = disponibilidades.filter(d => d.tipo === 'puntual');
+        const recurrentes = disponibilidades.filter(d => d.tipo === 'recurrente');
+
+        const gruposPuntuales = {};
+        puntuales.forEach(function(disp) {
+            const clave = disp.fecha_inicio.split('T')[0].split('-').reverse().join('/');
+            if (!gruposPuntuales[clave]) gruposPuntuales[clave] = [];
+            gruposPuntuales[clave].push(disp);
+        });
+
+        const ordenSemana = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
+        const gruposRecurrentes = {};
+        recurrentes.forEach(function(disp) {
+            const clave = disp.dia_semana;
+            if (!gruposRecurrentes[clave]) gruposRecurrentes[clave] = [];
+            gruposRecurrentes[clave].push(disp);
+        });
+        const gruposRecurrentesOrdenados = {};
+        ordenSemana.forEach(function(dia) {
+            if (gruposRecurrentes[dia]) gruposRecurrentesOrdenados[dia] = gruposRecurrentes[dia];
+        });
+
+        return { puntual: gruposPuntuales, recurrente: gruposRecurrentesOrdenados };
     }
 }
 
@@ -163,6 +191,27 @@ function renderDisponibilidad(disponibilidades, tipo) {
             return `<div class="fila-dia"><span class="day-tag">${dia}</span>${slots}</div>`;
         }).join('');
         return `<div class="disponibilidad-recurrente">${filas}</div>`;
+    } else if (tipo === 'puntual/recurrente') {
+        let html = '';
+        if (Object.keys(grupos.puntual).length > 0) {
+            const chips = Object.entries(grupos.puntual).map(function([fecha, franjas]) {
+                const slots = franjas.map(function(f) {
+                    return `<span class="slot">${f.hora_inicio} - ${f.hora_fin}</span>`;
+                }).join('');
+                return `<div class="date-chip"><span class="date">${fecha}</span>${slots}</div>`;
+            }).join('');
+            html += `<div class="disponibilidad-puntual">${chips}</div>`;
+        }
+        if (Object.keys(grupos.recurrente).length > 0) {
+            const filas = Object.entries(grupos.recurrente).map(function([dia, franjas]) {
+                const slots = franjas.map(function(f) {
+                    return `<span class="slot">${f.hora_inicio} - ${f.hora_fin}</span>`;
+                }).join('');
+                return `<div class="fila-dia"><span class="day-tag">${dia}</span>${slots}</div>`;
+            }).join('');
+            html += `<div class="disponibilidad-recurrente">${filas}</div>`;
+        }
+        return html || '<p>No hay franjas de disponibilidad añadidas.</p>';
     } else {
         const chips = Object.entries(grupos).map(function([fecha, franjas]) {
             const slots = franjas.map(function(f) {
