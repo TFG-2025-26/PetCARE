@@ -64,6 +64,7 @@ const filtrarReportes = (req, res) => {
                 r.*,
                 f.titulo,
                 c.contenido,
+                c.id_foro AS comentario_id_foro,
                 u.nombre_usuario AS nombre_usuario_autor,
                 u_reportado.nombre_usuario AS nombre_usuario_reportado,
                 v.comentario AS comentario_valoracion
@@ -817,6 +818,7 @@ const getDetalleReporte = (req, res) => {
                 r.*,
                 f.titulo,
                 c.contenido,
+                c.id_foro AS comentario_id_foro,
                 u.nombre_usuario AS nombre_usuario_autor,
                 u_reportado.nombre_usuario AS nombre_usuario_reportado,
                 v.comentario AS comentario_valoracion

@@ -73,27 +73,49 @@
           <thead>
             <tr>
               <th>ID</th>
+              <th>Tipo</th>
               <th>Motivo</th>
               <th>Autor del reporte</th>
               <th>Usuario reportado</th>
               <th>Evidencia</th>
               <th>Acciones</th>
               <th>Estado</th>
+              <th>↗</th>
             </tr>
           </thead>
           <tbody>
             <% if (!reportes || reportes.length === 0) { %>
               <tr>
-                <td colspan="7" class="reportes-empty">No hay reportes registrados actualmente.</td>
+                <td colspan="9" class="reportes-empty">No hay reportes registrados actualmente.</td>
               </tr>
             <% } %>
 
             <% (reportes || []).forEach(reporte => {
               const evidencia = reporte.contenido || reporte.titulo || reporte.comentario_valoracion || 'Sin evidencia disponible';
               const estadoClase = `estado-${(reporte.estado || '').toLowerCase()}`;
+              let tipoReporte = 'usuario';
+              let tipoClase = 'tipo-usuario';
+              let fuenteUrl = null;
+
+              if (reporte.id_comentario && reporte.comentario_id_foro) {
+                tipoReporte = 'comentario';
+                tipoClase = 'tipo-comentario';
+                fuenteUrl = `/content/foros/${reporte.comentario_id_foro}#comentario-${reporte.id_comentario}`;
+              } else if (reporte.id_foro) {
+                tipoReporte = 'foro';
+                tipoClase = 'tipo-foro';
+                fuenteUrl = `/content/foros/${reporte.id_foro}`;
+              } else if (reporte.id_valoracion) {
+                tipoReporte = 'valoración';
+                tipoClase = 'tipo-valoracion';
+              } else if (reporte.id_usuario_reportado) {
+                tipoClase = 'tipo-usuario';
+                fuenteUrl = `/admin/adminPanel/gestionUsuarios/filtrar?tab=usuarios&busqueda=${encodeURIComponent(reporte.id_usuario_reportado)}&compacta=1`;
+              }
             %>
               <tr>
                 <td class="reportes-clickable-cell">#<%= reporte.id_reporte %></td>
+                <td class="reportes-clickable-cell"><span class="estado-chip <%= tipoClase %>"><%= tipoReporte %></span></td>
                 <td class="reportes-clickable-cell"><span class="chip-motivo"><%= reporte.motivo %></span></td>
                 <td class="reportes-clickable-cell"><%= reporte.nombre_usuario_autor || 'N/D' %></td>
                 <td class="reportes-clickable-cell"><%= reporte.nombre_usuario_reportado || 'N/D' %></td>
@@ -110,6 +132,13 @@
                 </td>
                 <td class="reportes-clickable-cell">
                   <span class="estado-chip <%= estadoClase %>"><%= reporte.estado %></span>
+                </td>
+                <td class="reportes-clickable-cell">
+                  <% if (fuenteUrl) { %>
+                    <a href="<%= fuenteUrl %>" class="reportes-source-link" title="Ir a la fuente" aria-label="Ir a la fuente">↗</a>
+                  <% } else { %>
+                    <span class="reportes-source-muted">—</span>
+                  <% } %>
                 </td>
               </tr>
             <% }) %>
@@ -179,7 +208,7 @@
 
       if (table) {
         table.addEventListener('click', (event) => {
-          if (event.target.closest('.btn-accion-reporte') || event.target.closest('form')) return;
+          if (event.target.closest('.btn-accion-reporte') || event.target.closest('form') || event.target.closest('.reportes-source-link')) return;
 
           const cell = event.target.closest('.reportes-clickable-cell');
           if (!cell) return;
