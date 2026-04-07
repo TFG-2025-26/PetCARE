@@ -33,7 +33,7 @@
             <div class="pet-foto">
                 <% if(pet.foto) {%>
                     <div class="pet-image-wrapper">
-                        <img src="data:image/jpeg;base64,<%= pet.foto.toString('base64') %>" alt="<%= pet.nombre_mascota %>">
+                        <img src="<%= pet.foto %>" alt="<%= pet.nombre_mascota %>">
                     </div>
                 <% } else {%>
                     <div class="pet-image-wrapper">

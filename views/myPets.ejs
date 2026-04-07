@@ -35,7 +35,7 @@
                             <div class="pet-card">
                                 <div class="pet-image-container">
                                     <% if (pet.foto) { %>
-                                        <img src="data:image/jpeg;base64,<%= pet.foto.toString('base64') %>" alt="<%= pet.nombre_mascota %>" class="pet-image">
+                                        <img src="<%= pet.foto %>" alt="<%= pet.nombre_mascota %>" class="pet-image">
                                     <% } else { %>
                                         <img src="/images/no-pet.png" alt="Mascota sin foto" class="pet-image">
                                     <% } %>

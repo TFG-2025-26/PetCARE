@@ -50,7 +50,7 @@ CREATE TABLE `articulos` (
   `titulo` varchar(255) NOT NULL,
   `cuerpo` text NOT NULL,
   `fecha_publicación` datetime NOT NULL,
-  `imagen` longblob DEFAULT NULL,
+  `imagen` varchar(255) DEFAULT NULL,
   `visualizaciones` int(11) NOT NULL DEFAULT 0,
   `activo` tinyint(1) NOT NULL DEFAULT 1,
   `id_usuario` int(11) NOT NULL
@@ -171,7 +171,7 @@ CREATE TABLE `empresas` (
   `tipo_otro` varchar(100) DEFAULT NULL,
   `descripcion` text DEFAULT NULL,
   `ubicacion` varchar(255) DEFAULT NULL,
-  `foto` longblob DEFAULT NULL,
+  `foto` varchar(255) DEFAULT NULL,
   `activo` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -204,7 +204,7 @@ CREATE TABLE `mascotas` (
   `especie` varchar(50) NOT NULL,
   `raza` varchar(50) NOT NULL,
   `peso` float NOT NULL,
-  `foto` longblob DEFAULT NULL,
+  `foto` varchar(255) DEFAULT NULL,
   `activo` tinyint(1) NOT NULL DEFAULT 1,
   `id_usuario` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -311,7 +311,7 @@ CREATE TABLE `usuarios` (
   `codigo_postal` int(11) DEFAULT NULL,
   `genero` enum('hombre','mujer','otro','no_decirlo') DEFAULT NULL,
   `trabajo` varchar(50) DEFAULT NULL,
-  `foto` longblob DEFAULT NULL,
+  `foto` varchar(255) DEFAULT NULL,
   `ban` tinyint(1) NOT NULL DEFAULT 0,
   `suspendido` tinyint(1) NOT NULL DEFAULT 0,
   `activo` tinyint(1) NOT NULL DEFAULT 1
