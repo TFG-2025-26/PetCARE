@@ -2,6 +2,7 @@
 
 const { validationResult } = require('express-validator');
 const pool = require('../db'); 
+const { createHttpError } = require('../handlers/httpErrors');
 
 const AUTH_ERROR_CODES = Object.freeze({
     ACCOUNT_BANNED: 'AUTH_ACCOUNT_BANNED',
@@ -20,14 +21,8 @@ const crearErrorCuentaSuspendida = (mensaje = 'La cuenta está suspendida tempor
     mensaje
 });
 
-const renderAuthStatusError = (res, vista, { formData = null, formType = null } = {}, authError) => {
-    return res.status(authError.status || 403).render(vista, {
-        error: authError.mensaje,
-        errores: [],
-        formData,
-        formType,
-        codigoError: authError.codigo || null
-    });
+const renderAuthStatusError = (next, authError) => {
+    return next(createHttpError(authError.status || 403, authError.mensaje, authError.codigo || null));
 };
 
 // TODO: Queda pendiente verificación de cuentas inactivas y doble factor para cuentas inactivas. También queda pendiente recuperar contraseña.
@@ -50,7 +45,7 @@ const getLogin = (req, res) => {
     });
 };
 
-const postRegisterUsuario = (req, res) => {
+const postRegisterUsuario = (req, res, next) => {
     const errores = validationResult(req);
 
     if (!errores.isEmpty()) {
@@ -67,7 +62,7 @@ const postRegisterUsuario = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render('error500', { mensaje: "Error al conectar a la base de datos" });
+            return res.status(500).send("Error al conectar a la base de datos");
         }
 
         // 1. Comprobar email
@@ -75,17 +70,12 @@ const postRegisterUsuario = (req, res) => {
             if (err) {
                 connection.release();
                 console.error("Error al verificar el correo:", err);
-                return res.status(500).render('error500', { mensaje: "Error al verificar el correo" });
+                return res.status(500).send("Error al verificar el correo");
             }
 
             if (results.some((usuario) => Number(usuario.ban) === 1)) {
                 connection.release();
-                return renderAuthStatusError(
-                    res,
-                    'register',
-                    { formData: req.body, formType: 'usuario' },
-                    crearErrorCuentaBaneada('No puedes registrarte con un correo asociado a una cuenta baneada.')
-                );
+                return renderAuthStatusError(next, crearErrorCuentaBaneada('No puedes registrarte con un correo asociado a una cuenta baneada.'));
             }
 
             if (results.length > 0) {
@@ -103,7 +93,7 @@ const postRegisterUsuario = (req, res) => {
                 if (err) {
                     connection.release();
                     console.error("Error al verificar el nombre de usuario:", err);
-                    return res.status(500).render('error500', { mensaje: "Error al verificar el nombre de usuario" });
+                    return res.status(500).send("Error al verificar el nombre de usuario");
                 }
                 if (results.length > 0) {
                     connection.release();
@@ -120,17 +110,12 @@ const postRegisterUsuario = (req, res) => {
                     if (err) {
                         connection.release();
                         console.error("Error al verificar el teléfono:", err);
-                        return res.status(500).render('error500', { mensaje: "Error al verificar el teléfono" });
+                        return res.status(500).send("Error al verificar el teléfono");
                     }
 
                     if (results.some((usuario) => Number(usuario.ban) === 1)) {
                         connection.release();
-                        return renderAuthStatusError(
-                            res,
-                            'register',
-                            { formData: req.body, formType: 'usuario' },
-                            crearErrorCuentaBaneada('No puedes registrarte con un teléfono asociado a una cuenta baneada.')
-                        );
+                        return renderAuthStatusError(next, crearErrorCuentaBaneada('No puedes registrarte con un teléfono asociado a una cuenta baneada.'));
                     }
 
                     if (results.length > 0) {
@@ -149,7 +134,7 @@ const postRegisterUsuario = (req, res) => {
                         connection.release();
                         if (err) {
                             console.error("Error al ejecutar la consulta de inserción:", err);
-                            return res.status(500).render('error500', { mensaje: "Error al registrar el usuario" });
+                            return res.status(500).send("Error al registrar el usuario");
                         }
                         req.session.usuario = {
                             id:     results.insertId,
@@ -166,7 +151,7 @@ const postRegisterUsuario = (req, res) => {
     });
 };
 
-const postRegisterEmpresa = (req, res) => {
+const postRegisterEmpresa = (req, res, next) => {
     const errores = validationResult(req);
 
     if (!errores.isEmpty()) {
@@ -186,31 +171,26 @@ const postRegisterEmpresa = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render('error500', { mensaje: "Error al conectar a la base de datos" });
+            return res.status(500).send("Error al conectar a la base de datos");
         }
 
         connection.query("SELECT id_usuario, ban FROM usuarios WHERE correo = ?", [correo], (errorCorreoBan, usuariosCoincidentes) => {
             if (errorCorreoBan) {
                 connection.release();
                 console.error("Error al verificar el correo baneado:", errorCorreoBan);
-                return res.status(500).render('error500', { mensaje: "Error al verificar el correo" });
+                return res.status(500).send("Error al verificar el correo");
             }
 
             if (usuariosCoincidentes.some((usuario) => Number(usuario.ban) === 1)) {
                 connection.release();
-                return renderAuthStatusError(
-                    res,
-                    'register',
-                    { formData: req.body, formType: 'empresa' },
-                    crearErrorCuentaBaneada('No puedes registrarte con un correo asociado a una cuenta baneada.')
-                );
+                return renderAuthStatusError(next, crearErrorCuentaBaneada('No puedes registrarte con un correo asociado a una cuenta baneada.'));
             }
 
             connection.query("SELECT id_empresa FROM empresas WHERE correo = ?", [correo], (errorCorreo, empresasCorreo) => {
                 if (errorCorreo) {
                     connection.release();
                     console.error("Error al verificar el correo:", errorCorreo);
-                    return res.status(500).render('error500', { mensaje: "Error al verificar el correo" });
+                    return res.status(500).send("Error al verificar el correo");
                 }
 
                 if (empresasCorreo.length > 0) {
@@ -227,7 +207,7 @@ const postRegisterEmpresa = (req, res) => {
                     if (errorCif) {
                         connection.release();
                         console.error("Error al verificar el CIF:", errorCif);
-                        return res.status(500).render('error500', { mensaje: "Error al verificar el CIF" });
+                        return res.status(500).send("Error al verificar el CIF");
                     }
 
                     if (empresasCif.length > 0) {
@@ -244,24 +224,19 @@ const postRegisterEmpresa = (req, res) => {
                         if (errorTelefonoBan) {
                             connection.release();
                             console.error("Error al verificar el teléfono baneado:", errorTelefonoBan);
-                            return res.status(500).render('error500', { mensaje: "Error al verificar el teléfono" });
+                            return res.status(500).send("Error al verificar el teléfono");
                         }
 
                         if (usuariosTelefono.some((usuario) => Number(usuario.ban) === 1)) {
                             connection.release();
-                            return renderAuthStatusError(
-                                res,
-                                'register',
-                                { formData: req.body, formType: 'empresa' },
-                                crearErrorCuentaBaneada('No puedes registrarte con un teléfono asociado a una cuenta baneada.')
-                            );
+                            return renderAuthStatusError(next, crearErrorCuentaBaneada('No puedes registrarte con un teléfono asociado a una cuenta baneada.'));
                         }
 
                         connection.query("SELECT id_empresa FROM empresas WHERE telefono_contacto = ?", [telefono_contacto], (errorTelefono, empresasTelefono) => {
                             if (errorTelefono) {
                                 connection.release();
                                 console.error("Error al verificar el teléfono:", errorTelefono);
-                                return res.status(500).render('error500', { mensaje: "Error al verificar el teléfono" });
+                                return res.status(500).send("Error al verificar el teléfono");
                             }
 
                             if (empresasTelefono.length > 0) {
@@ -279,7 +254,7 @@ const postRegisterEmpresa = (req, res) => {
                                 connection.release();
                                 if (insertErr) {
                                     console.error("Error al insertar la empresa:", insertErr);
-                                    return res.status(500).render('error500', { mensaje: "Error al insertar la empresa" });
+                                    return res.status(500).send("Error al insertar la empresa");
                                 }
 
                                 req.session.usuario = {
@@ -298,11 +273,11 @@ const postRegisterEmpresa = (req, res) => {
     });
 };
 
-const postLoginUsuario = (req, res) => {
+const postLoginUsuario = (req, res, next) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render('error500', { mensaje: "Error al conectar a la base de datos" });
+            return res.status(500).send("Error al conectar a la base de datos");
         }
 
         const { usuario_input, password } = req.body; 
@@ -313,7 +288,7 @@ const postLoginUsuario = (req, res) => {
             // Comprobar errores en la consulta
             if (err) {
                 console.error("Error al ejecutar la consulta de login:", err);
-                return res.status(500).render('error500', { mensaje: "Error al ejecutar la consulta de login" });
+                return res.status(500).send("Error al ejecutar la consulta de login");
             }
 
             // 1. Comprobar si la cuenta existe y está activa
@@ -329,21 +304,11 @@ const postLoginUsuario = (req, res) => {
             const usuario = results[0];
 
             if (Number(usuario.ban) === 1) {
-                return renderAuthStatusError(
-                    res,
-                    'login',
-                    { formData: req.body, formType: 'usuario' },
-                    crearErrorCuentaBaneada('Tu cuenta ha sido baneada. Si crees que se trata de un error, contacta con soporte.')
-                );
+                return renderAuthStatusError(next, crearErrorCuentaBaneada('Tu cuenta ha sido baneada. Si crees que se trata de un error, contacta con soporte.'));
             }
 
             if (Number(usuario.suspendido) === 1) {
-                return renderAuthStatusError(
-                    res,
-                    'login',
-                    { formData: req.body, formType: 'usuario' },
-                    crearErrorCuentaSuspendida('Tu cuenta está suspendida temporalmente. Contacta con soporte para más información.')
-                );
+                return renderAuthStatusError(next, crearErrorCuentaSuspendida('Tu cuenta está suspendida temporalmente. Contacta con soporte para más información.'));
             }
 
             if (Number(usuario.activo) === 0) {
@@ -383,7 +348,7 @@ const postLoginEmpresa = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err); 
-            return res.status(500).render('error500', {mensaje: "Error al conectar a la base de datos"}); 
+            return res.status(500).send("Error al conectar a la base de datos"); 
         }
 
         const { correo, password } = req.body;
@@ -393,7 +358,7 @@ const postLoginEmpresa = (req, res) => {
             connection.release();
             if (err) {
                 console.error("Error al ejecutar la consulta de login:", err);
-                return res.status(500).render('error500', { mensaje: "Error al ejecutar la consulta de login" });
+                return res.status(500).send("Error al ejecutar la consulta de login");
             }
 
             // 1. Comprobar si existe la cuenta y está activa

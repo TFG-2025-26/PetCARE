@@ -8,13 +8,13 @@ const getMyPets = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render('error500', { mensaje: "Error al conectar a la base de datos" });
+            return res.status(500).send("Error al conectar a la base de datos");
         }
         connection.query("SELECT * FROM mascotas WHERE activo = 1 AND id_usuario = ?", [id], (err, results) => {
             connection.release();
             if (err) {
                 console.error("Error al ejecutar la consulta:", err);
-                return res.status(500).render('error500', { mensaje: "Error al obtener las mascotas" });
+                return res.status(500).send("Error al obtener las mascotas");
             }
             res.render("myPets", { pets: results});
         });
@@ -41,14 +41,14 @@ const postRegisterPet = (req, res) => {
         pool.getConnection((err, connection) => {
             if (err) {
                 console.error("Error al conectar a la base de datos:", err);
-                return res.status(500).render('error500', { mensaje: "Error al conectar a la base de datos" });
+                return res.status(500).send("Error al conectar a la base de datos");
             }
             const query = "INSERT INTO mascotas (nombre_mascota, fecha_nacimiento, especie, raza, peso, foto, id_usuario) VALUES (?, ?, ?, ?, ?, ?, ?)";
             connection.query(query, [petName, petBirthday, petSpecies, petBreed, petWeight, imagen, id], (err, results) => {
                 if (err) {
                     connection.release();
                     console.error("Error al ejecutar la consulta:", err);
-                    return res.status(500).render('error500', { mensaje: "Error al registrar la mascota" });
+                    return res.status(500).send("Error al registrar la mascota");
                 }
 
                 const idMascota = results.insertId;
@@ -58,7 +58,7 @@ const postRegisterPet = (req, res) => {
                     connection.release();
                     if (err) {
                         console.error("Error al crear la cartilla médica:", err);
-                        return res.status(500).render('error500', { mensaje: "Error al crear la cartilla médica" });
+                        return res.status(500).send("Error al crear la cartilla médica");
                     }
 
                     return res.redirect("/pets/mypets");
@@ -120,7 +120,7 @@ const getPetProfile = async (req, res) => {
 
         // Si no existe la mascota, devolvemos 404.
         if (results.length === 0) {
-            return res.status(404).render("error404");
+            return res.status(404).send('Recurso no encontrado');
         }
 
         // Tomamos la primera fila (solo debería haber una mascota con ese id).
@@ -162,11 +162,11 @@ const getPetProfile = async (req, res) => {
         // Si falló abrir conexión, mostramos mensaje específico.
         if (err.queryStep === "connection") {
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+            return res.status(500).send("Error al conectar a la base de datos");
         }
         // Cualquier otro error (consultas) cae aquí.
         console.error("Error al obtener los datos de la mascota:", err);
-        return res.status(500).render("error500", { mensaje: "Error al obtener los datos de la mascota" });
+        return res.status(500).send("Error al obtener los datos de la mascota");
     } finally {
         // finally se ejecuta SIEMPRE: haya ido bien o mal.
         // Cerramos la conexión para no dejar conexiones abiertas (fugas de conexión).
@@ -182,13 +182,13 @@ const postEliminarMascota = (req, res) =>{
     pool.getConnection((err, connection) => {
         if(err){
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render("error500", {mensaje: "Error al conectar a la base de datos"});
+            return res.status(500).send("Error al conectar a la base de datos");
         }
         connection.query("UPDATE mascotas SET activo = 0 WHERE id_mascota = ?", [id], (err, results) => {
             connection.release();
             if(err){
                 console.error("Error al eliminar la mascota:", err);
-                return res.status(500).render("error500", {mensaje: "Error al eliminar la mascota"});
+                return res.status(500).send("Error al eliminar la mascota");
             }
             res.redirect("/pets/mypets");
         })
@@ -223,7 +223,7 @@ const postAddCita = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+            return res.status(500).send("Error al conectar a la base de datos");
         }
 
         connection.query(
@@ -233,7 +233,7 @@ const postAddCita = (req, res) => {
                 if (err) {
                     connection.release();
                     console.error("Error al crear la cita:", err);
-                    return res.status(500).render("error500", { mensaje: "Error al crear la cita" });
+                    return res.status(500).send("Error al crear la cita");
                 }
 
                 connection.query(
@@ -244,11 +244,11 @@ const postAddCita = (req, res) => {
 
                         if (err) {
                             console.error("Error al obtener la mascota de la cartilla:", err);
-                            return res.status(500).render("error500", { mensaje: "Error al obtener la mascota de la cartilla" });
+                            return res.status(500).send("Error al obtener la mascota de la cartilla");
                         }
 
                         if (mascotaResults.length === 0) {
-                            return res.status(404).render("error404");
+                            return res.status(404).send('Recurso no encontrado');
                         }
 
                         return res.redirect(`/pets/profile/${mascotaResults[0].id_mascota}`);
@@ -282,7 +282,7 @@ const postAddVacuna = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+            return res.status(500).send("Error al conectar a la base de datos");
         }
 
         connection.query(
@@ -292,7 +292,7 @@ const postAddVacuna = (req, res) => {
                 if (err) {
                     connection.release();
                     console.error("Error al crear la vacuna:", err);
-                    return res.status(500).render("error500", { mensaje: "Error al crear la vacuna" });
+                    return res.status(500).send("Error al crear la vacuna");
                 }
 
                 connection.query(
@@ -303,11 +303,11 @@ const postAddVacuna = (req, res) => {
 
                         if (err) {
                             console.error("Error al obtener la mascota de la cartilla:", err);
-                            return res.status(500).render("error500", { mensaje: "Error al obtener la mascota de la cartilla" });
+                            return res.status(500).send("Error al obtener la mascota de la cartilla");
                         }
 
                         if (mascotaResults.length === 0) {
-                            return res.status(404).render("error404");
+                            return res.status(404).send('Recurso no encontrado');
                         }
 
                         return res.redirect(`/pets/profile/${mascotaResults[0].id_mascota}`);
@@ -341,7 +341,7 @@ const postAddTratamiento = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+            return res.status(500).send("Error al conectar a la base de datos");
         }
 
         connection.query(
@@ -351,7 +351,7 @@ const postAddTratamiento = (req, res) => {
                 if (err) {
                     connection.release();
                     console.error("Error al crear el tratamiento:", err);
-                    return res.status(500).render("error500", { mensaje: "Error al crear el tratamiento" });
+                    return res.status(500).send("Error al crear el tratamiento");
                 }
 
                 connection.query(
@@ -362,11 +362,11 @@ const postAddTratamiento = (req, res) => {
 
                         if (err) {
                             console.error("Error al obtener la mascota de la cartilla:", err);
-                            return res.status(500).render("error500", { mensaje: "Error al obtener la mascota de la cartilla" });
+                            return res.status(500).send("Error al obtener la mascota de la cartilla");
                         }
 
                         if (mascotaResults.length === 0) {
-                            return res.status(404).render("error404");
+                            return res.status(404).send('Recurso no encontrado');
                         }
 
                         return res.redirect(`/pets/profile/${mascotaResults[0].id_mascota}`);
@@ -400,7 +400,7 @@ const postAddPatologia = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+            return res.status(500).send("Error al conectar a la base de datos");
         }
 
         connection.query(
@@ -410,7 +410,7 @@ const postAddPatologia = (req, res) => {
                 if (err) {
                     connection.release();
                     console.error("Error al crear la patología:", err);
-                    return res.status(500).render("error500", { mensaje: "Error al crear la patología" });
+                    return res.status(500).send("Error al crear la patología");
                 }
 
                 connection.query(
@@ -421,11 +421,11 @@ const postAddPatologia = (req, res) => {
 
                         if (err) {
                             console.error("Error al obtener la mascota de la cartilla:", err);
-                            return res.status(500).render("error500", { mensaje: "Error al obtener la mascota de la cartilla" });
+                            return res.status(500).send("Error al obtener la mascota de la cartilla");
                         }
 
                         if (mascotaResults.length === 0) {
-                            return res.status(404).render("error404");
+                            return res.status(404).send('Recurso no encontrado');
                         }
 
                         return res.redirect(`/pets/profile/${mascotaResults[0].id_mascota}`);
@@ -445,16 +445,16 @@ const getEditarMascota = (req, res) => {
     pool.getConnection((err, connection) => {
         if(err){
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render("error500", {mensaje: "Error al conectar a la base de datos"});
+            return res.status(500).send("Error al conectar a la base de datos");
         }
         connection.query("SELECT * FROM mascotas WHERE id_mascota = ? and activo = 1", [petId], (err, results) => {
             connection.release();
             if(err){
                 console.error("Error al obtener los datos de la mascota:", err);
-                return res.status(500).render("error500", {mensaje: "Error al obtener los datos de la mascota"});
+                return res.status(500).send("Error al obtener los datos de la mascota");
             }
             if(results.length === 0){
-                return res.status(404).render("error404");
+                return res.status(404).send('Recurso no encontrado');
             }
             const pet = results[0];
             console.log(pet);
@@ -476,7 +476,7 @@ const postEditarMascota = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+            return res.status(500).send("Error al conectar a la base de datos");
         }
         if (imagen) {
             const query = "UPDATE mascotas SET nombre_mascota = ?, especie = ?, raza = ?, fecha_nacimiento = ?, peso = ?, foto = ? WHERE id_mascota = ?";
@@ -484,7 +484,7 @@ const postEditarMascota = (req, res) => {
                 connection.release();
                 if (err) {
                     console.error("Error al actualizar los datos de la mascota:", err);
-                    return res.status(500).render("error500", { mensaje: "Error al actualizar los datos de la mascota" });
+                    return res.status(500).send("Error al actualizar los datos de la mascota");
                 }
                 res.redirect("/pets/profile/" + id_mascota);
             });
@@ -494,7 +494,7 @@ const postEditarMascota = (req, res) => {
                 connection.release();
                 if (err) {
                     console.error("Error al actualizar los datos de la mascota:", err);
-                    return res.status(500).render("error500", { mensaje: "Error al actualizar los datos de la mascota" });
+                    return res.status(500).send("Error al actualizar los datos de la mascota");
                 }
                 res.redirect("/pets/profile/" + id_mascota);
             });
@@ -508,16 +508,16 @@ const getEditarCita = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+            return res.status(500).send("Error al conectar a la base de datos");
         }
         connection.query("SELECT * FROM cita_veterinaria WHERE id_cita = ?", [id_cita], (err, results) => {
             connection.release();
             if (err) {
                 console.error("Error al obtener los datos de la cita:", err);
-                return res.status(500).render("error500", { mensaje: "Error al obtener los datos de la cita" });
+                return res.status(500).send("Error al obtener los datos de la cita");
             }
             if (results.length === 0) {
-                return res.status(404).render("error404");
+                return res.status(404).send('Recurso no encontrado');
             }
             const cita = results[0];
             cita.fecha = new Date(cita.fecha).toISOString().slice(0, 16);
@@ -532,16 +532,16 @@ const getEditarVacuna = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+            return res.status(500).send("Error al conectar a la base de datos");
         }
         connection.query("SELECT * FROM vacunas WHERE id_vacuna = ?", [id_vacuna], (err, results) => {
             connection.release();
             if (err) {
                 console.error("Error al obtener los datos de la vacuna:", err);
-                return res.status(500).render("error500", { mensaje: "Error al obtener los datos de la vacuna" });
+                return res.status(500).send("Error al obtener los datos de la vacuna");
             }
             if (results.length === 0) {
-                return res.status(404).render("error404");
+                return res.status(404).send('Recurso no encontrado');
             }
             const vacuna = results[0];
             vacuna.fecha_administracion = new Date(vacuna.fecha_administracion).toISOString().slice(0, 10);
@@ -557,16 +557,16 @@ const getEditarTratamiento = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+            return res.status(500).send("Error al conectar a la base de datos");
         }
         connection.query("SELECT * FROM tratamientos WHERE id_tratamiento = ?", [id_tratamiento], (err, results) => {
             connection.release();
             if (err) {
                 console.error("Error al obtener los datos del tratamiento:", err);
-                return res.status(500).render("error500", { mensaje: "Error al obtener los datos del tratamiento" });
+                return res.status(500).send("Error al obtener los datos del tratamiento");
             }
             if (results.length === 0) {
-                return res.status(404).render("error404");
+                return res.status(404).send('Recurso no encontrado');
             }
             const tratamiento = results[0];
             tratamiento.fecha_inicio = new Date(tratamiento.fecha_inicio).toISOString().slice(0, 16);
@@ -583,16 +583,16 @@ const getEditarPatologia = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+            return res.status(500).send("Error al conectar a la base de datos");
         }
         connection.query("SELECT * FROM condicion_medica WHERE id_condicion = ?", [id_patologia], (err, results) => {
             connection.release();
             if (err) {
                 console.error("Error al obtener los datos de la patología:", err);
-                return res.status(500).render("error500", { mensaje: "Error al obtener los datos de la patología" });
+                return res.status(500).send("Error al obtener los datos de la patología");
             }
             if (results.length === 0) {
-                return res.status(404).render("error404");
+                return res.status(404).send('Recurso no encontrado');
             }
             const patologia = results[0];
             patologia.fecha_diagnostico = new Date(patologia.fecha_diagnostico).toISOString().slice(0, 10);
@@ -618,7 +618,7 @@ const postEditarCita = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+            return res.status(500).send("Error al conectar a la base de datos");
         }
 
         connection.query(
@@ -632,12 +632,12 @@ const postEditarCita = (req, res) => {
                 if (err) {
                     connection.release();
                     console.error("Error al obtener la mascota de la cita:", err);
-                    return res.status(500).render("error500", { mensaje: "Error al obtener la mascota de la cita" });
+                    return res.status(500).send("Error al obtener la mascota de la cita");
                 }
 
                 if (mascotaResults.length === 0) {
                     connection.release();
-                    return res.status(404).render("error404");
+                    return res.status(404).send('Recurso no encontrado');
                 }
 
                 const idMascota = mascotaResults[0].id_mascota;
@@ -649,7 +649,7 @@ const postEditarCita = (req, res) => {
                         connection.release();
                         if (err) {
                             console.error("Error al actualizar la cita:", err);
-                            return res.status(500).render("error500", { mensaje: "Error al actualizar la cita" });
+                            return res.status(500).send("Error al actualizar la cita");
                         }
 
                         return res.redirect(`/pets/profile/${idMascota}`);
@@ -681,7 +681,7 @@ const postEditarVacuna = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+            return res.status(500).send("Error al conectar a la base de datos");
         }
 
         connection.query(
@@ -695,12 +695,12 @@ const postEditarVacuna = (req, res) => {
                 if (err) {
                     connection.release();
                     console.error("Error al obtener la mascota de la vacuna:", err);
-                    return res.status(500).render("error500", { mensaje: "Error al obtener la mascota de la vacuna" });
+                    return res.status(500).send("Error al obtener la mascota de la vacuna");
                 }
 
                 if (mascotaResults.length === 0) {
                     connection.release();
-                    return res.status(404).render("error404");
+                    return res.status(404).send('Recurso no encontrado');
                 }
 
                 const idMascota = mascotaResults[0].id_mascota;
@@ -712,7 +712,7 @@ const postEditarVacuna = (req, res) => {
                         connection.release();
                         if (err) {
                             console.error("Error al actualizar la vacuna:", err);
-                            return res.status(500).render("error500", { mensaje: "Error al actualizar la vacuna" });
+                            return res.status(500).send("Error al actualizar la vacuna");
                         }
 
                         return res.redirect(`/pets/profile/${idMascota}`);
@@ -747,7 +747,7 @@ const postEditarTratamiento = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+            return res.status(500).send("Error al conectar a la base de datos");
         }
 
         connection.query(
@@ -761,12 +761,12 @@ const postEditarTratamiento = (req, res) => {
                 if (err) {
                     connection.release();
                     console.error("Error al obtener la mascota del tratamiento:", err);
-                    return res.status(500).render("error500", { mensaje: "Error al obtener la mascota del tratamiento" });
+                    return res.status(500).send("Error al obtener la mascota del tratamiento");
                 }
 
                 if (mascotaResults.length === 0) {
                     connection.release();
-                    return res.status(404).render("error404");
+                    return res.status(404).send('Recurso no encontrado');
                 }
 
                 const idMascota = mascotaResults[0].id_mascota;
@@ -778,7 +778,7 @@ const postEditarTratamiento = (req, res) => {
                         connection.release();
                         if (err) {
                             console.error("Error al actualizar el tratamiento:", err);
-                            return res.status(500).render("error500", { mensaje: "Error al actualizar el tratamiento" });
+                            return res.status(500).send("Error al actualizar el tratamiento");
                         }
 
                         return res.redirect(`/pets/profile/${idMascota}`);
@@ -805,7 +805,7 @@ const postEditarPatologia = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+            return res.status(500).send("Error al conectar a la base de datos");
         }
 
         connection.query(
@@ -819,12 +819,12 @@ const postEditarPatologia = (req, res) => {
                 if (err) {
                     connection.release();
                     console.error("Error al obtener la mascota de la patología:", err);
-                    return res.status(500).render("error500", { mensaje: "Error al obtener la mascota de la patología" });
+                    return res.status(500).send("Error al obtener la mascota de la patología");
                 }
 
                 if (mascotaResults.length === 0) {
                     connection.release();
-                    return res.status(404).render("error404");
+                    return res.status(404).send('Recurso no encontrado');
                 }
 
                 const idMascota = mascotaResults[0].id_mascota;
@@ -836,7 +836,7 @@ const postEditarPatologia = (req, res) => {
                         connection.release();
                         if (err) {
                             console.error("Error al actualizar la patología:", err);
-                            return res.status(500).render("error500", { mensaje: "Error al actualizar la patología" });
+                            return res.status(500).send("Error al actualizar la patología");
                         }
 
                         return res.redirect(`/pets/profile/${idMascota}`);
@@ -858,7 +858,7 @@ const eliminarCita = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+            return res.status(500).send("Error al conectar a la base de datos");
         }
         connection.query(
             `SELECT cm.id_mascota
@@ -871,12 +871,12 @@ const eliminarCita = (req, res) => {
                 if (err) {
                     connection.release();
                     console.error("Error al obtener la mascota de la cita:", err);
-                    return res.status(500).render("error500", { mensaje: "Error al obtener la mascota de la cita" });
+                    return res.status(500).send("Error al obtener la mascota de la cita");
                 }
 
                 if (mascotaResults.length === 0) {
                     connection.release();
-                    return res.status(404).render("error404");
+                    return res.status(404).send('Recurso no encontrado');
                 }
 
                 const idMascota = mascotaResults[0].id_mascota;
@@ -885,7 +885,7 @@ const eliminarCita = (req, res) => {
                     connection.release();
                     if (err) {
                         console.error("Error al eliminar la cita:", err);
-                        return res.status(500).render("error500", { mensaje: "Error al eliminar la cita" });
+                        return res.status(500).send("Error al eliminar la cita");
                     }
 
                     return res.redirect(`/pets/profile/${idMascota}`);
@@ -900,7 +900,7 @@ const eliminarVacuna = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+            return res.status(500).send("Error al conectar a la base de datos");
         }
         connection.query(
             `SELECT cm.id_mascota
@@ -913,12 +913,12 @@ const eliminarVacuna = (req, res) => {
                 if (err) {
                     connection.release();
                     console.error("Error al obtener la mascota de la vacuna:", err);
-                    return res.status(500).render("error500", { mensaje: "Error al obtener la mascota de la vacuna" });
+                    return res.status(500).send("Error al obtener la mascota de la vacuna");
                 }
 
                 if (mascotaResults.length === 0) {
                     connection.release();
-                    return res.status(404).render("error404");
+                    return res.status(404).send('Recurso no encontrado');
                 }
 
                 const idMascota = mascotaResults[0].id_mascota;
@@ -927,7 +927,7 @@ const eliminarVacuna = (req, res) => {
                     connection.release();
                     if (err) {
                         console.error("Error al eliminar la vacuna:", err);
-                        return res.status(500).render("error500", { mensaje: "Error al eliminar la vacuna" });
+                        return res.status(500).send("Error al eliminar la vacuna");
                     }
 
                     return res.redirect(`/pets/profile/${idMascota}`);
@@ -942,7 +942,7 @@ const eliminarTratamiento = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+            return res.status(500).send("Error al conectar a la base de datos");
         }
         connection.query(
             `SELECT cm.id_mascota
@@ -955,12 +955,12 @@ const eliminarTratamiento = (req, res) => {
                 if (err) {
                     connection.release();
                     console.error("Error al obtener la mascota del tratamiento:", err);
-                    return res.status(500).render("error500", { mensaje: "Error al obtener la mascota del tratamiento" });
+                    return res.status(500).send("Error al obtener la mascota del tratamiento");
                 }
 
                 if (mascotaResults.length === 0) {
                     connection.release();
-                    return res.status(404).render("error404");
+                    return res.status(404).send('Recurso no encontrado');
                 }
 
                 const idMascota = mascotaResults[0].id_mascota;
@@ -969,7 +969,7 @@ const eliminarTratamiento = (req, res) => {
                     connection.release();
                     if (err) {
                         console.error("Error al eliminar el tratamiento:", err);
-                        return res.status(500).render("error500", { mensaje: "Error al eliminar el tratamiento" });
+                        return res.status(500).send("Error al eliminar el tratamiento");
                     }
 
                     return res.redirect(`/pets/profile/${idMascota}`);
@@ -984,7 +984,7 @@ const eliminarPatologia = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render("error500", { mensaje: "Error al conectar a la base de datos" });
+            return res.status(500).send("Error al conectar a la base de datos");
         }
         connection.query(
             `SELECT cm.id_mascota
@@ -997,12 +997,12 @@ const eliminarPatologia = (req, res) => {
                 if (err) {
                     connection.release();
                     console.error("Error al obtener la mascota de la patología:", err);
-                    return res.status(500).render("error500", { mensaje: "Error al obtener la mascota de la patología" });
+                    return res.status(500).send("Error al obtener la mascota de la patología");
                 }
 
                 if (mascotaResults.length === 0) {
                     connection.release();
-                    return res.status(404).render("error404");
+                    return res.status(404).send('Recurso no encontrado');
                 }
 
                 const idMascota = mascotaResults[0].id_mascota;
@@ -1011,7 +1011,7 @@ const eliminarPatologia = (req, res) => {
                     connection.release();
                     if (err) {
                         console.error("Error al eliminar la patología:", err);
-                        return res.status(500).render("error500", { mensaje: "Error al eliminar la patología" });
+                        return res.status(500).send("Error al eliminar la patología");
                     }
 
                     return res.redirect(`/pets/profile/${idMascota}`);
