@@ -3,7 +3,9 @@
 const express = require('express'); 
 const router = express.Router(); 
 const { body } = require('express-validator');
+const multer = require('multer');
 const adminController = require('../controllers/adminController');
+const contentController = require('../controllers/contentController');
 const { isAdminAuthenticated } = require('../middlewares/authMiddleware');
 
 const validarAdminRegistroUsuario = [
@@ -160,9 +162,37 @@ const validarAdminEdicionEmpresa = [
         .isIn(['0', '1']).withMessage('El estado seleccionado no es válido')
 ];
 
+const uploadArticulo = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 4 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+        if (allowed.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Formato de imagen no permitido'));
+        }
+    }
+});
+
+const validarCreacionArticulo = [
+    body('titulo')
+        .notEmpty().withMessage('El título es obligatorio')
+        .isLength({ min: 5, max: 255 }).withMessage('El título debe tener entre 5 y 255 caracteres'),
+    body('cuerpo')
+        .notEmpty().withMessage('El cuerpo del artículo es obligatorio')
+        .isLength({ min: 20, max: 10000 }).withMessage('El cuerpo del artículo debe tener entre 20 y 10000 caracteres')
+];
+
 router.use(isAdminAuthenticated);
 
 router.get('/adminPanel', adminController.getAdminPanel);
+router.get('/adminPanel/gestionArticulos', adminController.getGestionArticulos);
+router.get('/adminPanel/gestionArticulos/crearArticulo', contentController.getCrearArticulo);
+router.post('/adminPanel/gestionArticulos/crearArticulo', uploadArticulo.single('imagen'), validarCreacionArticulo, contentController.postCrearArticulo);
+router.get('/adminPanel/gestionArticulos/:id_articulo/editar', contentController.getEditarArticulo);
+router.post('/adminPanel/gestionArticulos/:id_articulo/editar', uploadArticulo.single('imagen'), validarCreacionArticulo, contentController.postEditarArticulo);
+router.get('/adminPanel/gestionArticulos/:id_articulo/eliminar', contentController.eliminarArticulo);
 router.get('/adminPanel/gestionUsuarios', adminController.getGestionUsuarios);
 router.get('/adminPanel/gestionUsuarios/filtrar', adminController.filtrarUsuarios);
 router.get('/adminPanel/gestionUsuarios/registro', adminController.getAdminRegistroUsuario);

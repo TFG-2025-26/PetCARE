@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Artículos — PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <%- include('plantillas/navbar') %>
+
+  <main class="foros-page">
+
+    <% if (esAdmin) { %>
+      <section class="reportes-toolbar" aria-label="Acciones de navegación de administración">
+        <a href="/admin/adminPanel" class="reportes-back-link" aria-label="Volver al panel de administración">
+          <span class="btn-volver-atras" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+          </span>
+          <span class="reportes-back-text">Volver al panel</span>
+        </a>
+      </section>
+
+      <section class="reportes-hero" aria-labelledby="admin-articulos-vista-title">
+        <p class="reportes-kicker">Administración</p>
+        <h1 id="admin-articulos-vista-title">Gestión de artículos</h1>
+        <p class="reportes-subtitle">Vista editorial para revisar las publicaciones activas de PetCare desde administración.</p>
+      </section>
+    <% } %>
+
+    <div class="foros-header">
+      <div>
+        <h1>Artículos</h1>
+        <p class="foros-subtitle">Contenido informativo y consejos útiles para el cuidado y bienestar de las mascotas.</p>
+      </div>
+      <% if (esAdmin) { %>
+        <div class="btn-large" onclick="crearArticulo()">+ Nuevo artículo</div>
+      <% } %>
+    </div>
+
+    <form action="/content/articulos" method="GET" class="foros-filtros">
+      <div class="filtro-group filtro-keyword">
+        <label for="keyword">Palabra clave</label>
+        <input type="text" id="keyword" name="keyword" placeholder="Buscar en artículos..." value="<%= typeof filtros !== 'undefined' && filtros.keyword ? filtros.keyword : '' %>">
+      </div>
+      <div class="filtro-acciones">
+        <button type="submit" class="btn-filtro">Buscar</button>
+        <a href="/content/articulos" class="btn-filtro-reset">Limpiar</a>
+      </div>
+    </form>
+
+    <% if (typeof articulos !== 'undefined' && articulos.length > 0) { %>
+      <div class="foros-info">
+        <span><%= total %> artículo<%= total !== 1 ? 's' : '' %></span>
+      </div>
+
+      <div class="foros-list">
+        <% articulos.forEach(function(articulo) { %>
+          <% const cuerpoPreview = articulo.cuerpo && articulo.cuerpo.length > 260
+              ? articulo.cuerpo.slice(0, 260) + '…'
+              : articulo.cuerpo; %>
+
+          <article class="foro-card" role="link" tabindex="0" onclick="window.location.href='/content/articulos/<%= articulo.id_articulo %>'" onkeydown="if(event.key==='Enter'){ window.location.href='/content/articulos/<%= articulo.id_articulo %>'; }">
+            <div class="foro-card-header">
+              <div class="foro-card-header-left">
+                <span class="foro-autor">@<%= articulo.nombre_usuario %></span>
+                <span class="foro-categoria"><%= esAdmin ? ('ID #' + articulo.id_articulo) : 'Artículo' %></span>
+              </div>
+              <span class="foro-fecha"><%= new Date(articulo.fecha_publicacion).toLocaleDateString('es-ES') %></span>
+            </div>
+
+            <div class="foro-card-body">
+              <h2 class="foro-titulo"><%= articulo.titulo %></h2>
+              <p class="foro-desc"><%= cuerpoPreview %></p>
+            </div>
+
+            <div class="foro-card-footer">
+              <span class="foro-fecha">
+                Publicado el <%= new Date(articulo.fecha_publicacion).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' }) %>
+              </span>
+              <div style="display:flex; align-items:center; gap:0.85rem;">
+                <span class="foro-stat">👁️ <%= articulo.visualizaciones || 0 %></span>
+                <% if (esAdmin) { %>
+                  <a href="#" class="foro-detalle-editar" onclick="editarArticulo(event, '<%= articulo.id_articulo %>')">Editar ✏️</a>
+                  <a href="#" class="foro-detalle-eliminar" onclick="abrirModalEliminarArticulo(event, '<%= articulo.id_articulo %>')">Eliminar 🗑️</a>
+                <% } %>
+              </div>
+            </div>
+          </article>
+        <% }) %>
+      </div>
+
+      <% if (totalPaginas > 1) { %>
+        <nav class="foros-paginacion">
+          <% if (paginaActual > 1) { %>
+            <a href="/content/articulos?pagina=<%= paginaActual - 1 %>&keyword=<%= typeof filtros !== 'undefined' ? filtros.keyword || '' : '' %>" class="pag-btn">←</a>
+          <% } %>
+
+          <% for (let i = 1; i <= totalPaginas; i++) { %>
+            <% if (i === 1 || i === totalPaginas || (i >= paginaActual - 2 && i <= paginaActual + 2)) { %>
+              <a href="/content/articulos?pagina=<%= i %>&keyword=<%= typeof filtros !== 'undefined' ? filtros.keyword || '' : '' %>"
+                 class="pag-btn <%= i === paginaActual ? 'pag-active' : '' %>"><%= i %></a>
+            <% } else if (i === paginaActual - 3 || i === paginaActual + 3) { %>
+              <span class="pag-dots">…</span>
+            <% } %>
+          <% } %>
+
+          <% if (paginaActual < totalPaginas) { %>
+            <a href="/content/articulos?pagina=<%= paginaActual + 1 %>&keyword=<%= typeof filtros !== 'undefined' ? filtros.keyword || '' : '' %>" class="pag-btn">→</a>
+          <% } %>
+        </nav>
+      <% } %>
+
+    <% } else { %>
+      <div class="foros-empty">
+        <span class="foros-empty-icon">📰</span>
+        <p>No se encontraron artículos con esos criterios.</p>
+        <a href="/content/articulos" class="btn-outline-large">Ver todos los artículos</a>
+      </div>
+    <% } %>
+
+  </main>
+
+  <div id="modalArticulo" style="display:none;">
+    <div id="modalArticulo-contenido"></div>
+  </div>
+
+  <div class="modal-overlay" id="modalEliminarArticulo" style="display:none;">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>¿Eliminar artículo?</h3>
+        <button class="modal-close" type="button" onclick="cerrarModalEliminarArticulo()">✕</button>
+      </div>
+      <ul class="modal-list">
+        <li>
+          Esta acción ocultará el artículo y dejará de aparecer en los listados activos.
+        </li>
+      </ul>
+      <div class="modal-footer" style="gap: 0.8rem;">
+        <button class="btn-outline-large" type="button" onclick="cerrarModalEliminarArticulo()">Cancelar</button>
+        <a href="#" id="btnEliminarArticulo" class="btn-perfil-danger">Eliminar artículo</a>
+      </div>
+    </div>
+  </div>
+
+  <%- include('plantillas/footer') %>
+  <%- include('plantillas/modalErrores', { error: typeof error !== 'undefined' ? error : null, errores: typeof errores !== 'undefined' ? errores : [] }) %>
+
+  <script src="/js/validacionCrearArticulo.js"></script>
+  <script>
+    function esDocumentoCompleto(html) {
+      return /<!doctype\s+html|<html[\s>]/i.test(html || '');
+    }
+
+    async function crearArticulo() {
+      const url = '/admin/adminPanel/gestionArticulos/crearArticulo';
+      try {
+        const response = await fetch(url, {
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+        const html = await response.text();
+
+        if (!response.ok || esDocumentoCompleto(html)) {
+          window.location.href = url;
+          return;
+        }
+
+        document.getElementById('modalArticulo-contenido').innerHTML = html;
+        document.getElementById('modalArticulo').style.display = 'flex';
+        initValidacionCrearArticulo();
+      } catch (error) {
+        window.location.href = url;
+      }
+    }
+
+    async function editarArticulo(event, articuloId) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const url = `/admin/adminPanel/gestionArticulos/${articuloId}/editar`;
+      try {
+        const response = await fetch(url, {
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+        const html = await response.text();
+
+        if (!response.ok || esDocumentoCompleto(html)) {
+          window.location.href = url;
+          return;
+        }
+
+        document.getElementById('modalArticulo-contenido').innerHTML = html;
+        document.getElementById('modalArticulo').style.display = 'flex';
+        initValidacionCrearArticulo();
+      } catch (error) {
+        window.location.href = url;
+      }
+    }
+
+    function abrirModalEliminarArticulo(event, articuloId) {
+      event.preventDefault();
+      event.stopPropagation();
+      document.getElementById('btnEliminarArticulo').href = `/admin/adminPanel/gestionArticulos/${articuloId}/eliminar`;
+      document.getElementById('modalEliminarArticulo').style.display = 'flex';
+    }
+
+    function cerrarModalEliminarArticulo() {
+      document.getElementById('modalEliminarArticulo').style.display = 'none';
+    }
+
+    document.getElementById('modalArticulo').addEventListener('click', function (event) {
+      if (event.target === this) {
+        this.style.display = 'none';
+      }
+    });
+
+    document.getElementById('modalEliminarArticulo').addEventListener('click', function (event) {
+      if (event.target === this) {
+        cerrarModalEliminarArticulo();
+      }
+    });
+  </script>
+
+</body>
+</html>

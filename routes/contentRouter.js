@@ -17,7 +17,8 @@ const validarCreacionForo = [
         .notEmpty().withMessage('La categoria es obligatoria')
 ];
 
-
+router.get('/articulos', isAuthenticated, contentController.getArticulos);
+router.get('/articulos/:id', isAuthenticated, contentController.getArticuloDetalle);
 router.get('/foros', isAuthenticated, contentController.verForos);
 router.get('/foros/filtrar', isAuthenticated, contentController.filtrarForos);
 router.post('/foros/filtrar', isAuthenticated, contentController.filtrarForos);
