@@ -155,14 +155,14 @@ const postPublicarAnuncio = (req, res) => {
         pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render('error500', { mensaje: "Error al conectar a la base de datos" });
+            return res.status(500).send("Error al conectar a la base de datos");
         }
         if(tipo === 'puntual'){
             connection.query("INSERT INTO anuncios (tipo_anuncio, descripcion, tipo_mascota, precio_hora, tipo_servicio, id_usuario) VALUES (?, ?, ?, ?, ?, ?)", [tipo, descripcion, tipo_mascota, precio_hora, tipo_servicio, id_usuario], (err, results) => {
                 if (err) {
                     connection.release();
                     console.error("Error al insertar el anuncio:", err);
-                    return res.status(500).render('error500', { mensaje: "Error al insertar el anuncio" });
+                    return res.status(500).send("Error al insertar el anuncio");
                 }
                 else{
                     const id_anuncio = results.insertId;
@@ -172,7 +172,7 @@ const postPublicarAnuncio = (req, res) => {
                         connection.release();
                         if (err) {
                             console.error("Error al insertar la disponibilidad:", err);
-                            return res.status(500).render('error500', { mensaje: "Error al insertar la disponibilidad" });
+                            return res.status(500).send("Error al insertar la disponibilidad");
                         }
                         else{
                             res.redirect('/services/anuncios');
@@ -187,7 +187,7 @@ const postPublicarAnuncio = (req, res) => {
                 if (err) {
                     connection.release();
                     console.error("Error al insertar el anuncio:", err);
-                    return res.status(500).render('error500', { mensaje: "Error al insertar el anuncio" });
+                    return res.status(500).send("Error al insertar el anuncio");
                 }
                 else{
                     const id_anuncio = results.insertId;
@@ -202,7 +202,7 @@ const postPublicarAnuncio = (req, res) => {
                         connection.release();
                         if (err) {
                             console.error("Error al insertar la disponibilidad:", err);
-                            return res.status(500).render('error500', { mensaje: "Error al insertar la disponibilidad" });
+                            return res.status(500).send("Error al insertar la disponibilidad");
                         }
                         else{
                             res.redirect('/services/anuncios');

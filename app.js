@@ -6,6 +6,7 @@ const path = require('path');
 require('dotenv').config();
 const morgan = require('morgan');
 const { isAuthenticated } = require('./middlewares/authMiddleware');
+const { createHttpError, getDefaultErrorMessage, getErrorView } = require('./handlers/httpErrors');
 
 const app = express();
 app.use(morgan('dev'));
@@ -29,6 +30,24 @@ app.use(session({
 //Middleware global para la sesión 
 app.use((req, res, next) => {
         res.locals.usuario = req.session.usuario || null;
+    next();
+});
+
+app.use((req, res, next) => {
+    const originalSend = res.send.bind(res);
+
+    res.send = function patchedSend(body) {
+        const acceptHeader = req.get('Accept') || '';
+        const wantsHtmlErrorView = !req.xhr && !acceptHeader.includes('application/json') && req.accepts('html');
+        const isPlainTextBody = typeof body === 'string' && !body.trim().startsWith('<');
+
+        if (!res.headersSent && res.statusCode >= 400 && wantsHtmlErrorView && isPlainTextBody) {
+            return next(createHttpError(res.statusCode, body));
+        }
+
+        return originalSend(body);
+    };
+
     next();
 });
 
@@ -57,15 +76,32 @@ app.use('/services', servicesRoutes);
 app.use('/admin', isAuthenticated, adminRoutes);
 
 // Manejo de errores
-app.use((req, res) => {
-    res.status(404).render('error404');
+app.use((req, res, next) => {
+    return next(createHttpError(404, 'La página que buscas no existe o ya no está disponible.'));
 });
 
-// TODO: Me gustaría añadir aquí el error 400 y 403
-
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).render('error500', { mensaje: err.mensaje || 'Error interno del servidor' });
+    if (res.headersSent) {
+        return next(err);
+    }
+
+    const status = Number(err.status || err.statusCode || res.statusCode || 500);
+    const mensaje = err.mensaje || err.message || getDefaultErrorMessage(status);
+    const mensajeVista = [404, 500].includes(status) ? getDefaultErrorMessage(status) : mensaje;
+    const codigoError = err.codigo || err.code || null;
+    const acceptHeader = req.get('Accept') || '';
+
+    console.error(err.stack || err);
+
+    if (req.xhr || acceptHeader.includes('application/json')) {
+        return res.status(status).json({ error: mensaje, codigoError });
+    }
+
+    return res.status(status).render(getErrorView(status), {
+        mensaje: mensajeVista,
+        codigoError,
+        status
+    });
 });
 
 // Arranque del servidor

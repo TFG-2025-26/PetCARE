@@ -98,7 +98,7 @@ const getArticulos = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error('Error al conectar a la base de datos:', err);
-            return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
+            return res.status(500).send('Error al conectar a la base de datos');
         }
 
         const countQuery = `
@@ -112,7 +112,7 @@ const getArticulos = (req, res) => {
             if (countErr) {
                 connection.release();
                 console.error('Error al contar los artículos:', countErr);
-                return res.status(500).render('error500', { mensaje: 'Error al obtener los artículos' });
+                return res.status(500).send('Error al obtener los artículos');
             }
 
             const total = countResults[0].total;
@@ -138,7 +138,7 @@ const getArticulos = (req, res) => {
 
                 if (queryErr) {
                     console.error('Error al obtener los artículos:', queryErr);
-                    return res.status(500).render('error500', { mensaje: 'Error al obtener los artículos' });
+                    return res.status(500).send('Error al obtener los artículos');
                 }
 
                 return res.render('articulos', {
@@ -195,7 +195,7 @@ const postCrearArticulo = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error('Error al conectar a la base de datos:', err);
-            return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
+            return res.status(500).send('Error al conectar a la base de datos');
         }
 
         connection.query(sqlInsertArticulo, [titulo, cuerpo, imagen, 0, 1, id_usuario], (insertErr) => {
@@ -203,7 +203,7 @@ const postCrearArticulo = (req, res) => {
 
             if (insertErr) {
                 console.error('Error al crear el artículo:', insertErr);
-                return res.status(500).render('error500', { mensaje: 'Error al crear el artículo' });
+                return res.status(500).send('Error al crear el artículo');
             }
 
             return res.json({ success: true, redirectUrl: '/content/articulos' });
@@ -226,7 +226,7 @@ const getEditarArticulo = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error('Error al conectar a la base de datos:', err);
-            return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
+            return res.status(500).send('Error al conectar a la base de datos');
         }
 
         connection.query(
@@ -237,7 +237,7 @@ const getEditarArticulo = (req, res) => {
 
                 if (queryErr) {
                     console.error('Error al obtener el artículo para editar:', queryErr);
-                    return res.status(500).render('error500', { mensaje: 'Error al obtener el artículo' });
+                    return res.status(500).send('Error al obtener el artículo');
                 }
 
                 if (!results || results.length === 0) {
@@ -283,7 +283,7 @@ const postEditarArticulo = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error('Error al conectar a la base de datos:', err);
-            return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
+            return res.status(500).send('Error al conectar a la base de datos');
         }
 
         connection.query(
@@ -293,7 +293,7 @@ const postEditarArticulo = (req, res) => {
                 if (queryErr) {
                     connection.release();
                     console.error('Error al obtener el artículo para editar:', queryErr);
-                    return res.status(500).render('error500', { mensaje: 'Error al obtener el artículo' });
+                    return res.status(500).send('Error al obtener el artículo');
                 }
 
                 if (!results || results.length === 0) {
@@ -309,7 +309,7 @@ const postEditarArticulo = (req, res) => {
 
                     if (updateErr) {
                         console.error('Error al editar el artículo:', updateErr);
-                        return res.status(500).render('error500', { mensaje: 'Error al editar el artículo' });
+                        return res.status(500).send('Error al editar el artículo');
                     }
 
                     if (updateResult.affectedRows === 0) {
@@ -333,7 +333,7 @@ const eliminarArticulo = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error('Error al conectar a la base de datos:', err);
-            return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
+            return res.status(500).send('Error al conectar a la base de datos');
         }
 
         const sqlEliminarArticulo = 'UPDATE articulos SET activo = 0 WHERE id_articulo = ? AND activo = 1';
@@ -342,7 +342,7 @@ const eliminarArticulo = (req, res) => {
 
             if (deleteErr) {
                 console.error('Error al eliminar el artículo:', deleteErr);
-                return res.status(500).render('error500', { mensaje: 'Error al eliminar el artículo' });
+                return res.status(500).send('Error al eliminar el artículo');
             }
 
             if (deleteResult.affectedRows === 0) {
@@ -373,7 +373,7 @@ const getArticuloDetalle = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error('Error al conectar a la base de datos:', err);
-            return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
+            return res.status(500).send('Error al conectar a la base de datos');
         }
 
         const cargarArticuloDetalle = () => {
@@ -397,7 +397,7 @@ const getArticuloDetalle = (req, res) => {
 
                 if (queryErr) {
                     console.error('Error al obtener el detalle del artículo:', queryErr);
-                    return res.status(500).render('error500', { mensaje: 'Error al obtener el detalle del artículo' });
+                    return res.status(500).send('Error al obtener el detalle del artículo');
                 }
 
                 if (!results || results.length === 0) {
@@ -428,7 +428,7 @@ const getArticuloDetalle = (req, res) => {
             if (incrementErr) {
                 connection.release();
                 console.error('Error al actualizar las visualizaciones del artículo:', incrementErr);
-                return res.status(500).render('error500', { mensaje: 'Error al actualizar las visualizaciones del artículo' });
+                return res.status(500).send('Error al actualizar las visualizaciones del artículo');
             }
 
             if (!incrementResult || incrementResult.affectedRows === 0) {
@@ -556,7 +556,7 @@ const postCrearForo = (req, res) => {
         // Comprobar si hubo un error al conectar a la base de datos
         if (err) {
             console.error('Error al conectar a la base de datos:', err);
-            return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
+            return res.status(500).send('Error al conectar a la base de datos');
         }
 
         connection.query(sql_insert_foro, [titulo, descripcion, categoria, id_usuario], (err, result) => {
@@ -565,7 +565,7 @@ const postCrearForo = (req, res) => {
             // Comprobar si hubo un error al insertar el foro
             if (err) {
                 console.error('Error al crear el foro:', err);
-                return res.status(500).render('error500', { mensaje: 'Error al crear el foro' });
+                return res.status(500).send('Error al crear el foro');
             }
             
             res.json({ success: true, redirectUrl: '/content/foros' });
@@ -665,7 +665,7 @@ const getEditarForo = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error('Error al conectar a la base de datos:', err);
-            return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
+            return res.status(500).send('Error al conectar a la base de datos');
         }
 
         connection.query('SELECT * FROM foros WHERE id_foro = ? AND activo = 1', [foroId], (queryErr, results) => {
@@ -728,7 +728,7 @@ const postEditarForo = (req, res) => {
             if (queryErr) {
                 connection.release();
                 console.error('Error al obtener el foro:', queryErr);
-                return res.status(500).render('error500', { mensaje: 'Error al obtener el foro' });
+                return res.status(500).send('Error al obtener el foro');
             }
 
             if (!results || results.length === 0) {
@@ -747,7 +747,7 @@ const postEditarForo = (req, res) => {
 
                 if (updateErr) {
                     console.error('Error al editar el foro:', updateErr);
-                    return res.status(500).render('error500', { mensaje: 'Error al editar el foro' });
+                    return res.status(500).send('Error al editar el foro');
                 }
 
                 if (updateResult.affectedRows === 0) {
@@ -922,7 +922,7 @@ const getEditarComentario = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error('Error al conectar a la base de datos:', err);
-            return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
+            return res.status(500).send('Error al conectar a la base de datos');
         }
 
         const sqlComentario = `
@@ -979,7 +979,7 @@ const postEditarComentario = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error('Error al conectar a la base de datos:', err);
-            return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
+            return res.status(500).send('Error al conectar a la base de datos');
         }
 
         const sqlComentario = `
@@ -993,7 +993,7 @@ const postEditarComentario = (req, res) => {
             if (queryErr) {
                 connection.release();
                 console.error('Error al obtener el comentario:', queryErr);
-                return res.status(500).render('error500', { mensaje: 'Error al obtener el comentario' });
+                return res.status(500).send('Error al obtener el comentario');
             }
 
             if (!results || results.length === 0) {
@@ -1025,7 +1025,7 @@ const postEditarComentario = (req, res) => {
 
                 if (updateErr) {
                     console.error('Error al editar el comentario:', updateErr);
-                    return res.status(500).render('error500', { mensaje: 'Error al editar el comentario' });
+                    return res.status(500).send('Error al editar el comentario');
                 }
 
                 if (result.affectedRows === 0) {
@@ -1086,7 +1086,7 @@ const postReportarForo = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error('Error al conectar a la base de datos:', err);
-            return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
+            return res.status(500).send('Error al conectar a la base de datos');
         }
 
         const sqlInsertReporte = `
@@ -1104,7 +1104,7 @@ const postReportarForo = (req, res) => {
 
                 if (insertErr) {
                     console.error('Error al crear el reporte del foro:', insertErr);
-                    return res.status(500).render('error500', { mensaje: 'Error al crear el reporte' });
+                    return res.status(500).send('Error al crear el reporte');
                 }
 
                 return res.redirect(`/content/foros/${id_foro}?reporte=ok&tipo=foro`);
@@ -1162,7 +1162,7 @@ const postReportarComentario = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error('Error al conectar a la base de datos:', err);
-            return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
+            return res.status(500).send('Error al conectar a la base de datos');
         }
 
         const sqlInsertReporte = `
@@ -1180,7 +1180,7 @@ const postReportarComentario = (req, res) => {
 
                 if (insertErr) {
                     console.error('Error al crear el reporte del comentario:', insertErr);
-                    return res.status(500).render('error500', { mensaje: 'Error al crear el reporte' });
+                    return res.status(500).send('Error al crear el reporte');
                 }
 
                 return res.redirect(`/content/foros/${id_foro}?reporte=ok&tipo=comentario`);

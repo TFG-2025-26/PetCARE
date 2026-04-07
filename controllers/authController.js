@@ -2,6 +2,28 @@
 
 const { validationResult } = require('express-validator');
 const pool = require('../db'); 
+const { createHttpError } = require('../handlers/httpErrors');
+
+const AUTH_ERROR_CODES = Object.freeze({
+    ACCOUNT_BANNED: 'AUTH_ACCOUNT_BANNED',
+    ACCOUNT_SUSPENDED: 'AUTH_ACCOUNT_SUSPENDED'
+});
+
+const crearErrorCuentaBaneada = (mensaje = 'La cuenta está baneada y no puede acceder a PetCare.') => ({
+    status: 403,
+    codigo: AUTH_ERROR_CODES.ACCOUNT_BANNED,
+    mensaje
+});
+
+const crearErrorCuentaSuspendida = (mensaje = 'La cuenta está suspendida temporalmente.') => ({
+    status: 423,
+    codigo: AUTH_ERROR_CODES.ACCOUNT_SUSPENDED,
+    mensaje
+});
+
+const renderAuthStatusError = (next, authError) => {
+    return next(createHttpError(authError.status || 403, authError.mensaje, authError.codigo || null));
+};
 
 // TODO: Queda pendiente verificación de cuentas inactivas y doble factor para cuentas inactivas. También queda pendiente recuperar contraseña.
 
@@ -23,7 +45,7 @@ const getLogin = (req, res) => {
     });
 };
 
-const postRegisterUsuario = (req, res) => {
+const postRegisterUsuario = (req, res, next) => {
     const errores = validationResult(req);
 
     if (!errores.isEmpty()) {
@@ -40,16 +62,22 @@ const postRegisterUsuario = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render('error500', { mensaje: "Error al conectar a la base de datos" });
+            return res.status(500).send("Error al conectar a la base de datos");
         }
 
         // 1. Comprobar email
-        connection.query("SELECT id_usuario FROM usuarios WHERE correo = ?", [correo], (err, results) => {
+        connection.query("SELECT id_usuario, ban FROM usuarios WHERE correo = ?", [correo], (err, results) => {
             if (err) {
                 connection.release();
                 console.error("Error al verificar el correo:", err);
-                return res.status(500).render('error500', { mensaje: "Error al verificar el correo" });
+                return res.status(500).send("Error al verificar el correo");
             }
+
+            if (results.some((usuario) => Number(usuario.ban) === 1)) {
+                connection.release();
+                return renderAuthStatusError(next, crearErrorCuentaBaneada('No puedes registrarte con un correo asociado a una cuenta baneada.'));
+            }
+
             if (results.length > 0) {
                 connection.release();
                 return res.render('register', {
@@ -65,7 +93,7 @@ const postRegisterUsuario = (req, res) => {
                 if (err) {
                     connection.release();
                     console.error("Error al verificar el nombre de usuario:", err);
-                    return res.status(500).render('error500', { mensaje: "Error al verificar el nombre de usuario" });
+                    return res.status(500).send("Error al verificar el nombre de usuario");
                 }
                 if (results.length > 0) {
                     connection.release();
@@ -78,12 +106,18 @@ const postRegisterUsuario = (req, res) => {
                 }
 
                 // 3. Comprobar teléfono
-                connection.query("SELECT id_usuario FROM usuarios WHERE telefono = ?", [telefono], (err, results) => {
+                connection.query("SELECT id_usuario, ban FROM usuarios WHERE telefono = ?", [telefono], (err, results) => {
                     if (err) {
                         connection.release();
                         console.error("Error al verificar el teléfono:", err);
-                        return res.status(500).render('error500', { mensaje: "Error al verificar el teléfono" });
+                        return res.status(500).send("Error al verificar el teléfono");
                     }
+
+                    if (results.some((usuario) => Number(usuario.ban) === 1)) {
+                        connection.release();
+                        return renderAuthStatusError(next, crearErrorCuentaBaneada('No puedes registrarte con un teléfono asociado a una cuenta baneada.'));
+                    }
+
                     if (results.length > 0) {
                         connection.release();
                         return res.render('register', {
@@ -100,7 +134,7 @@ const postRegisterUsuario = (req, res) => {
                         connection.release();
                         if (err) {
                             console.error("Error al ejecutar la consulta de inserción:", err);
-                            return res.status(500).render('error500', { mensaje: "Error al registrar el usuario" });
+                            return res.status(500).send("Error al registrar el usuario");
                         }
                         req.session.usuario = {
                             id:     results.insertId,
@@ -117,8 +151,7 @@ const postRegisterUsuario = (req, res) => {
     });
 };
 
-const postRegisterEmpresa = (req, res) => {
-    
+const postRegisterEmpresa = (req, res, next) => {
     const errores = validationResult(req);
 
     if (!errores.isEmpty()) {
@@ -138,88 +171,113 @@ const postRegisterEmpresa = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render('error500', { mensaje: "Error al conectar a la base de datos" });
+            return res.status(500).send("Error al conectar a la base de datos");
         }
 
-        // 1. Comprobar email 
-        connection.query("SELECT id_empresa FROM empresas WHERE correo = ?", [correo], (err, results) => {
-            if (err) {
+        connection.query("SELECT id_usuario, ban FROM usuarios WHERE correo = ?", [correo], (errorCorreoBan, usuariosCoincidentes) => {
+            if (errorCorreoBan) {
                 connection.release();
-                console.error("Error al verificar el correo:", err);
-                return res.status(500).render('error500', { mensaje: "Error al verificar el correo" });
-            }
-            if (results.length > 0) {
-                connection.release();
-                return res.render('register', {
-                    error: 'El correo electrónico ya está registrado.',
-                    errores: [],
-                    formData: req.body,
-                    formType: 'empresa'
-                });
+                console.error("Error al verificar el correo baneado:", errorCorreoBan);
+                return res.status(500).send("Error al verificar el correo");
             }
 
-            // 2. Comprobar CIF
-            connection.query("SELECT id_empresa FROM empresas WHERE CIF = ?", [cifNormalizado], (err, results) => {
-                if (err) {
+            if (usuariosCoincidentes.some((usuario) => Number(usuario.ban) === 1)) {
+                connection.release();
+                return renderAuthStatusError(next, crearErrorCuentaBaneada('No puedes registrarte con un correo asociado a una cuenta baneada.'));
+            }
+
+            connection.query("SELECT id_empresa FROM empresas WHERE correo = ?", [correo], (errorCorreo, empresasCorreo) => {
+                if (errorCorreo) {
                     connection.release();
-                    console.error("Error al verificar el CIF:", err);
-                    return res.status(500).render('error500', { mensaje: "Error al verificar el CIF" });
+                    console.error("Error al verificar el correo:", errorCorreo);
+                    return res.status(500).send("Error al verificar el correo");
                 }
-                if (results.length > 0) {
+
+                if (empresasCorreo.length > 0) {
                     connection.release();
                     return res.render('register', {
-                        error: 'El CIF ya está registrado.',
+                        error: 'El correo electrónico ya está registrado.',
                         errores: [],
                         formData: req.body,
                         formType: 'empresa'
                     });
                 }
 
-                // 3. Comprobar teléfono
-                connection.query("SELECT id_empresa FROM empresas WHERE telefono_contacto = ?", [telefono_contacto], (err, results) => {
-                    if (err) {
+                connection.query("SELECT id_empresa FROM empresas WHERE CIF = ?", [cifNormalizado], (errorCif, empresasCif) => {
+                    if (errorCif) {
                         connection.release();
-                        console.error("Error al verificar el teléfono:", err);
-                        return res.status(500).render('error500', { mensaje: "Error al verificar el teléfono" });
+                        console.error("Error al verificar el CIF:", errorCif);
+                        return res.status(500).send("Error al verificar el CIF");
                     }
-                    if (results.length > 0) {
+
+                    if (empresasCif.length > 0) {
                         connection.release();
                         return res.render('register', {
-                            error: 'El teléfono ya está registrado.',
+                            error: 'El CIF ya está registrado.',
                             errores: [],
                             formData: req.body,
                             formType: 'empresa'
                         });
                     }
 
-                    // 4. Insertar
-                    const insert_query = "INSERT INTO empresas (nombre, correo, contraseña, CIF, telefono_contacto, tipo, tipo_otro) VALUES (?, ?, ?, ?, ?, ?, ?)";
-                    connection.query(insert_query, [nombre, correo, password, cifNormalizado, telefono_contacto, tipo, tipoOtroGuardado], (err, results) => {
-                        connection.release();
-                        if (err) {
-                            console.error("Error al insertar la empresa:", err);
-                            return res.status(500).render('error500', { mensaje: "Error al insertar la empresa" });
+                    connection.query("SELECT id_usuario, ban FROM usuarios WHERE telefono = ?", [telefono_contacto], (errorTelefonoBan, usuariosTelefono) => {
+                        if (errorTelefonoBan) {
+                            connection.release();
+                            console.error("Error al verificar el teléfono baneado:", errorTelefonoBan);
+                            return res.status(500).send("Error al verificar el teléfono");
                         }
-                        req.session.usuario = {
-                            id:    results.insertId,
-                            nombre: nombre,
-                            tipo: 'empresa'
-                        };
-                        // Empresa registrada correctamente
-                        res.redirect('/');
-                    });
-                }); 
-            }); 
-        });
-    }); 
 
+                        if (usuariosTelefono.some((usuario) => Number(usuario.ban) === 1)) {
+                            connection.release();
+                            return renderAuthStatusError(next, crearErrorCuentaBaneada('No puedes registrarte con un teléfono asociado a una cuenta baneada.'));
+                        }
+
+                        connection.query("SELECT id_empresa FROM empresas WHERE telefono_contacto = ?", [telefono_contacto], (errorTelefono, empresasTelefono) => {
+                            if (errorTelefono) {
+                                connection.release();
+                                console.error("Error al verificar el teléfono:", errorTelefono);
+                                return res.status(500).send("Error al verificar el teléfono");
+                            }
+
+                            if (empresasTelefono.length > 0) {
+                                connection.release();
+                                return res.render('register', {
+                                    error: 'El teléfono ya está registrado.',
+                                    errores: [],
+                                    formData: req.body,
+                                    formType: 'empresa'
+                                });
+                            }
+
+                            const insert_query = "INSERT INTO empresas (nombre, correo, contraseña, CIF, telefono_contacto, tipo, tipo_otro) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                            connection.query(insert_query, [nombre, correo, password, cifNormalizado, telefono_contacto, tipo, tipoOtroGuardado], (insertErr, results) => {
+                                connection.release();
+                                if (insertErr) {
+                                    console.error("Error al insertar la empresa:", insertErr);
+                                    return res.status(500).send("Error al insertar la empresa");
+                                }
+
+                                req.session.usuario = {
+                                    id: results.insertId,
+                                    nombre,
+                                    tipo: 'empresa'
+                                };
+
+                                return res.redirect('/');
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
 };
 
-const postLoginUsuario = (req, res) => {
+const postLoginUsuario = (req, res, next) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
-            return res.status(500).render('error500', { mensaje: "Error al conectar a la base de datos" });
+            return res.status(500).send("Error al conectar a la base de datos");
         }
 
         const { usuario_input, password } = req.body; 
@@ -230,7 +288,7 @@ const postLoginUsuario = (req, res) => {
             // Comprobar errores en la consulta
             if (err) {
                 console.error("Error al ejecutar la consulta de login:", err);
-                return res.status(500).render('error500', { mensaje: "Error al ejecutar la consulta de login" });
+                return res.status(500).send("Error al ejecutar la consulta de login");
             }
 
             // 1. Comprobar si la cuenta existe y está activa
@@ -241,7 +299,19 @@ const postLoginUsuario = (req, res) => {
                     formData: req.body,
                     formType: 'usuario' 
                 });
-            } else if (results[0].activo === 0) {
+            }
+
+            const usuario = results[0];
+
+            if (Number(usuario.ban) === 1) {
+                return renderAuthStatusError(next, crearErrorCuentaBaneada('Tu cuenta ha sido baneada. Si crees que se trata de un error, contacta con soporte.'));
+            }
+
+            if (Number(usuario.suspendido) === 1) {
+                return renderAuthStatusError(next, crearErrorCuentaSuspendida('Tu cuenta está suspendida temporalmente. Contacta con soporte para más información.'));
+            }
+
+            if (Number(usuario.activo) === 0) {
                 return res.render('login', { 
                     error: 'Cuenta inactiva. Por favor, contacta con soporte.',
                     errores: [],
@@ -251,7 +321,6 @@ const postLoginUsuario = (req, res) => {
             }
 
             // 2. Comprobar contraseña
-            const usuario = results[0];
             if (usuario.contraseña !== password) {
                 return res.render('login', { 
                     error: 'Datos del formulario incorrectos', 
@@ -279,7 +348,7 @@ const postLoginEmpresa = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err); 
-            return res.status(500).render('error500', {mensaje: "Error al conectar a la base de datos"}); 
+            return res.status(500).send("Error al conectar a la base de datos"); 
         }
 
         const { correo, password } = req.body;
@@ -289,7 +358,7 @@ const postLoginEmpresa = (req, res) => {
             connection.release();
             if (err) {
                 console.error("Error al ejecutar la consulta de login:", err);
-                return res.status(500).render('error500', { mensaje: "Error al ejecutar la consulta de login" });
+                return res.status(500).send("Error al ejecutar la consulta de login");
             }
 
             // 1. Comprobar si existe la cuenta y está activa

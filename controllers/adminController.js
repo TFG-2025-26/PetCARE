@@ -174,7 +174,7 @@ const getAdminRegistroUsuario = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error('Error al conectar a la base de datos: ', err);
-            return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
+            return res.status(500).send('Error al conectar a la base de datos');
         }
 
         connection.query(configuracion[tipo].query, [entidadId], (error, results) => {
@@ -182,7 +182,7 @@ const getAdminRegistroUsuario = (req, res) => {
 
             if (error) {
                 console.error('Error al recuperar la cuenta para editar: ', error);
-                return res.status(500).render('error500', { mensaje: 'Error al recuperar la cuenta para editar' });
+                return res.status(500).send('Error al recuperar la cuenta para editar');
             }
 
             if (!results || results.length === 0) {
@@ -247,14 +247,14 @@ const postAdminRegistroUsuario = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error('Error al conectar a la base de datos:', err);
-            return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
+            return res.status(500).send('Error al conectar a la base de datos');
         }
 
         connection.query('SELECT id_usuario FROM usuarios WHERE correo = ?', [correo], (errorCorreo, resultadosCorreo) => {
             if (errorCorreo) {
                 connection.release();
                 console.error('Error al verificar el correo:', errorCorreo);
-                return res.status(500).render('error500', { mensaje: 'Error al verificar el correo' });
+                return res.status(500).send('Error al verificar el correo');
             }
 
             if (resultadosCorreo.length > 0) {
@@ -273,7 +273,7 @@ const postAdminRegistroUsuario = (req, res) => {
                 if (errorUsuario) {
                     connection.release();
                     console.error('Error al verificar el nombre de usuario:', errorUsuario);
-                    return res.status(500).render('error500', { mensaje: 'Error al verificar el nombre de usuario' });
+                    return res.status(500).send('Error al verificar el nombre de usuario');
                 }
 
                 if (resultadosUsuario.length > 0) {
@@ -292,7 +292,7 @@ const postAdminRegistroUsuario = (req, res) => {
                     if (errorTelefono) {
                         connection.release();
                         console.error('Error al verificar el teléfono:', errorTelefono);
-                        return res.status(500).render('error500', { mensaje: 'Error al verificar el teléfono' });
+                        return res.status(500).send('Error al verificar el teléfono');
                     }
 
                     if (resultadosTelefono.length > 0) {
@@ -313,7 +313,7 @@ const postAdminRegistroUsuario = (req, res) => {
 
                         if (errorInsert) {
                             console.error('Error al registrar el usuario desde administración:', errorInsert);
-                            return res.status(500).render('error500', { mensaje: 'Error al registrar el usuario' });
+                            return res.status(500).send('Error al registrar el usuario');
                         }
 
                         return res.redirect('/admin/adminPanel/gestionUsuarios/filtrar?tab=usuarios');
@@ -347,14 +347,14 @@ const postAdminRegistroEmpresa = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error('Error al conectar a la base de datos:', err);
-            return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
+            return res.status(500).send('Error al conectar a la base de datos');
         }
 
         connection.query('SELECT id_empresa FROM empresas WHERE correo = ?', [correo], (errorCorreo, resultadosCorreo) => {
             if (errorCorreo) {
                 connection.release();
                 console.error('Error al verificar el correo:', errorCorreo);
-                return res.status(500).render('error500', { mensaje: 'Error al verificar el correo' });
+                return res.status(500).send('Error al verificar el correo');
             }
 
             if (resultadosCorreo.length > 0) {
@@ -373,7 +373,7 @@ const postAdminRegistroEmpresa = (req, res) => {
                 if (errorCif) {
                     connection.release();
                     console.error('Error al verificar el CIF:', errorCif);
-                    return res.status(500).render('error500', { mensaje: 'Error al verificar el CIF' });
+                    return res.status(500).send('Error al verificar el CIF');
                 }
 
                 if (resultadosCif.length > 0) {
@@ -392,7 +392,7 @@ const postAdminRegistroEmpresa = (req, res) => {
                     if (errorTelefono) {
                         connection.release();
                         console.error('Error al verificar el teléfono:', errorTelefono);
-                        return res.status(500).render('error500', { mensaje: 'Error al verificar el teléfono' });
+                        return res.status(500).send('Error al verificar el teléfono');
                     }
 
                     if (resultadosTelefono.length > 0) {
@@ -413,7 +413,7 @@ const postAdminRegistroEmpresa = (req, res) => {
 
                         if (errorInsert) {
                             console.error('Error al registrar la empresa desde administración:', errorInsert);
-                            return res.status(500).render('error500', { mensaje: 'Error al registrar la empresa' });
+                            return res.status(500).send('Error al registrar la empresa');
                         }
 
                         return res.redirect('/admin/adminPanel/gestionUsuarios/filtrar?tab=empresas');
@@ -453,14 +453,14 @@ const postAdminEditarUsuario = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error('Error al conectar a la base de datos:', err);
-            return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
+            return res.status(500).send('Error al conectar a la base de datos');
         }
 
         connection.query('SELECT * FROM usuarios WHERE id_usuario = ?', [usuarioId], (errorActual, resultadosActuales) => {
             if (errorActual) {
                 connection.release();
                 console.error('Error al recuperar el usuario:', errorActual);
-                return res.status(500).render('error500', { mensaje: 'Error al recuperar el usuario' });
+                return res.status(500).send('Error al recuperar el usuario');
             }
 
             if (resultadosActuales.length === 0) {
@@ -471,7 +471,7 @@ const postAdminEditarUsuario = (req, res) => {
             connection.query('SELECT id_usuario FROM usuarios WHERE correo = ? AND id_usuario != ?', [correo, usuarioId], (errorCorreo, resultadosCorreo) => {
                 if (errorCorreo) {
                     connection.release();
-                    return res.status(500).render('error500', { mensaje: 'Error al verificar el correo' });
+                    return res.status(500).send('Error al verificar el correo');
                 }
 
                 if (resultadosCorreo.length > 0) {
@@ -489,7 +489,7 @@ const postAdminEditarUsuario = (req, res) => {
                 connection.query('SELECT id_usuario FROM usuarios WHERE nombre_usuario = ? AND id_usuario != ?', [nombre_usuario, usuarioId], (errorUsuario, resultadosUsuario) => {
                     if (errorUsuario) {
                         connection.release();
-                        return res.status(500).render('error500', { mensaje: 'Error al verificar el nombre de usuario' });
+                        return res.status(500).send('Error al verificar el nombre de usuario');
                     }
 
                     if (resultadosUsuario.length > 0) {
@@ -507,7 +507,7 @@ const postAdminEditarUsuario = (req, res) => {
                     connection.query('SELECT id_usuario FROM usuarios WHERE telefono = ? AND id_usuario != ?', [telefono, usuarioId], (errorTelefono, resultadosTelefono) => {
                         if (errorTelefono) {
                             connection.release();
-                            return res.status(500).render('error500', { mensaje: 'Error al verificar el teléfono' });
+                            return res.status(500).send('Error al verificar el teléfono');
                         }
 
                         if (resultadosTelefono.length > 0) {
@@ -532,7 +532,7 @@ const postAdminEditarUsuario = (req, res) => {
 
                             if (errorUpdate) {
                                 console.error('Error al actualizar el usuario desde administración:', errorUpdate);
-                                return res.status(500).render('error500', { mensaje: 'Error al actualizar el usuario' });
+                                return res.status(500).send('Error al actualizar el usuario');
                             }
 
                             return res.redirect('/admin/adminPanel/gestionUsuarios/filtrar?tab=usuarios');
@@ -573,14 +573,14 @@ const postAdminEditarEmpresa = (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error('Error al conectar a la base de datos:', err);
-            return res.status(500).render('error500', { mensaje: 'Error al conectar a la base de datos' });
+            return res.status(500).send('Error al conectar a la base de datos');
         }
 
         connection.query('SELECT * FROM empresas WHERE id_empresa = ?', [empresaId], (errorActual, resultadosActuales) => {
             if (errorActual) {
                 connection.release();
                 console.error('Error al recuperar la empresa:', errorActual);
-                return res.status(500).render('error500', { mensaje: 'Error al recuperar la empresa' });
+                return res.status(500).send('Error al recuperar la empresa');
             }
 
             if (resultadosActuales.length === 0) {
@@ -591,7 +591,7 @@ const postAdminEditarEmpresa = (req, res) => {
             connection.query('SELECT id_empresa FROM empresas WHERE correo = ? AND id_empresa != ?', [correo, empresaId], (errorCorreo, resultadosCorreo) => {
                 if (errorCorreo) {
                     connection.release();
-                    return res.status(500).render('error500', { mensaje: 'Error al verificar el correo' });
+                    return res.status(500).send('Error al verificar el correo');
                 }
 
                 if (resultadosCorreo.length > 0) {
@@ -609,7 +609,7 @@ const postAdminEditarEmpresa = (req, res) => {
                 connection.query('SELECT id_empresa FROM empresas WHERE CIF = ? AND id_empresa != ?', [cifNormalizado, empresaId], (errorCif, resultadosCif) => {
                     if (errorCif) {
                         connection.release();
-                        return res.status(500).render('error500', { mensaje: 'Error al verificar el CIF' });
+                        return res.status(500).send('Error al verificar el CIF');
                     }
 
                     if (resultadosCif.length > 0) {
@@ -627,7 +627,7 @@ const postAdminEditarEmpresa = (req, res) => {
                     connection.query('SELECT id_empresa FROM empresas WHERE telefono_contacto = ? AND id_empresa != ?', [telefono_contacto, empresaId], (errorTelefono, resultadosTelefono) => {
                         if (errorTelefono) {
                             connection.release();
-                            return res.status(500).render('error500', { mensaje: 'Error al verificar el teléfono' });
+                            return res.status(500).send('Error al verificar el teléfono');
                         }
 
                         if (resultadosTelefono.length > 0) {
@@ -652,7 +652,7 @@ const postAdminEditarEmpresa = (req, res) => {
 
                             if (errorUpdate) {
                                 console.error('Error al actualizar la empresa desde administración:', errorUpdate);
-                                return res.status(500).render('error500', { mensaje: 'Error al actualizar la empresa' });
+                                return res.status(500).send('Error al actualizar la empresa');
                             }
 
                             return res.redirect('/admin/adminPanel/gestionUsuarios/filtrar?tab=empresas');

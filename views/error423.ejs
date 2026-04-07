@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Error 423 - PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="full-height-layout">
+  <%- include('plantillas/navbar') %>
+
+  <main class="full-height-main">
+    <section>
+      <div class="error-container">
+        <h1>Error 423</h1>
+        <h2 class="error-text">Acceso bloqueado temporalmente</h2>
+        <p class="error-text"><%= mensaje || 'La cuenta o el recurso están suspendidos temporalmente.' %></p>
+        <br>
+        <a class="btn-large" href="/">Volver al Inicio</a>
+      </div>
+    </section>
+  </main>
+
+  <%- include('plantillas/footer') %>
+</body>
+</html>
