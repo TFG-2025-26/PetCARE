@@ -64,6 +64,7 @@ const filtrarReportes = (req, res) => {
                 r.*,
                 f.titulo,
                 c.contenido,
+                c.id_foro AS comentario_id_foro,
                 u.nombre_usuario AS nombre_usuario_autor,
                 u_reportado.nombre_usuario AS nombre_usuario_reportado,
                 v.comentario AS comentario_valoracion
@@ -97,6 +98,10 @@ const getGestionUsuarios = (req, res) => {
 
 const getGestionArticulos = (req, res) => {
     res.redirect('/content/articulos');
+};
+
+const getGestionForos = (req, res) => {
+    res.redirect('/content/foros');
 };
 
 const renderAdminRegistroView = (res, {
@@ -813,6 +818,7 @@ const getDetalleReporte = (req, res) => {
                 r.*,
                 f.titulo,
                 c.contenido,
+                c.id_foro AS comentario_id_foro,
                 u.nombre_usuario AS nombre_usuario_autor,
                 u_reportado.nombre_usuario AS nombre_usuario_reportado,
                 v.comentario AS comentario_valoracion
@@ -917,6 +923,7 @@ module.exports = {
     filtrarReportes,
     getGestionUsuarios,
     getGestionArticulos,
+    getGestionForos,
     getAdminRegistroUsuario,
     postAdminRegistroUsuario,
     postAdminRegistroEmpresa,

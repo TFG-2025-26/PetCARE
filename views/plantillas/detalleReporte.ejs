@@ -5,6 +5,22 @@
   </div>
 </div>
 
+<%
+  let fuenteUrl = null;
+  let fuenteLabel = 'No disponible';
+
+  if (reporte.id_comentario && reporte.comentario_id_foro) {
+    fuenteUrl = `/content/foros/${reporte.comentario_id_foro}#comentario-${reporte.id_comentario}`;
+    fuenteLabel = 'Ver comentario reportado';
+  } else if (reporte.id_foro) {
+    fuenteUrl = `/content/foros/${reporte.id_foro}`;
+    fuenteLabel = 'Ver foro reportado';
+  } else if (reporte.id_usuario_reportado) {
+    fuenteUrl = `/admin/adminPanel/gestionUsuarios/filtrar?tab=usuarios&busqueda=${encodeURIComponent(reporte.id_usuario_reportado)}&compacta=1`;
+    fuenteLabel = 'Ver usuario reportado';
+  }
+%>
+
 <ul class="reportes-modal-list">
   <li>
     <strong>Motivo:</strong>
@@ -46,6 +62,14 @@
     <%= reporte.comentario_valoracion || 'Sin comentario' %>
   </li>
   <% } %>
+  <li>
+    <strong>Fuente:</strong>
+    <% if (fuenteUrl) { %>
+      <a href="<%= fuenteUrl %>" class="btn-filtro-reset reportes-source-link"><%= fuenteLabel %></a>
+    <% } else { %>
+      No disponible
+    <% } %>
+  </li>
 </ul>
 
 <div class="reportes-actions" style="margin-top: 1.5rem;">

@@ -48,10 +48,6 @@ app.get('/servicios', (req, res) => {
     res.render('servicios');
 });
 
-app.get('/articulos', isAuthenticated, (req, res) => {
-    res.redirect('/content/articulos');
-});
-
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
 app.use('/pets', isAuthenticated, petRoutes);

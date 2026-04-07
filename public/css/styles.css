@@ -1854,6 +1854,26 @@ footer, .footer {
    color: var(--danger);
 }
 
+.tipo-usuario {
+   background: rgba(70, 110, 180, 0.12);
+   color: #355caa;
+}
+
+.tipo-foro {
+   background: rgba(143, 94, 43, 0.14);
+   color: #8b5e2b;
+}
+
+.tipo-comentario {
+   background: rgba(123, 74, 160, 0.14);
+   color: #7b4aa0;
+}
+
+.tipo-valoracion {
+   background: rgba(0, 128, 128, 0.14);
+   color: #0f766e;
+}
+
 .modal-overlay.is-hidden {
    display: none;
 }

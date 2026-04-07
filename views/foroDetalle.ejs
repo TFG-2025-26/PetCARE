@@ -33,8 +33,9 @@
           <span class="foro-detalle-categoria"><%= foro.categoria %></span>
         </div>
         <div class="foro-detalle-meta-right">
-          <% if (usuario && usuario.id === foro.id_usuario) { %>
-            <a href="#" onclick="editarForo(event)" class="foro-detalle-editar">Editar  ✏️</a>
+          <% const puedeGestionarForo = !!(usuario && (usuario.id === foro.id_usuario || esAdmin)); %>
+          <% if (puedeGestionarForo) { %>
+            <a href="#" onclick="editarForo(event)" class="foro-detalle-editar">Editar ✏️</a>
             <span class="foro-detalle-sep">·</span>
             <a href="#" class="foro-detalle-eliminar" onclick="abrirModalEliminarForo(event)">Eliminar 🗑️</a>
           <% } else { %>
@@ -69,19 +70,21 @@
       <% if (comentarios.length > 0) { %>
         <div class="foro-comentarios-list">
           <% comentarios.forEach(function(c) { %>
-            <div class="comentario-card">
+            <div class="comentario-card" id="comentario-<%= c.id_comentario %>" style="scroll-margin-top: 120px;">
               <div class="comentario-header">
                 <div class="comentario-info">
                   <span class="comentario-autor">@<%= c.nombre_usuario %></span>
                   <span class="comentario-fecha"><%= new Date(c.fecha_publicacion).toLocaleDateString('es-ES') %></span>
                 </div>
-                <% if (usuario && usuario.id === c.id_usuario) { %>
+                <% const puedeGestionarComentario = !!(usuario && (usuario.id === c.id_usuario || esAdmin)); %>
+                <% if (puedeGestionarComentario) { %>
                   <div class="comentario-acciones">
-                    <a href="/content/foros/<%= foro.id_foro %>/usuario/<%= usuario.id %>/comentario/<%= c.id_comentario %>/editar"
-                      class="comentario-editar">Editar</a>
+                    <a href="#"
+                      class="comentario-editar"
+                      onclick="editarComentario(event, '<%= foro.id_foro %>', '<%= c.id_usuario %>', '<%= c.id_comentario %>')">Editar</a>
                     <a href="#"
                       class="comentario-eliminar"
-                      onclick="abrirModalEliminarComentario(event, '/content/foros/<%= foro.id_foro %>/usuario/<%= usuario.id %>/comentario/<%= c.id_comentario %>/eliminar')">Eliminar ✕</a>
+                      onclick="abrirModalEliminarComentario(event, '/content/foros/<%= foro.id_foro %>/usuario/<%= c.id_usuario %>/comentario/<%= c.id_comentario %>/eliminar')">Eliminar ✕</a>
                   </div>
                 <% } else { %>
                   <a href="#"
@@ -106,6 +109,11 @@
   <!-- Modal editar foro -->
   <div id="modalEditarForo" style="display:none;">
     <div id="modalEditarForo-contenido"></div>
+  </div>
+
+  <!-- Modal editar comentario -->
+  <div id="modalEditarComentario" style="display:none;">
+    <div id="modalEditarComentario-contenido"></div>
   </div>
 
   <!-- Modal reportar -->
@@ -140,7 +148,7 @@
     // MODAL EDITAR FORO
     async function editarForo(event) {
       event.preventDefault();
-      const url = '/content/foros/<%= foro.id_foro %>/usuario/<%= usuario.id %>/editar';
+      const url = '/content/foros/<%= foro.id_foro %>/usuario/<%= foro.id_usuario %>/editar';
 
       try {
         const response = await fetch(url, {
@@ -163,7 +171,35 @@
       }
     }
 
+    async function editarComentario(event, foroId, usuarioId, comentarioId) {
+      event.preventDefault();
+
+      const url = `/content/foros/${foroId}/usuario/${usuarioId}/comentario/${comentarioId}/editar`;
+      try {
+        const response = await fetch(url, {
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+        const html = await response.text();
+
+        if (!response.ok || esDocumentoCompleto(html)) {
+          window.location.href = url;
+          return;
+        }
+
+        document.getElementById('modalEditarComentario-contenido').innerHTML = html;
+        document.getElementById('modalEditarComentario').style.display = 'flex';
+      } catch (error) {
+        window.location.href = url;
+      }
+    }
+
     document.getElementById('modalEditarForo').addEventListener('click', function(e) {
+      if (e.target === this) this.style.display = 'none';
+    });
+
+    document.getElementById('modalEditarComentario').addEventListener('click', function(e) {
       if (e.target === this) this.style.display = 'none';
     });
 
