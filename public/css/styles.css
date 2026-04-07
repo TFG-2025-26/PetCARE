@@ -1479,6 +1479,358 @@ footer, .footer {
 }
 
 /* ══════════════════════════════════════════
+  VER EMPRESAS
+══════════════════════════════════════════ */
+
+.main-empresas {
+   display: flex;
+   flex-direction: column;
+   gap: 1.5rem;
+   padding: 2rem 4rem 0 4rem;
+}
+
+.titulo-empresas {
+   font-family: 'Fraunces', serif;
+   font-size: 1.8rem;
+   font-weight: 900;
+   color: var(--brown);
+   padding: 0 1rem 1rem 1rem;
+   text-align: center;
+}
+
+.filtros-empresas-container {
+   background-color: var(--warm);
+   padding: 1rem 2rem;
+   border-radius: var(--radius-md);
+   border: 1px solid rgba(61, 43, 31, 0.08);
+   display: flex;
+   gap: 1rem;
+}
+
+#filtro-nombre-empresa {
+    width: 100%; padding: 0.75rem 3rem 0.75rem 1rem;
+  border: 1.5px solid var(--warm); border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif; font-size: 0.95rem;
+  color: var(--text); background: var(--cream);
+  outline: none; transition: border-color 0.2s, background 0.2s;
+}
+
+.input-buscar-empresa {
+   position: relative;
+   flex: 1;
+}
+
+#btn-buscar-empresa {
+   position: absolute;
+   right: 0.5rem;
+   top: 50%;
+   transform: translateY(-50%);
+   background: none;
+   border: none;
+   cursor: pointer;
+   font-size: 1.1rem;
+   padding: 0.25rem 0.4rem;
+   border-radius: var(--radius-sm);
+   transition: background 0.2s;
+   line-height: 1;
+}
+
+#btn-buscar-empresa:hover {
+   background: rgba(61, 43, 31, 0.08);
+}
+
+#btn-filtros-empresas {
+   background: var(--green);
+   color: var(--white);
+   font-family: 'DM Sans', sans-serif;
+   font-size: 0.9rem;
+   font-weight: 500;
+   border: none;
+   border-radius: var(--radius-pill);
+   padding: 0.65rem 1.4rem;
+   cursor: pointer;
+   transition: background 0.2s, transform 0.15s;
+   white-space: nowrap;
+}
+
+#btn-filtros-empresas:hover {
+   background: var(--green-hover);
+   transform: translateY(-2px);
+}
+
+#modal-filtros-empresas .modal-box{
+   max-width: 700px;
+   border-left: 5px solid var(--green);
+}
+
+.modal-empresas {
+   display: flex;
+   flex-direction: column;
+   gap: 1rem;
+}
+
+#modal-filtros-empresas .botones-modal {
+   display: flex;
+   gap: 1rem;
+   justify-content: flex-end;
+   margin-top: 1.5rem;
+}
+
+.filtros-modal-empresas {
+   display: flex;
+   flex-direction: column;
+   gap: 1rem;
+}
+
+.filtro-label {
+   color: var(--brown);
+   font-weight: 500;
+   margin-bottom: 0.5rem;
+   border-top: 1px solid rgba(61, 43, 31, 0.08);
+   padding-top: 1rem;
+}
+
+.btn-group-filtro {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 0.5rem;
+   justify-content: center;
+}
+
+@media (max-width: 480px) {
+   .btn-group-filtro {
+      flex-direction: column;
+      align-items: center;
+   }
+
+   .btn-filtro-opcion {
+      width: 100%;
+      justify-content: center;
+   }
+}
+
+.btn-filtro-opcion{
+   background: rgba(74,103,65,0.08);
+   border-radius: var(--radius-pill);
+   font-family: 'DM Sans', sans-serif;
+   font-size: 0.85rem;
+   font-weight: 500;
+   padding: 0.8rem 1.2rem;
+   color: var(--green);
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+   cursor: pointer;
+   transition: background 0.2s, border-color 0.2s, transform 0.15s;
+   border: 1px solid rgba(74,103,65,0.2);
+}
+
+.btn-filtro-opcion:hover {
+   background: rgba(74,103,65,0.15);
+   border-color: var(--green);
+   transform: translateY(-2px);
+}
+
+.btn-filtro-opcion.activo {
+   background: var(--green);
+   border-color: var(--green);
+   color: var(--white);
+}
+
+#aplicar-filtros-empresas {
+   background: var(--green);
+   color: var(--white);
+   border: none;
+   border-radius: var(--radius-pill);
+   padding: 0.75rem 1.5rem;
+   font-family: 'DM Sans', sans-serif;
+   font-size: 1rem;
+   font-weight: 500;
+   cursor: pointer;
+   transition: background 0.2s, transform 0.15s;
+}
+
+#aplicar-filtros-empresas:hover {
+   background: var(--green-hover);
+   transform: translateY(-2px);
+}
+
+#cerrar-modal-filtros-empresas {
+   background-color: #7a6b5f;
+}
+
+#cerrar-modal-filtros-empresas:hover {
+   transform: translateY(-2px);
+}
+
+
+.ver-mas-empresas-container {
+   display: flex;
+   justify-content: center;
+   padding: 0 0 1.5rem 0;
+}
+
+#ver-mas-empresas {
+   background: none;
+   border: 1.5px dashed var(--muted);
+   border-radius: var(--radius-pill);
+   padding: 0.75rem 1.5rem;
+   font-family: 'DM Sans', sans-serif;
+   font-size: 1rem;
+   color: var(--muted);
+   cursor: pointer;
+   transition: background 0.2s, border-color 0.2s;
+}
+#ver-mas-empresas:hover {
+   background: rgba(61, 43, 31, 0.08);
+   border-color: var(--brown);
+}
+#ver-mas-empresas:disabled {
+   opacity: 0.4;
+   cursor: not-allowed;
+}
+
+/* ── Tarjetas empresas ── */
+.empresas-container {
+   display: flex;
+   flex-direction: column;
+   gap: 1.2rem;
+   padding: 1.5rem 1rem;
+}
+
+.tarjeta-empresa {
+   background: var(--white);
+   border-radius: var(--radius-md);
+   box-shadow: 0 2px 12px rgba(61,43,31,0.08);
+   padding: 1.4rem 1.6rem;
+   display: flex;
+   align-items: center;
+   gap: 1.5rem;
+   border: 1px solid rgba(61,43,31,0.07);
+   border-left: 5px solid var(--green);
+   transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.tarjeta-empresa:hover {
+   transform: translateY(-2px);
+   box-shadow: var(--shadow-lg);
+}
+
+.empresa-foto {
+   width: 80px;
+   height: 80px;
+   border-radius: 50%;
+   object-fit: cover;
+   flex-shrink: 0;
+   border: 2px solid rgba(74,103,65,0.2);
+}
+
+.empresa-cuerpo {
+   flex: 1;
+   display: flex;
+   flex-direction: column;
+   gap: 0.35rem;
+   min-width: 0;
+}
+
+.empresa-header-info {
+   display: flex;
+   align-items: center;
+   gap: 0.75rem;
+   flex-wrap: wrap;
+}
+
+.empresa-nombre {
+   font-family: 'Fraunces', serif;
+   font-size: 1.15rem;
+   font-weight: 700;
+   color: var(--brown);
+   margin: 0;
+}
+
+.empresa-tipo-badge {
+   background: rgba(74,103,65,0.1);
+   color: var(--green);
+   border: 1px solid rgba(74,103,65,0.2);
+   border-radius: var(--radius-pill);
+   font-family: 'DM Sans', sans-serif;
+   font-size: 0.78rem;
+   font-weight: 500;
+   padding: 0.18rem 0.7rem;
+   white-space: nowrap;
+}
+
+.empresa-valoracion {
+   font-size: 1rem;
+   color: var(--amber);
+   font-weight: 600;
+   font-family: 'DM Sans', sans-serif;
+}
+
+.empresa-valoracion span {
+   color: var(--muted);
+   font-weight: 400;
+   font-size: 0.85rem;
+}
+
+.empresa-descripcion {
+   font-family: 'DM Sans', sans-serif;
+   font-size: 0.9rem;
+   color: var(--muted);
+   line-height: 1.5;
+   display: -webkit-box;
+   -webkit-line-clamp: 2;
+   -webkit-box-orient: vertical;
+   overflow: hidden;
+   margin: 0;
+   word-break: break-all;
+}
+
+.btn-ver-empresa {
+   background: var(--green);
+   color: var(--white);
+   border: none;
+   border-radius: var(--radius-pill);
+   padding: 0.65rem 1.2rem;
+   font-family: 'DM Sans', sans-serif;
+   font-size: 0.9rem;
+   font-weight: 500;
+   cursor: pointer;
+   transition: background 0.2s, transform 0.15s;
+   text-decoration: none;
+   white-space: nowrap;
+   flex-shrink: 0;
+}
+
+.btn-ver-empresa:hover {
+   background: var(--green-hover);
+   transform: translateY(-2px);
+}
+
+.no-empresas {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   padding: 2rem;
+   background-color: rgba(61,43,31,0.04);
+   border-radius: var(--radius-md);
+   border: 1px solid rgba(61,43,31,0.08);
+}
+
+.no-empresas p {
+   font-size: 1.1rem;
+   color: var(--muted);
+}
+
+@media (max-width: 640px) {
+   .empresas-container { padding: 1rem; }
+   .tarjeta-empresa { flex-direction: column; align-items: flex-start; }
+   .btn-ver-empresa { width: 100%; text-align: center; }
+   .filtros-empresas-container { flex-direction: column; gap: 0.75rem; }
+   .main-empresas { padding: 1rem; }
+}
+
+/* ══════════════════════════════════════════
    PANEL DE ADMINISTRACIÓN
 ══════════════════════════════════════════ */
 .admin-page {

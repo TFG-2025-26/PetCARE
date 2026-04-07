@@ -65,6 +65,7 @@ router.get('/anuncios', servicesController.anuncios);
 router.get('/get-anuncios', servicesController.getAnuncios);
 router.get('/publicar-anuncio', isAuthenticated, servicesController.getPublicarAnuncio);
 router.post('/publicar-anuncio', isAuthenticated, anuncioValidationRules, servicesController.postPublicarAnuncio);
-
+router.get('/empresas', servicesController.empresas);
+router.get('/get-empresas', servicesController.getEmpresas);
 
 module.exports = router;
