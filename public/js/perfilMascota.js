@@ -3,6 +3,7 @@
 const botonesCartilla = document.querySelectorAll('[data-seccion-cartilla]');
 const seccionesCartilla = document.querySelectorAll('.seccion-cartilla');
 const cartillaContenido = document.querySelector('.cartilla-contenido');
+const mensajeSinDatosTodos = document.getElementById('cartilla-sin-datos-todos');
 
 function activarSeccionCartilla(seccionId) {
     botonesCartilla.forEach(btn => {
@@ -13,8 +14,26 @@ function activarSeccionCartilla(seccionId) {
         cartillaContenido.classList.toggle('mostrando-todos', seccionId === 'todos');
     }
 
+    if (mensajeSinDatosTodos) {
+        mensajeSinDatosTodos.hidden = true;
+    }
+
     if (seccionId === 'todos') {
-        seccionesCartilla.forEach(seccion => seccion.classList.add('activa'));
+        let hayRegistrosEnAlgunaSeccion = false;
+
+        seccionesCartilla.forEach((seccion) => {
+            const tieneRegistros = seccion.dataset.hasRegistros === 'true';
+            seccion.classList.toggle('activa', tieneRegistros);
+
+            if (tieneRegistros) {
+                hayRegistrosEnAlgunaSeccion = true;
+            }
+        });
+
+        if (mensajeSinDatosTodos) {
+            mensajeSinDatosTodos.hidden = hayRegistrosEnAlgunaSeccion;
+        }
+
         return;
     }
 
@@ -76,11 +95,13 @@ esMovil.addEventListener('change', () => {
 
 function abrirModal(e){
     e.preventDefault();
-    document.getElementById('modal').classList.add('activo');
+    document.getElementById('modal-eliminar-mascota').classList.add('activo');
+    document.getElementById('modal-eliminar-mascota').style.display = 'flex';
 }
 
 function cerrarModal(){
-    document.getElementById('modal').classList.remove('activo');
+    document.getElementById('modal-eliminar-mascota').classList.remove('activo');
+    document.getElementById('modal-eliminar-mascota').style.display = 'none';
 }
 
 
@@ -115,6 +136,7 @@ function abrirModalEliminarRegistro(enlace) {
     fraseRegistroModal.textContent = `${etiqueta.articulo} ${etiqueta.nombre}`;
 
     modal.classList.add('activo');
+    modal.style.display = 'flex';
 }
 
 function cerrarModalEliminarRegistro() {
@@ -122,6 +144,7 @@ function cerrarModalEliminarRegistro() {
 
     if (modal) {
         modal.classList.remove('activo');
+        modal.style.display = 'none';
     }
 }
 
@@ -137,7 +160,7 @@ botonesEliminarRegistro.forEach((enlace) => {
 });
 
 //Cerrar el modal cuando se hace click fuera
-document.getElementById('modal').addEventListener('click', function(e){
+document.getElementById('modal-eliminar-mascota').addEventListener('click', function(e){
     if (e.target === this) cerrarModal();
 });
 
