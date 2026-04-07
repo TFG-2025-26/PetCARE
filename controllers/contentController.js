@@ -4,27 +4,6 @@ const { validationResult } = require('express-validator');
 const pool = require('../db');
 const { parse } = require('path');
 
-const obtenerMimeTypeImagen = (buffer) => {
-    if (!buffer || !Buffer.isBuffer(buffer) || buffer.length < 4) {
-        return 'image/jpeg';
-    }
-
-    const headerHex = buffer.subarray(0, 12).toString('hex');
-    if (headerHex.startsWith('89504e47')) {
-        return 'image/png';
-    }
-
-    if (buffer.subarray(0, 3).toString('hex') === 'ffd8ff') {
-        return 'image/jpeg';
-    }
-
-    if (buffer.subarray(0, 4).toString() === 'RIFF' && buffer.subarray(8, 12).toString() === 'WEBP') {
-        return 'image/webp';
-    }
-
-    return 'image/jpeg';
-};
-
 const renderFormularioArticulo = (req, res, {
     articulo = {},
     error = null,
@@ -35,9 +14,7 @@ const renderFormularioArticulo = (req, res, {
         ...articulo,
         titulo: articulo.titulo || '',
         cuerpo: articulo.cuerpo || '',
-        imagenSrc: articulo.imagenSrc || (articulo.imagen && Buffer.isBuffer(articulo.imagen)
-            ? `data:${obtenerMimeTypeImagen(articulo.imagen)};base64,${articulo.imagen.toString('base64')}`
-            : null)
+        imagenSrc: articulo.imagenSrc || articulo.imagen || null
     };
 
     return res.render('plantillas/crearArticulo', {
@@ -188,7 +165,7 @@ const postCrearArticulo = (req, res) => {
     }
 
     const { titulo, cuerpo } = req.body;
-    const imagen = req.file ? req.file.buffer : null;
+    const imagen = req.file ? '/uploads/' + req.file.filename : null;
     const id_usuario = req.session.usuario.id;
     const sqlInsertArticulo = 'INSERT INTO articulos (titulo, cuerpo, `fecha_publicación`, imagen, visualizaciones, activo, id_usuario) VALUES (?, ?, NOW(), ?, ?, ?, ?)';
 
@@ -301,7 +278,7 @@ const postEditarArticulo = (req, res) => {
                     return res.status(404).send('Artículo no encontrado');
                 }
 
-                const imagen = req.file ? req.file.buffer : (results[0].imagen || null);
+                const imagen = req.file ? '/uploads/' + req.file.filename : (results[0].imagen || null);
                 const sqlUpdateArticulo = 'UPDATE articulos SET titulo = ?, cuerpo = ?, imagen = ? WHERE id_articulo = ? AND activo = 1';
 
                 connection.query(sqlUpdateArticulo, [titulo, cuerpo, imagen, articuloId], (updateErr, updateResult) => {
@@ -405,9 +382,7 @@ const getArticuloDetalle = (req, res) => {
                 }
 
                 const articulo = results[0];
-                articulo.imagenSrc = articulo.imagen
-                    ? `data:${obtenerMimeTypeImagen(articulo.imagen)};base64,${articulo.imagen.toString('base64')}`
-                    : null;
+                articulo.imagenSrc = articulo.imagen || null;
 
                 return res.render('articuloDetalle', {
                     articulo,

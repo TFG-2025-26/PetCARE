@@ -36,7 +36,7 @@ const postRegisterPet = (req, res) => {
         });
     } else{
         const { "nombre_mascota": petName, "especie": petSpecies, "raza": petBreed, "fecha_nacimiento": petBirthday, "peso": petWeight } = req.body;
-        const imagen = req.file ? req.file.buffer : null;
+        const imagen = req.file ? '/uploads/' + req.file.filename : null;
         const id = req.session.usuario.id;
         pool.getConnection((err, connection) => {
             if (err) {
@@ -471,7 +471,7 @@ const postEditarMascota = (req, res) => {
         return res.status(400).render("editarMascota", { formData: req.body, errores: errores.array(), error: "Por favor, corrige los errores en el formulario." });
     }
     const { id_mascota, "nombre_mascota": petName, "especie": petSpecies, "raza": petBreed, "fecha_nacimiento": petBirthday, "peso": petWeight } = req.body;
-    const imagen = req.file ? req.file.buffer : null;
+    const imagen = req.file ? '/uploads/' + req.file.filename : null;
 
     pool.getConnection((err, connection) => {
         if (err) {
@@ -480,7 +480,7 @@ const postEditarMascota = (req, res) => {
         }
         if (imagen) {
             const query = "UPDATE mascotas SET nombre_mascota = ?, especie = ?, raza = ?, fecha_nacimiento = ?, peso = ?, foto = ? WHERE id_mascota = ?";
-            connection.query(query, [petName, petSpecies, petBreed, petBirthday, petWeight, imagen, id_mascota], (err, results) => {
+            connection.query(query, [petName, petSpecies, petBreed, petBirthday, petWeight, imagen, id_mascota], (err) => {
                 connection.release();
                 if (err) {
                     console.error("Error al actualizar los datos de la mascota:", err);
@@ -490,7 +490,7 @@ const postEditarMascota = (req, res) => {
             });
         } else{
             const query = "UPDATE mascotas SET nombre_mascota = ?, especie = ?, raza = ?, fecha_nacimiento = ?, peso = ? WHERE id_mascota = ?";
-            connection.query(query, [petName, petSpecies, petBreed, petBirthday, petWeight, id_mascota], (err, results) => {
+            connection.query(query, [petName, petSpecies, petBreed, petBirthday, petWeight, id_mascota], (err) => {
                 connection.release();
                 if (err) {
                     console.error("Error al actualizar los datos de la mascota:", err);

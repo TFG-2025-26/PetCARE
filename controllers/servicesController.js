@@ -88,14 +88,8 @@ const getAnuncios = (req, res) => {
                 return res.json({ anuncios: [], hayMasPaginas: false });
             }
 
-            // Convertir foto (longblob) a base64 para poder usarla en el front
+            // Procesar anuncios
             anuncios.forEach(a => {
-                if (a.foto) {
-                    const buf = Buffer.from(a.foto);
-                    const mime = (buf[0] === 0x89) ? 'image/png' : 'image/jpeg';
-                    a.foto = `data:${mime};base64,` + buf.toString('base64');
-                }
-                a.foto = '/images/cat.jpg'; //TODO arreglar esto para que muestra la imagen que tiene que ser cuando cambie lo de la BD para que se guarden las rutas en vez de los blobs
                 if (a.descripcion === null || a.descripcion.trim() === '') {
                     a.descripcion = 'El usuario no ha añadido una descripción para este anuncio.';
                 }
@@ -278,11 +272,6 @@ const getEmpresas = (req, res) => {
             if (hayMasPaginas) empresasResult.pop();
 
             empresasResult.forEach(e => {
-                if (e.foto) {
-                    const buf = Buffer.from(e.foto);
-                    const mime = (buf[0] === 0x89) ? 'image/png' : 'image/jpeg';
-                    e.foto = `data:${mime};base64,` + buf.toString('base64');
-                }
                 if (!e.descripcion || e.descripcion.trim() === '') {
                     e.descripcion = 'Esta empresa no ha añadido una descripción.';
                 }

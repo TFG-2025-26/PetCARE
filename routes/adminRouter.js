@@ -162,8 +162,18 @@ const validarAdminEdicionEmpresa = [
         .isIn(['0', '1']).withMessage('El estado seleccionado no es válido')
 ];
 
+const path = require('path');
+
 const uploadArticulo = multer({
-    storage: multer.memoryStorage(),
+    storage: multer.diskStorage({
+        destination: (req, file, cb) => {
+            cb(null, 'public/uploads/');
+        },
+        filename: (req, file, cb) => {
+            const ext = path.extname(file.originalname);
+            cb(null, 'articulo-' + Date.now() + ext);
+        }
+    }),
     limits: { fileSize: 4 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
         const allowed = ['image/jpeg', 'image/png', 'image/webp'];

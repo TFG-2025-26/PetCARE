@@ -32,13 +32,29 @@ const {
 } = require('../controllers/petController');
 const { body } = require('express-validator');
 const multer = require('multer');
-const upload = multer({ storage: multer.memoryStorage(), fileFilter: (req, file, cb) => {
-    if (file.mimetype !== 'image/jpeg') {
-        cb(new Error('La imagen debe ser un archivo JPEG'));
-    } else {
-        cb(null, true);
+const path = require('path');
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'public/uploads/');
+    },
+    filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname);
+        cb(null, 'mascota-' + Date.now() + ext);
     }
-}, limits: { fileSize: 2 * 1024 * 1024 } }); // Configuración de multer para subir archivos a la carpeta 'uploads'
+});
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 2 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+        if (allowed.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Formato de imagen no permitido'));
+        }
+    }
+});
 
 const petValidationRules = [
     body('nombre_mascota').notEmpty().withMessage('El nombre de la mascota es obligatorio.'),
