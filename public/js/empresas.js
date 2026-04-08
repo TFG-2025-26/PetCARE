@@ -118,7 +118,7 @@ function renderizarEmpresas(listaEmpresas) {
     }
 
     listaEmpresas.forEach(function(empresa) {
-        const foto = empresa.foto || '/images/empresa-default.jpg';
+        const foto = empresa.foto || '/images/empresa-default.png';
         const tipoLabel = getTipoLabel(empresa.tipo, empresa.tipo_otro);
         const estrellas = renderEstrellas(empresa.valoracion_media);
         const valoracionNum = parseFloat(empresa.valoracion_media).toFixed(1);
