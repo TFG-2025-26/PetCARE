@@ -7,8 +7,20 @@ require('dotenv').config();
 const morgan = require('morgan');
 const { isAuthenticated } = require('./middlewares/authMiddleware');
 const { createHttpError, getDefaultErrorMessage, getErrorView } = require('./handlers/httpErrors');
+const http = require('http');
+const socketIO = require('socket.io');
 
 const app = express();
+const server = http.createServer(app);
+const io = socketIO(server, {
+    cors: {
+        origin: '*',
+        methods: ['GET', 'POST']
+    }
+});
+
+app.locals.io = io; // Hacer io accesible en toda la aplicación
+
 app.use(morgan('dev'));
 
 // Motor de plantillas
@@ -104,8 +116,10 @@ app.use((err, req, res, next) => {
     });
 });
 
+require('./sockets/chatSocket')(io); // Pasar io al módulo de sockets
+
 // Arranque del servidor
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });

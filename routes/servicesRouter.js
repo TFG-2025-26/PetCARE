@@ -4,6 +4,7 @@ const express = require('express');
 const router = express.Router(); 
 const { body } = require('express-validator');
 const servicesController = require('../controllers/servicesController.js');
+const chatController = require('../controllers/chatController.js');
 const { isAuthenticated } = require('../middlewares/authMiddleware');
 
 const anuncioValidationRules = [
@@ -67,5 +68,9 @@ router.get('/publicar-anuncio', isAuthenticated, servicesController.getPublicarA
 router.post('/publicar-anuncio', isAuthenticated, anuncioValidationRules, servicesController.postPublicarAnuncio);
 router.get('/empresas', servicesController.empresas);
 router.get('/get-empresas', servicesController.getEmpresas);
+router.get('/chat', isAuthenticated, chatController.getChatPage);
+router.get('/chat/historial', isAuthenticated, chatController.getHistorial);
+router.get('/mis-chats', isAuthenticated, chatController.getMisChats);
+router.get('/mis-chats/data', isAuthenticated, chatController.getMisChatsData);
 
 module.exports = router;

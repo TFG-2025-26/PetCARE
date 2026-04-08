@@ -266,7 +266,7 @@ function renderizarAnuncios(listaAnuncios) {
                             <p>${anuncio.precio_hora}€</p>
                             <span>por hora</span>
                         </div>
-                        <a href="/contactar/${anuncio.id_anuncio}" id="btn-contacto">Contactar</a>
+                        <a href="/services/chat?usuario_id=${anuncio.id_usuario}&anuncio_id=${anuncio.id_anuncio}" id="btn-contacto">Contactar</a>
                     </div>
                 </div>
                 <div class="tarjeta-anuncio-disponibilidad">
