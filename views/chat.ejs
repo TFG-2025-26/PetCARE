@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - <%= usuarioDestino.nombre %> - PetCARE</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="chat-body">
+
+    <%- include('plantillas/navbar') %>
+
+    <div class="chat-wrapper">
+    <main class="chat-container">
+        <div class="chat-header">
+            <a href="/services/mis-chats" class="btn btn-volver">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+            </a>
+            <div class="header-user-info">
+                <% if (usuarioDestino.foto) { %>
+                    <img src="<%= usuarioDestino.foto %>" alt="Foto de perfil de <%= usuarioDestino.nombre %>" class="user-avatar">
+                <% } else { %>
+                    <div class="user-avatar-placeholder">
+                        <%= usuarioDestino.nombre.charAt(0).toUpperCase() %>
+                    </div>
+                <% } %>
+                <div>
+                    <h2><%= usuarioDestino.nombre %></h2>
+                    <span class="estado" id="estado">Conectando...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barra de info del anuncio -->
+        <div class="chat-anuncio-bar">
+            <div class="chat-anuncio-badges">
+                <span class="chat-anuncio-badge badge-servicio"><%= anuncio.tipoServicio %></span>
+                <span class="chat-anuncio-badge badge-mascota"><%= anuncio.tipoMascota %></span>
+                <span class="chat-anuncio-precio"><%= anuncio.precioHora %>€<span class="precio-sub">/h</span></span>
+            </div>
+            <% if (anuncio.disponibilidades && anuncio.disponibilidades.length > 0) { %>
+            <button class="chat-disp-toggle" id="btnToggleDisp" type="button">
+                Disponibilidad
+                <svg class="toggle-chevron" viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M7 10l5 5 5-5z"/></svg>
+            </button>
+            <% } %>
+        </div>
+
+        <!-- Panel de disponibilidad (colapsable) -->
+        <% if (anuncio.disponibilidades && anuncio.disponibilidades.length > 0) { %>
+        <div class="chat-disp-panel" id="chatDispPanel">
+            <% if (anuncio.tipoAnuncio === 'recurrente') { %>
+                <%
+                    const ordenSemana = ['lunes','martes','miercoles','jueves','viernes','sabado','domingo'];
+                    const porDia = {};
+                    anuncio.disponibilidades.forEach(d => {
+                        if (!porDia[d.dia_semana]) porDia[d.dia_semana] = [];
+                        porDia[d.dia_semana].push(d);
+                    });
+                %>
+                <div class="chat-disp-grid">
+                <% ordenSemana.filter(dia => porDia[dia]).forEach(dia => { %>
+                    <div class="chat-disp-fila">
+                        <span class="chat-disp-dia"><%= dia %></span>
+                        <div class="chat-disp-slots">
+                        <% porDia[dia].forEach(f => { %>
+                            <span class="chat-disp-slot"><%= String(f.hora_inicio).substring(0,5) %> – <%= String(f.hora_fin).substring(0,5) %></span>
+                        <% }) %>
+                        </div>
+                    </div>
+                <% }) %>
+                </div>
+            <% } else { %>
+                <%
+                    const porFecha = {};
+                    anuncio.disponibilidades.forEach(d => {
+                        const raw = d.fecha_inicio instanceof Date
+                            ? d.fecha_inicio.toLocaleDateString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric' })
+                            : String(d.fecha_inicio).substring(0,10).split('-').reverse().join('/');
+                        if (!porFecha[raw]) porFecha[raw] = [];
+                        porFecha[raw].push(d);
+                    });
+                %>
+                <div class="chat-disp-grid">
+                <% Object.entries(porFecha).forEach(([fecha, franjas]) => { %>
+                    <div class="chat-disp-fila">
+                        <span class="chat-disp-dia"><%= fecha %></span>
+                        <div class="chat-disp-slots">
+                        <% franjas.forEach(f => { %>
+                            <span class="chat-disp-slot"><%= String(f.hora_inicio).substring(0,5) %> – <%= String(f.hora_fin).substring(0,5) %></span>
+                        <% }) %>
+                        </div>
+                    </div>
+                <% }) %>
+                </div>
+            <% } %>
+        </div>
+        <% } %>
+        <!-- Área de mensajes -->
+         <div class="chat-mensajes" id="mensajes">
+            <div id="cargarMasContainer" class="chat-cargar-mas" style="<%= hayMasAnteriores ? '' : 'display:none' %>">
+                <button class="btn-cargar-mas" id="btnCargarMas" type="button">&#8593; Cargar mensajes anteriores</button>
+            </div>
+            <% if (mensajesIniciales.length === 0) { %>
+            <div class="mensaje-inicio">
+                <p>Comienza una conversacion con <%= usuarioDestino.nombre %></p>
+            </div>
+            <% } else { %>
+                <% mensajesIniciales.forEach(function(m) { %>
+                <div class="mensaje <%= m.id_usuario === usuarioActualId ? 'propio' : 'ajeno' %>" data-id="<%= m.id_mensaje %>">
+                    <div class="mensaje-contenido"><%= m.contenido %></div>
+                    <% if (m.id_usuario === usuarioActualId) { %>
+                    <span class="leido-indicador<%= m.leido ? ' visto' : '' %>"><%= m.leido ? '\u2713\u2713 Le\u00eddo' : '\u2713' %></span>
+                    <% } %>
+                </div>
+                <% }) %>
+            <% } %>
+         </div>
+
+        <!-- Formulario de mensaje -->
+         <div class="chat-input">
+            <input type="text" id="inputMensaje" placeholder="Escribe un mensaje..." autocomplete="off">
+            <button id="btnEnviar" class="btn btn-enviar">
+                <span>Enviar</span>
+            </button>
+         </div>
+    </main>
+    </div>
+
+    <%- include('plantillas/footer') %>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const usuarioActualId = <%= usuarioActualId %>;
+        const usuarioActualNombre = <%- JSON.stringify(usuarioActualNombre) %>;
+        const usuarioDestinoId = <%= usuarioDestino.id %>;
+        const usuarioDestinoNombre = <%- JSON.stringify(usuarioDestino.nombre) %>;
+        const anuncioId = <%= anuncio.id %>;
+        const chatId = <%= chatId %>;
+        let hayMasAnteriores = <%= hayMasAnteriores ? 'true' : 'false' %>;
+        let primerIdMensaje = <%= mensajesIniciales.length > 0 ? mensajesIniciales[0].id_mensaje : 0 %>;
+    </script>
+    <script src="/js/chat.js"></script>
+</body>
+</html>

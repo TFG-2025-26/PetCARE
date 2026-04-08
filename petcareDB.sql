@@ -220,6 +220,7 @@ CREATE TABLE `mensajes` (
   `contenido` text NOT NULL,
   `fecha` datetime NOT NULL,
   `leido` tinyint(1) NOT NULL DEFAULT 0,
+  `id_usuario` int(11) DEFAULT NULL,
   `id_chat` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -442,7 +443,8 @@ ALTER TABLE `mascotas`
 --
 ALTER TABLE `mensajes`
   ADD PRIMARY KEY (`id_mensaje`),
-  ADD KEY `id_chat` (`id_chat`);
+  ADD KEY `id_chat` (`id_chat`),
+  ADD KEY `id_usuario` (`id_usuario`);
 
 --
 -- Indices de la tabla `notificaciones`
@@ -700,7 +702,8 @@ ALTER TABLE `mascotas`
 -- Filtros para la tabla `mensajes`
 --
 ALTER TABLE `mensajes`
-  ADD CONSTRAINT `mensajes_ibfk_1` FOREIGN KEY (`id_chat`) REFERENCES `chats` (`id_chat`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `mensajes_ibfk_1` FOREIGN KEY (`id_chat`) REFERENCES `chats` (`id_chat`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `mensajes_ibfk_2` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE SET NULL ON UPDATE SET NULL;
 
 --
 -- Filtros para la tabla `notificaciones`

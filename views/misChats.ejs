@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Chats - PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <%- include('plantillas/navbar') %>
+
+    <main class="mis-chats-page">
+        <h1 class="mis-chats-titulo">Mis Chats</h1>
+
+        <div class="mis-chats-wrapper">
+
+            <!-- ── Columna izquierda: chats que yo inicié ───────────────── -->
+            <section class="mis-chats-col" id="col-iniciados">
+                <h2 class="mis-chats-col-titulo">Contacté yo</h2>
+
+                <div class="chats-lista" id="lista-iniciados">
+                    <!-- Las tarjetas se inyectan por JS -->
+                </div>
+
+                <div class="ver-mas-chats-container" id="vm-iniciados" style="display:none">
+                    <button class="btn-ver-mas-chats" id="btn-mas-iniciados">Ver más</button>
+                </div>
+
+                <p class="mis-chats-empty" id="empty-iniciados" style="display:none">
+                    Aún no has contactado con nadie.
+                </p>
+            </section>
+
+            <!-- ── Columna derecha: chats que otros iniciaron conmigo ───── -->
+            <section class="mis-chats-col" id="col-recibidos">
+                <h2 class="mis-chats-col-titulo">Me contactaron</h2>
+
+                <div class="chats-lista" id="lista-recibidos">
+                    <!-- Las tarjetas se inyectan por JS -->
+                </div>
+
+                <div class="ver-mas-chats-container" id="vm-recibidos" style="display:none">
+                    <button class="btn-ver-mas-chats" id="btn-mas-recibidos">Ver más</button>
+                </div>
+
+                <p class="mis-chats-empty" id="empty-recibidos" style="display:none">
+                    Nadie te ha contactado todavía.
+                </p>
+            </section>
+
+        </div><!-- /.mis-chats-wrapper -->
+    </main>
+
+    <%- include('plantillas/footer') %>
+
+    <script src="/js/misChats.js"></script>
+</body>
+</html>
