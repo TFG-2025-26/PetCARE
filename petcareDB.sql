@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 06-04-2026 a las 03:16:00
+-- Tiempo de generación: 17-04-2026 a las 13:09:23
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -265,6 +265,8 @@ CREATE TABLE `reportes` (
 
 CREATE TABLE `reservas` (
   `id_reserva` int(11) NOT NULL,
+  `id_cliente` int(11) NOT NULL,
+  `id_proveedor` int(11) NOT NULL,
   `fecha` date NOT NULL,
   `hora_inicio` time NOT NULL,
   `hora_fin` time NOT NULL,
@@ -469,7 +471,9 @@ ALTER TABLE `reportes`
 --
 ALTER TABLE `reservas`
   ADD PRIMARY KEY (`id_reserva`),
-  ADD KEY `id_chat` (`id_chat`);
+  ADD KEY `id_chat` (`id_chat`),
+  ADD KEY `id_cliente` (`id_cliente`),
+  ADD KEY `id_proveedor` (`id_proveedor`);
 
 --
 -- Indices de la tabla `tratamientos`
@@ -725,7 +729,9 @@ ALTER TABLE `reportes`
 -- Filtros para la tabla `reservas`
 --
 ALTER TABLE `reservas`
-  ADD CONSTRAINT `reservas_ibfk_1` FOREIGN KEY (`id_chat`) REFERENCES `chats` (`id_chat`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `reservas_ibfk_1` FOREIGN KEY (`id_chat`) REFERENCES `chats` (`id_chat`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `reservas_ibfk_2` FOREIGN KEY (`id_cliente`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `reservas_ibfk_3` FOREIGN KEY (`id_proveedor`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `tratamientos`

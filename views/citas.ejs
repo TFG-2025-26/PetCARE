@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Citas - PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <%- include('plantillas/navbar') %>
+    
+    <main class="citas-main">
+      <section class="citas citas-cliente">
+        <div class="citas-header">
+          <div class="panel-header amber">
+            <div class="header-icon amber">
+              <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="17" rx="3" stroke="#ffffff" stroke-width="2" fill="none"/>
+                <line x1="3" y1="9" x2="21" y2="9" stroke="#ffffff" stroke-width="2"/>
+                <line x1="8" y1="1" x2="8" y2="5" stroke="#ffffff" stroke-width="2"/>
+                <line x1="16" y1="1" x2="16" y2="5" stroke="#ffffff" stroke-width="2"/>
+              </svg>
+            </div>
+            <div>
+              <div class="header-title amber">RESERVADAS POR MÍ</div>
+              <div class="header-count amber"><%= citas_cliente.length %> citas</div>
+            </div>
+          </div>
+        </div>
+        <% if (citas_cliente.length === 0) { %>
+          <div class="citas-vacio">
+            <p>No tienes citas programadas.</p>
+          </div>
+        <% } else {%>
+        <div class="citas-contenido">
+          <% citas_cliente.forEach(cita => { %>
+            <div class="cita">
+              <div class="cita-foto">
+                <% if (cita.proveedor_foto) { %>
+                   <img src="<%= cita.proveedor_foto %>" alt="Foto de perfil del proveedor">
+                <% } else { %>
+                   <div class="cita-foto-inicial"><%= cita.proveedor_nombre_completo ? cita.proveedor_nombre_completo.charAt(0).toUpperCase() : 'U' %></div>
+                <% } %>
+              </div>
+              <div class="cita-info">
+                <h3><%= cita.proveedor_nombre_completo %></h3>
+                <p><%= cita.fecha_formateada %></p>
+                <p><%= cita.hora_inicio.slice(0,5) %> - <%= cita.hora_fin.slice(0,5) %></p>
+                <span class="badge-cita"> <%= cita.tipo_servicio %></span>
+              </div>
+              <div class="cita-precio">
+                <div class="precio-cita">
+                  <p><%= cita.precio_hora %>€</p>
+                  <span>por hora</span>
+                </div>
+              </div>
+            </div>
+            
+          <% }); %>
+        </div>
+        <% } %>
+      </section>
+      <section class="citas citas-proveedor">
+        <div class="citas-header">
+          <div class="panel-header green">
+            <div class="header-icon green">
+              <img width="24" height="24" src="/images/icono-personas.png" alt="Icono de personas">
+            </div>
+            <div>
+              <div class="header-title green">RESERVADAS CONMIGO</div>
+              <div class="header-count green"><%= citas_proveedor.length %> citas</div>
+            </div>
+          </div>
+        </div>
+        <% if (citas_proveedor.length === 0) { %>
+          <div class="citas-vacio">
+            <p>No tienes citas programadas.</p>
+          </div>
+        <% } else { %>
+        <div class="citas-contenido">
+          <% citas_proveedor.forEach(cita => { %>
+            <div class="cita">
+              <div class="cita-foto">
+                <% if (cita.cliente_foto) { %>
+                   <img src="<%= cita.cliente_foto %>" alt="Foto de perfil del cliente">
+                <% } else { %>
+                   <div class="cita-foto-inicial"><%= cita.cliente_nombre_completo ? cita.cliente_nombre_completo.charAt(0).toUpperCase() : 'U' %></div>
+                <% } %>
+              </div>
+              <div class="cita-info">
+                <h3><%= cita.cliente_nombre_completo %></h3>
+                <p><%= cita.fecha_formateada %></p>
+                <p><%= cita.hora_inicio.slice(0,5) %> - <%= cita.hora_fin.slice(0,5) %></p>
+                <span class="badge-cita"> <%= cita.tipo_servicio %></span>
+              </div>
+              <div class="cita-precio">
+                <div class="precio-anuncio">
+                  <p><%= cita.precio_hora %>€</p>
+                  <span>por hora</span>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+        <% } %>
+      </section>
+
+    </main>
+    
+
+    <%- include('plantillas/footer') %>
+
+</body>
+</html>

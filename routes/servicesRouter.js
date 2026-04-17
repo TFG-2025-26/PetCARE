@@ -5,6 +5,7 @@ const router = express.Router();
 const { body } = require('express-validator');
 const servicesController = require('../controllers/servicesController.js');
 const chatController = require('../controllers/chatController.js');
+const citasController = require('../controllers/citasController.js');
 const { isAuthenticated } = require('../middlewares/authMiddleware');
 
 const anuncioValidationRules = [
@@ -72,5 +73,6 @@ router.get('/chat', isAuthenticated, chatController.getChatPage);
 router.get('/chat/historial', isAuthenticated, chatController.getHistorial);
 router.get('/mis-chats', isAuthenticated, chatController.getMisChats);
 router.get('/mis-chats/data', isAuthenticated, chatController.getMisChatsData);
+router.get('/citas', isAuthenticated, citasController.getCitas);
 
 module.exports = router;
