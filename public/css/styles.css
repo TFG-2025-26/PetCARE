@@ -3253,3 +3253,203 @@ footer, .footer {
    flex-shrink: 0;
    padding: 0 0.3rem;
 }
+
+
+/* ══════════════════════════════════════════
+   MIS CITAS
+══════════════════════════════════════════ */
+
+.citas-main{
+   display: grid;
+   grid-template-columns: 1fr 1fr;
+   grid-template-areas: "citas-cliente citas-proveedor";
+   gap: 2rem;
+   padding: 2rem;
+   align-items: start;
+}
+
+.citas-cliente {
+   grid-area: citas-cliente;
+}
+
+.citas-proveedor {
+   grid-area: citas-proveedor;
+}
+
+.citas {
+   background: var(--white);
+   border-radius: var(--radius-lg);
+   box-shadow: var(--shadow-sm);
+   display: flex;
+   flex-direction: column;
+   overflow: hidden;
+}
+
+.citas-vacio {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   flex: 1;
+}
+
+.citas-vacio p {
+   color: var(--muted);
+   font-size: 0.95rem;
+   padding: 2rem 1rem;
+}
+
+.citas-contenido {
+   display: flex;
+   flex-direction: column;
+   gap: 1rem;
+   padding-left: 1rem;
+   padding-right: 1rem;
+   padding: 2rem;
+}
+
+.cita {
+   display: flex;
+   padding: 1rem 0rem;
+   border-top: 1px solid rgba(61,43,31,0.08);
+   border-bottom: 1px solid rgba(61,43,31,0.08);
+   gap: 1rem;
+}
+
+.cita-foto {
+   flex: 1;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+
+.cita-foto img {
+   width: 60px;
+   height: 60px;
+   border-radius: 50%;
+   object-fit: cover;
+}
+
+.cita-foto-inicial {
+   width: 72px;
+   height: 72px;
+   border-radius: 50%;
+   background: var(--brown);
+   color: var(--white);
+   font-family: 'Fraunces', serif;
+   font-size: 1.2rem;
+   font-weight: 600;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+
+.cita-info {
+   flex: 3;
+   display: flex;
+   flex-direction: column;
+   gap: 1rem;
+}
+
+.badge-cita {
+   background: rgba(200,135,58,0.12);
+   color: var(--brown);
+   border: 1px solid rgba(74,103,65,0.18);
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+   align-self: flex-start;
+   gap: 4px;
+   white-space: nowrap;
+   text-transform: capitalize;
+   font-size: 12px;
+   font-weight: 500;
+   padding: 4px 10px;
+   border-radius: 100px;
+   margin-top: 3px;
+}
+
+.cita-precio {
+   flex: 1;
+   display: flex;
+   justify-content: flex-end;
+}
+
+.precio-cita p {
+   font-size: 1.25rem;
+   font-weight: 700;
+   color: var(--brown);
+   text-align: center;
+}
+
+.precio-cita span {
+   font-size: 0.95rem;
+   color: var(--muted);
+}
+
+.panel-header {
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.panel-header.amber  { background: #ffecd5; }
+.panel-header.green  { background: #E1F5EE; }
+
+.header-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.header-icon.amber { background: var(--amber); }
+.header-icon.green { background: var(--green); }
+
+.header-title {
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.header-title.amber { color: var(--amber); }
+.header-title.green { color: var(--green); }
+
+.header-count {
+  font-weight: 500;
+}
+
+.header-count.amber { color: var(--amber); }
+.header-count.green { color: var(--green); }
+
+@media (max-width: 750px) {
+   .citas-main {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+         "citas-cliente"
+         "citas-proveedor";
+   }
+}
+
+@media (max-width: 500px) {
+   .citas-main{
+      padding: 1rem 0.5rem;
+   }
+
+  .citas-contenido {
+   padding: 1rem 1rem;
+  }
+
+  .cita{
+   padding: 1rem 0rem;
+  }
+
+  .cita-foto img {
+   width: 48px;
+   height: 48px;
+  }
+}
