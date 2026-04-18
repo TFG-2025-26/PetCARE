@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 17-04-2026 a las 13:09:23
+-- Tiempo de generación: 18-04-2026 a las 17:20:57
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -217,6 +217,7 @@ CREATE TABLE `mascotas` (
 
 CREATE TABLE `mensajes` (
   `id_mensaje` int(11) NOT NULL,
+  `tipo_mensaje` enum('texto','cita') NOT NULL,
   `contenido` text NOT NULL,
   `fecha` datetime NOT NULL,
   `leido` tinyint(1) NOT NULL DEFAULT 0,
