@@ -105,26 +105,63 @@
             <div class="mensaje-inicio">
                 <p>Comienza una conversacion con <%= usuarioDestino.nombre %></p>
             </div>
-            <% } else { %>
-                <% mensajesIniciales.forEach(function(m) { %>
-                <div class="mensaje <%= m.id_usuario === usuarioActualId ? 'propio' : 'ajeno' %>" data-id="<%= m.id_mensaje %>">
-                    <div class="mensaje-contenido"><%= m.contenido %></div>
-                    <% if (m.id_usuario === usuarioActualId) { %>
-                    <span class="leido-indicador<%= m.leido ? ' visto' : '' %>"><%= m.leido ? '\u2713\u2713 Le\u00eddo' : '\u2713' %></span>
-                    <% } %>
-                </div>
-                <% }) %>
             <% } %>
          </div>
 
+         
+
         <!-- Formulario de mensaje -->
          <div class="chat-input">
+            <!-- Botón para solicitar cita -->
+            <% if (esCliente) { %>
+                <button id="btnSolicitarCita" class="btn btn-solicitar-cita" type="button">Solicitar Cita</button>
+            <% } %>
             <input type="text" id="inputMensaje" placeholder="Escribe un mensaje..." autocomplete="off">
             <button id="btnEnviar" class="btn btn-enviar">
                 <span>Enviar</span>
             </button>
          </div>
     </main>
+
+    <!-- Modal para solicitar cita -->
+     <div id="modalSolicitarCita" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Solicitar Cita</h2>
+                <button type="button" class="modal-close" id="btnCerrarModal">&times;</button>
+            </div>
+            <form id="formSolicitarCita" class="form-solicitar-cita">
+                <input type="hidden" id="citaTipoServicio" value="<%= anuncio.tipoServicio %>">
+                <div class="form-cita-grid">
+                    <div class="form-group">
+                        <label for="citaFecha">Fecha:</label>
+                        <input type="date" id="citaFecha" required>
+                        <span class="error-message" id="error-citaFecha"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="citaPrecioHora">Precio/hora (€):</label>
+                        <input type="number" id="citaPrecioHora" min="0" step="0.01" required>
+                        <span class="error-message" id="error-citaPrecioHora"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="citaHoraInicio">Hora de inicio:</label>
+                        <input type="time" id="citaHoraInicio" required>
+                        <span class="error-message" id="error-citaHoraInicio"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="citaHoraFin">Hora de fin:</label>
+                        <input type="time" id="citaHoraFin" required>
+                        <span class="error-message" id="error-citaHoraFin"></span>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-cancelar" id="btnCancelarModal">Cancelar</button>
+                    <button type="submit" class="btn btn-confirmar">Enviar solicitud</button>
+                </div>
+            </form>
+        </div>
+     </div>
+
     </div>
 
     <%- include('plantillas/footer') %>
@@ -139,6 +176,7 @@
         const chatId = <%= chatId %>;
         let hayMasAnteriores = <%= hayMasAnteriores ? 'true' : 'false' %>;
         let primerIdMensaje = <%= mensajesIniciales.length > 0 ? mensajesIniciales[0].id_mensaje : 0 %>;
+        const mensajesInicialesData = <%- JSON.stringify(mensajesIniciales) %>;
     </script>
     <script src="/js/chat.js"></script>
 </body>

@@ -62,7 +62,7 @@ socket.on('usuario_desconectado', () => {
 // EVENTO RECIBIR MENSAJE (del otro usuario en tiempo real)
 socket.on('mensaje_recibido', (datos) => {
     console.log('Mensaje recibido:', datos);
-    const div = crearDivMensaje(datos.mensaje, false, datos.id_mensaje);
+    const div = crearDivMensaje(datos.mensaje, false, datos.id_mensaje, false, datos.tipo_mensaje);
     limpiarMensajesInicio();
     contenedorMensajes.appendChild(div);
     contenedorMensajes.scrollTop = contenedorMensajes.scrollHeight;
@@ -87,14 +87,17 @@ socket.on('mensaje_enviado_confirmado', (datos) => {
 // El destinatario abrió/vio nuestro mensaje → actualizar el indicador ✓ → ✓✓ Leído
 socket.on('mensaje_visto', (datos) => {
     console.log('Mensaje visto por el destinatario, id_mensaje:', datos.id_mensaje);
-    const div = contenedorMensajes.querySelector(`.mensaje.propio[data-id="${datos.id_mensaje}"]`);
-    if (div) {
-        const indicador = div.querySelector('.leido-indicador');
-        if (indicador) {
-            indicador.textContent = '✓✓ Leído';
-            indicador.classList.add('visto');
+    // Actualizar todos los mensajes propios con id <= al leído (todos anteriores también leídos)
+    const divs = contenedorMensajes.querySelectorAll('.mensaje.propio[data-id]');
+    divs.forEach(div => {
+        if (parseInt(div.dataset.id) <= datos.id_mensaje) {
+            const indicador = div.querySelector('.leido-indicador');
+            if (indicador && !indicador.classList.contains('visto')) {
+                indicador.textContent = '✓✓ Leído';
+                indicador.classList.add('visto');
+            }
         }
-    }
+    });
 });
 
 // ─── ENVIAR MENSAJE ──────────────────────────────────────────────────────────
@@ -119,7 +122,7 @@ function enviarMensaje() {
     // Mostrar el mensaje en pantalla inmediatamente (actualización optimista).
     // La clase 'pendiente' indica que aún no tiene id_mensaje de BD.
     // Se elimina cuando llegue 'mensaje_enviado_confirmado' con el id real.
-    const div = crearDivMensaje(mensaje, true, null);
+    const div = crearDivMensaje(mensaje, true, null, false, 'texto');
     div.classList.add('pendiente');
     limpiarMensajesInicio();
     contenedorMensajes.appendChild(div);
@@ -170,7 +173,7 @@ function cargarHistorial() {
             // (así quedan por encima del historial ya visible)
             const referencia = contenedorMensajes.querySelector('.mensaje');
             data.mensajes.forEach(m => {
-                const div = crearDivMensaje(m.contenido, m.id_usuario === usuarioActualId, m.id_mensaje, m.leido);
+                const div = crearDivMensaje(m.contenido, m.id_usuario === usuarioActualId, m.id_mensaje, m.leido, m.tipo_mensaje);
                 if (referencia) {
                     contenedorMensajes.insertBefore(div, referencia);
                 } else {
@@ -229,6 +232,12 @@ function observarMensajeAjeno(divMensaje, idMensaje) {
     observadorLectura.observe(divMensaje);
 }
 
+// Renderizar mensajes del historial inicial
+mensajesInicialesData.forEach(m => {
+    const div = crearDivMensaje(m.contenido, m.id_usuario === usuarioActualId, m.id_mensaje, m.leido, m.tipo_mensaje);
+    contenedorMensajes.appendChild(div);
+});
+
 // Al abrir el chat, observar el último mensaje ajeno ya cargado en el historial inicial
 (function iniciarObservadorInicial() {
     const ajentos = contenedorMensajes.querySelectorAll('.mensaje.ajeno[data-id]');
@@ -249,8 +258,10 @@ contenedorMensajes.scrollTop = contenedorMensajes.scrollHeight;
  * - esPropio: true si es del usuario actual (se alinea a la derecha y lleva indicador ✓)
  * - idMensaje: id_mensaje de BD (puede ser null si el mensaje aún es 'pendiente')
  * - leido: si ya fue leído por el destinatario (para mostrar ✓✓ en el historial inicial)
+ * - tipoMensaje: el tipo de mensaje ('texto', 'cita')
+
  */
-function crearDivMensaje(texto, esPropio, idMensaje = null, leido = false) {
+function crearDivMensaje(texto, esPropio, idMensaje = null, leido = false, tipoMensaje = 'texto') {
     const div = document.createElement('div');
     div.className = 'mensaje' + (esPropio ? ' propio' : ' ajeno');
     if (idMensaje) div.dataset.id = idMensaje;
@@ -258,7 +269,44 @@ function crearDivMensaje(texto, esPropio, idMensaje = null, leido = false) {
     // Contenedor del texto del mensaje
     const contenido = document.createElement('div');
     contenido.className = 'mensaje-contenido';
-    contenido.textContent = texto;
+
+    // Si es un mensaje de cita, renderizarlo de forma especial
+    if (tipoMensaje === 'cita') {
+        try {
+            const datosCita = JSON.parse(texto);
+            let botonesHTML = '';
+
+            // Solo mostrar los botones si es un mensaje ajeno y el estado de la cita es "pendiente"
+            if (!esPropio && datosCita.estado === 'pendiente') {
+                botonesHTML = `
+                    <div class="cita-acciones">
+                        <button class="btn-rechazar-cita" data-id-mensaje="${idMensaje}">Rechazar</button>
+                        <button class="btn-aceptar-cita" data-id-mensaje="${idMensaje}">Aceptar</button>
+                    </div>
+                `;
+            }
+
+            contenido.innerHTML = `
+                <div class="mensaje-cita">
+                    <div class="cita-titulo">📅 Solicitud de cita</div>
+                    <div class="cita-detalles">
+                        <p><strong>Fecha:</strong> ${new Date(datosCita.fecha + 'T00:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                        <p><strong>Hora:</strong> ${datosCita.hora_inicio} - ${datosCita.hora_fin}</p>
+                        <p><strong>Precio/hora:</strong> ${datosCita.precio_hora} €</p>
+                    </div>
+                    <div class="cita-estado">${datosCita.estado}</div>
+                    ${botonesHTML}
+                </div>
+            `;
+        } catch (e) {
+            contenido.textContent = 'Error al procesar la solicitud de cita';
+        }
+    } else {
+        // Mensaje de texto normal
+        contenido.textContent = texto;
+    }
+
+    
     div.appendChild(contenido);
 
     // Indicador de leído (solo en mensajes propios)
@@ -305,3 +353,229 @@ if (btnToggleDisp && dispPanel) {
         btnToggleDisp.classList.toggle('abierto', abierto);
     });
 }
+
+// ─── SOLICITAR CITA ────────────────────────────────────────────────────
+
+const btnSolicitarCita = document.getElementById('btnSolicitarCita');
+
+if (btnSolicitarCita) {
+
+//Elementos del modal
+const modalSolicitarCita = document.getElementById('modalSolicitarCita');
+const btnCerrarModal = document.getElementById('btnCerrarModal');
+const btnCancelarModal = document.getElementById('btnCancelarModal');
+const formSolicitarCita = document.getElementById('formSolicitarCita');
+
+// Elementos del formulario
+const citaFechaInput = document.getElementById('citaFecha');
+const citaHoraInicioInput = document.getElementById('citaHoraInicio');
+const citaHoraFinInput = document.getElementById('citaHoraFin');
+const citaPrecioHoraInput = document.getElementById('citaPrecioHora');
+
+//Elementos de error
+const errorCitaFecha = document.getElementById('error-citaFecha');
+const errorCitaHoraInicio = document.getElementById('error-citaHoraInicio');
+const errorCitaHoraFin = document.getElementById('error-citaHoraFin');
+const errorCitaPrecioHora = document.getElementById('error-citaPrecioHora');
+
+// Abrir modal al hacer click en "Solicitar Cita"
+btnSolicitarCita.addEventListener('click', () => {
+    modalSolicitarCita.classList.add('modal--abierto');
+});
+
+// Cerrar modal
+const cerrarModal = () => {
+    modalSolicitarCita.classList.remove('modal--abierto');
+    formSolicitarCita.reset();
+    limpiarErrores();
+};
+
+btnCerrarModal.addEventListener('click', cerrarModal);
+btnCancelarModal.addEventListener('click', cerrarModal);
+
+// Cerrar modal si haces click fuera del content
+modalSolicitarCita.addEventListener('click', (e) => {
+    if (e.target === modalSolicitarCita) {
+        cerrarModal();
+    }
+});
+
+// Funciones de validación
+function validarFecha() {
+    const fecha = citaFechaInput.value;
+
+    if(!fecha) {
+        errorCitaFecha.textContent = 'La fecha es obligatoria';
+        return false;
+    }
+
+    const fechaObj = new Date(fecha);
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
+    if (fechaObj < hoy) {
+        errorCitaFecha.textContent = 'La fecha no puede ser anterior a hoy';
+        return false;
+    }
+
+    errorCitaFecha.textContent = '';
+    return true;
+}
+
+function validarHoraInicio() {
+    const horaInicio = citaHoraInicioInput.value;
+
+    if (!horaInicio) {
+        errorCitaHoraInicio.textContent = 'La hora de inicio es obligatoria';
+        return false;
+    }
+
+    errorCitaHoraInicio.textContent = '';
+    return true;
+}
+
+function validarHoraFin() {
+    const horaFin = citaHoraFinInput.value;
+    const horaInicio = citaHoraInicioInput.value;
+
+    if (!horaFin) {
+        errorCitaHoraFin.textContent = 'La hora de fin es obligatoria';
+        return false;
+    }
+
+    if (horaFin <= horaInicio) {
+        errorCitaHoraFin.textContent = 'La hora de fin debe ser posterior a la hora de inicio';
+        return false;
+    }
+
+    errorCitaHoraFin.textContent = '';
+    return true;
+}
+
+function validarPrecioHora() {
+    const precio = citaPrecioHoraInput.value;
+
+    if (!precio && precio !== '0') {
+        errorCitaPrecioHora.textContent = 'El precio por hora es obligatorio';
+        return false;
+    }
+
+    if (parseFloat(precio) < 0) {
+        errorCitaPrecioHora.textContent = 'El precio no puede ser negativo';
+        return false;
+    }
+
+    errorCitaPrecioHora.textContent = '';
+    return true;
+}
+
+function limpiarErrores() {
+    errorCitaFecha.textContent = '';
+    errorCitaHoraInicio.textContent = '';
+    errorCitaHoraFin.textContent = '';
+    errorCitaPrecioHora.textContent = '';
+}
+
+// Validación en tiempo real
+citaFechaInput.addEventListener('change', validarFecha);
+citaHoraInicioInput.addEventListener('change', () => {
+    validarHoraInicio();
+    validarHoraFin(); // Revalidar hora fin porque depende de hora inicio
+});
+citaHoraFinInput.addEventListener('change', validarHoraFin);
+citaPrecioHoraInput.addEventListener('input', validarPrecioHora);
+
+// Enviar solicitud de cita
+formSolicitarCita.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    // Validar todos los campos
+    const esFechaValida = validarFecha();
+    const esHoraInicioValida = validarHoraInicio();
+    const esHoraFinValida = validarHoraFin();
+    const esPrecioValido = validarPrecioHora();
+
+    if (!esFechaValida || !esHoraInicioValida || !esHoraFinValida || !esPrecioValido) {
+        console.log('Formulario de cita no válido');
+        return;
+    }
+
+    const fecha = citaFechaInput.value;
+    const horaInicio = citaHoraInicioInput.value;
+    const horaFin = citaHoraFinInput.value;
+    const tipoServicio = document.getElementById('citaTipoServicio').value;
+
+    // Crear el JSON con los datos de la cita
+    const datosCita = {
+        fecha: fecha,
+        hora_inicio: horaInicio,
+        hora_fin: horaFin,
+        tipo_servicio: tipoServicio,
+        precio_hora: parseInt(document.getElementById('citaPrecioHora').value),
+        estado: 'pendiente',
+    };
+
+    console.log('Enviando solicitud de cita:', datosCita);
+
+    // Emitir por socket como mensaje especial
+    socket.emit('enviar_mensaje', {
+        usuario_id: usuarioActualId,
+        usuario_destino_id: usuarioDestinoId,
+        usuario_nombre: usuarioActualNombre,
+        tipo_mensaje: 'cita',
+        mensaje: JSON.stringify(datosCita),
+        chat_id: chatId,
+        anuncio_id: anuncioId
+    });
+
+    // Cerrar el modal y limpiar el formulario
+    cerrarModal();
+
+    // Mostrar mensaje de cita en pantalla inmediatamente (actualización optimista)
+    const divCita = crearDivMensaje(JSON.stringify(datosCita), true, null, false, 'cita');
+    divCita.classList.add('pendiente');
+    limpiarMensajesInicio();
+    contenedorMensajes.appendChild(divCita);
+    contenedorMensajes.scrollTop = contenedorMensajes.scrollHeight;
+});
+
+} // fin if (btnSolicitarCita)
+
+// EVENTO ACTUALIZACIÓN ESTADO CITA
+socket.on('cita_estado_actualizado', (datos) => {
+    const divMensaje = contenedorMensajes.querySelector(`.mensaje[data-id="${datos.id_mensaje}"]`);
+    if (!divMensaje) return;
+
+    const estadoDiv = divMensaje.querySelector('.cita-estado');
+    if (estadoDiv) {
+        estadoDiv.textContent = datos.nuevo_estado;
+    }
+
+    const accionesDiv = divMensaje.querySelector('.cita-acciones');
+    if (accionesDiv) accionesDiv.remove();
+});
+
+// ─── ACEPTAR/RECHAZAR CITA ──────────────────────────────────────
+
+contenedorMensajes.addEventListener('click', (e) => {
+    if (e.target.classList.contains('btn-aceptar-cita')) {
+        const idMensaje = parseInt(e.target.dataset.idMensaje);
+        socket.emit('aceptar_cita', {
+            id_mensaje: idMensaje,
+            chat_id: chatId,
+            anuncio_id: anuncioId,
+            usuario_id: usuarioActualId,
+            usuario_destino_id: usuarioDestinoId
+        });
+    } else if (e.target.classList.contains('btn-rechazar-cita')) {
+        const idMensaje = parseInt(e.target.dataset.idMensaje);
+        socket.emit('rechazar_cita', {
+            id_mensaje: idMensaje,
+            chat_id: chatId,
+            anuncio_id: anuncioId,
+            usuario_id: usuarioActualId,
+            usuario_destino_id: usuarioDestinoId
+        });
+    }
+});
+
