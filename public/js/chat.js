@@ -460,8 +460,14 @@ function validarPrecioHora() {
         return false;
     }
 
-    if (parseFloat(precio) < 0) {
+    const precioNum = parseFloat(precio);
+    if (precioNum < 0) {
         errorCitaPrecioHora.textContent = 'El precio no puede ser negativo';
+        return false;
+    }
+
+    if (precioNum > 999) {
+        errorCitaPrecioHora.textContent = 'El precio no puede superar los 999 €';
         return false;
     }
 
@@ -540,6 +546,48 @@ formSolicitarCita.addEventListener('submit', (e) => {
 });
 
 } // fin if (btnSolicitarCita)
+
+// EVENTO ERROR AL ENVIAR CITA (validación servidor)
+socket.on('cita_error', (datos) => {
+    console.error('Error al enviar cita:', datos);
+
+    // Eliminar el div pendiente creado optimistamente
+    const pendiente = contenedorMensajes.querySelector('.mensaje.propio.pendiente');
+    if (pendiente) pendiente.remove();
+
+    mostrarModalError(datos.error, datos.errores || []);
+});
+
+/*
+ * Crea y muestra dinámicamente un modal de error con la misma estructura
+ * que la plantilla modalErrores.ejs (modal-overlay / modal-box / modal-list).
+ */
+function mostrarModalError(titulo, errores) {
+    const previo = document.getElementById('modalErrorDinamico');
+    if (previo) previo.remove();
+
+    const listaHTML = errores.length > 0
+        ? `<ul class="modal-list">${errores.map(e => `<li>${e.msg}</li>`).join('')}</ul>`
+        : '';
+
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.id = 'modalErrorDinamico';
+    overlay.innerHTML = `
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>${titulo}</h3>
+            </div>
+            ${listaHTML}
+            <div class="modal-footer">
+                <button class="btn-submit" id="btnCerrarErrorDinamico">Cerrar</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+    document.getElementById('btnCerrarErrorDinamico').addEventListener('click', () => overlay.remove());
+}
 
 // EVENTO ACTUALIZACIÓN ESTADO CITA
 socket.on('cita_estado_actualizado', (datos) => {
