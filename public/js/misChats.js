@@ -97,7 +97,7 @@ function crearTarjeta(chat) {
                     ${badgeMascota}
                 </div>
                 <div class="chat-card-preview">
-                    <span class="chat-card-ultimo-msg">${truncar(chat.ultimo_mensaje, 60)}</span>
+                    <span class="chat-card-ultimo-msg">${chat.ultimo_tipo_mensaje === 'cita' ? '📅 Cita solicitada' : truncar(chat.ultimo_mensaje, 60)}</span>
                     ${noLeidosHtml}
                 </div>
             </div>

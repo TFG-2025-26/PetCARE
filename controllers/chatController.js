@@ -91,7 +91,7 @@ const getChatPage = (req, res, next) => {
                 // al usuarioDestino (caso habitual: yo contacto al dueño del anuncio) o al
                 // usuarioActual (caso inverso: el dueño del anuncio entra al chat iniciado por otro).
                 connection.query(
-                    `SELECT id_anuncio, tipo_anuncio, tipo_servicio, tipo_mascota, precio_hora
+                    `SELECT id_anuncio, id_usuario, tipo_anuncio, tipo_servicio, tipo_mascota, precio_hora
                      FROM anuncios WHERE id_anuncio = ? AND (id_usuario = ? OR id_usuario = ?) AND eliminado = 0`,
                     [anuncioId, usuarioDestinoId, usuarioActualId],
                     (err, anuncios) => {
@@ -114,7 +114,7 @@ const getChatPage = (req, res, next) => {
                                     // 5. Cargar los últimos N mensajes en orden DESC y luego invertir para
                                     //    mostrarlos cronológicamente. Se pide N+1 para saber si hay más.
                                     connection.query(
-                                        `SELECT m.id_mensaje, m.contenido, m.fecha, m.leido, m.id_usuario,
+                                        `SELECT m.id_mensaje, m.tipo_mensaje, m.contenido, m.fecha, m.leido, m.id_usuario,
                                                 u.nombre_usuario
                                          FROM mensajes m
                                          LEFT JOIN usuarios u ON u.id_usuario = m.id_usuario
@@ -134,6 +134,7 @@ const getChatPage = (req, res, next) => {
                                             res.render('chat', {
                                                 usuarioActualId,
                                                 usuarioActualNombre: req.session.usuario.nombre_usuario,
+                                                esCliente: anuncios[0].id_usuario !== usuarioActualId,
                                                 usuarioDestino: {
                                                     id: usuarios[0].id_usuario,
                                                     nombre: usuarios[0].nombre_usuario,
@@ -194,7 +195,7 @@ const getHistorial = (req, res) => {
                 }
 
                 connection.query(
-                    `SELECT m.id_mensaje, m.contenido, m.fecha, m.leido, m.id_usuario,
+                    `SELECT m.id_mensaje, m.tipo_mensaje, m.contenido, m.fecha, m.leido, m.id_usuario,
                             u.nombre_usuario
                      FROM mensajes m
                      LEFT JOIN usuarios u ON u.id_usuario = m.id_usuario
@@ -271,8 +272,9 @@ const getMisChatsData = (req, res) => {
                     u_dest.id_usuario   AS destino_id,
                     u_dest.nombre_usuario AS destino_nombre,
                     u_dest.foto         AS destino_foto,
-                    (SELECT m.contenido FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultimo_mensaje,
-                    (SELECT m.fecha     FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultima_fecha,
+                    (SELECT m.contenido    FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultimo_mensaje,
+                    (SELECT m.tipo_mensaje FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultimo_tipo_mensaje,
+                    (SELECT m.fecha        FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultima_fecha,
                     (SELECT COUNT(*) FROM mensajes m WHERE m.id_chat = c.id_chat AND m.leido = 0 AND m.id_usuario != ?) AS mensajes_no_leidos
                 FROM chats c
                 JOIN chat_usuario cu  ON cu.id_chat   = c.id_chat  AND cu.id_usuario = ?
@@ -299,8 +301,9 @@ const getMisChatsData = (req, res) => {
                     u_dest.id_usuario   AS destino_id,
                     u_dest.nombre_usuario AS destino_nombre,
                     u_dest.foto         AS destino_foto,
-                    (SELECT m.contenido FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultimo_mensaje,
-                    (SELECT m.fecha     FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultima_fecha,
+                    (SELECT m.contenido    FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultimo_mensaje,
+                    (SELECT m.tipo_mensaje FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultimo_tipo_mensaje,
+                    (SELECT m.fecha        FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultima_fecha,
                     (SELECT COUNT(*) FROM mensajes m WHERE m.id_chat = c.id_chat AND m.leido = 0 AND m.id_usuario != ?) AS mensajes_no_leidos
                 FROM chats c
                 JOIN chat_usuario cu   ON cu.id_chat  = c.id_chat AND cu.id_usuario = ?

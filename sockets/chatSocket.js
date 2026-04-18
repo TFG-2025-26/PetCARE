@@ -2,6 +2,68 @@
 
 const pool = require('../db');
 
+/*
+ * Valida los datos de una solicitud de cita (contenido JSON del mensaje).
+ * Devuelve un array de { msg } con los errores encontrados, vacío si todo es correcto.
+ */
+function validarDatosCita(mensajeJSON) {
+    const errores = [];
+    let datosCita;
+
+    try {
+        datosCita = JSON.parse(mensajeJSON);
+    } catch (e) {
+        errores.push({ msg: 'El formato de la solicitud de cita no es válido.' });
+        return errores;
+    }
+
+    const { fecha, hora_inicio, hora_fin, precio_hora } = datosCita;
+
+    // Fecha
+    if (!fecha) {
+        errores.push({ msg: 'La fecha es obligatoria.' });
+    } else {
+        const fechaObj = new Date(fecha + 'T00:00:00');
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        if (isNaN(fechaObj.getTime())) {
+            errores.push({ msg: 'La fecha no es válida.' });
+        } else if (fechaObj < hoy) {
+            errores.push({ msg: 'La fecha no puede ser anterior a hoy.' });
+        }
+    }
+
+    // Hora inicio
+    if (!hora_inicio) {
+        errores.push({ msg: 'La hora de inicio es obligatoria.' });
+    } else if (!/^\d{2}:\d{2}(:\d{2})?$/.test(hora_inicio)) {
+        errores.push({ msg: 'El formato de la hora de inicio no es válido.' });
+    }
+
+    // Hora fin
+    if (!hora_fin) {
+        errores.push({ msg: 'La hora de fin es obligatoria.' });
+    } else if (!/^\d{2}:\d{2}(:\d{2})?$/.test(hora_fin)) {
+        errores.push({ msg: 'El formato de la hora de fin no es válido.' });
+    } else if (hora_inicio && hora_fin <= hora_inicio) {
+        errores.push({ msg: 'La hora de fin debe ser posterior a la hora de inicio.' });
+    }
+
+    // Precio hora
+    if (precio_hora === undefined || precio_hora === null || precio_hora === '') {
+        errores.push({ msg: 'El precio por hora es obligatorio.' });
+    } else {
+        const precio = parseFloat(precio_hora);
+        if (isNaN(precio) || precio < 0) {
+            errores.push({ msg: 'El precio por hora no puede ser negativo.' });
+        } else if (precio > 999) {
+            errores.push({ msg: 'El precio por hora no puede superar los 999 €.' });
+        }
+    }
+
+    return errores;
+}
+
 module.exports = (io) => {
 
     // Mapa de sockets activos: socket.id → datos del usuario conectado
@@ -53,6 +115,32 @@ module.exports = (io) => {
         socket.on('enviar_mensaje', (datos) => {
             console.log('Mensaje recibido para guardar en BD:', datos);
 
+            const tipo = datos.tipo_mensaje || 'texto';
+
+            // ── Validación de tipo ────────────────────────────────────────────────
+            if (!['texto', 'cita'].includes(tipo)) {
+                socket.emit('cita_error', { error: 'Tipo de mensaje no válido.', errores: [] });
+                return;
+            }
+
+            // ── Validación de mensaje de texto ────────────────────────────────────
+            if (tipo === 'texto' && (!datos.mensaje || !datos.mensaje.trim())) {
+                socket.emit('cita_error', { error: 'El mensaje no puede estar vacío.', errores: [] });
+                return;
+            }
+
+            // ── Validación de datos de cita (sincróna) ────────────────────────────
+            if (tipo === 'cita') {
+                const erroresCita = validarDatosCita(datos.mensaje);
+                if (erroresCita.length > 0) {
+                    socket.emit('cita_error', {
+                        error: 'Por favor, corrige los errores en el formulario.',
+                        errores: erroresCita
+                    });
+                    return;
+                }
+            }
+
             // Crear nombre de sala para saber a quién retransmitir
             const roomName = crearNombreRoom(datos.usuario_id, datos.usuario_destino_id, datos.anuncio_id);
 
@@ -61,31 +149,65 @@ module.exports = (io) => {
                     console.error('Error de conexión al guardar mensaje:', err);
                     return;
                 }
+
+                // ── Validación en BD: usuarios activos y chat activo ──────────────
                 connection.query(
-                    'INSERT INTO mensajes (contenido, fecha, leido, id_chat, id_usuario) VALUES (?, NOW(), 0, ?, ?)',
-                    [datos.mensaje, datos.chat_id, datos.usuario_id],
-                    (err, result) => {
-                        connection.release();
+                    `SELECT
+                        (SELECT COUNT(*) FROM usuarios WHERE id_usuario = ? AND activo = 1 AND ban = 0) AS usuario_ok,
+                        (SELECT COUNT(*) FROM usuarios WHERE id_usuario = ? AND activo = 1 AND ban = 0) AS destino_ok,
+                        (SELECT COUNT(*) FROM chats WHERE id_chat = ? AND activo = 1) AS chat_ok`,
+                    [datos.usuario_id, datos.usuario_destino_id, datos.chat_id],
+                    (err, results) => {
                         if (err) {
-                            console.error('Error al guardar mensaje en BD:', err);
+                            connection.release();
+                            console.error('Error al verificar usuarios/chat:', err);
                             return;
                         }
 
-                        const objetoMensaje = {
-                            id_mensaje: result.insertId, // id real de BD
-                            usuario_id: datos.usuario_id,
-                            usuario_nombre: datos.usuario_nombre,
-                            mensaje: datos.mensaje,
-                            chat_id: datos.chat_id,
-                            fecha: new Date()
-                        };
+                        const { usuario_ok, destino_ok, chat_ok } = results[0];
+                        const erroresDB = [];
+                        if (!usuario_ok) erroresDB.push({ msg: 'Tu cuenta no está activa.' });
+                        if (!destino_ok) erroresDB.push({ msg: 'El usuario destinatario no está activo.' });
+                        if (!chat_ok) erroresDB.push({ msg: 'El chat no está disponible.' });
 
-                        // Enviar el mensaje al destinatario (broadcast excluye al emisor)
-                        socket.broadcast.to(roomName).emit('mensaje_recibido', objetoMensaje);
-                        // Confirmar al emisor con el id_mensaje de BD (para asignar data-id al DOM)
-                        socket.emit('mensaje_enviado_confirmado', objetoMensaje);
+                        if (erroresDB.length > 0) {
+                            connection.release();
+                            socket.emit('cita_error', {
+                                error: 'No se puede enviar el mensaje.',
+                                errores: erroresDB
+                            });
+                            return;
+                        }
 
-                        console.log(`Mensaje guardado (id: ${result.insertId}) y enviado a sala: ${roomName}`);
+                        // ── Insertar mensaje ──────────────────────────────────────
+                        connection.query(
+                            'INSERT INTO mensajes (tipo_mensaje, contenido, fecha, leido, id_chat, id_usuario) VALUES (?, ?, NOW(), 0, ?, ?)',
+                            [tipo, datos.mensaje, datos.chat_id, datos.usuario_id],
+                            (err, result) => {
+                                connection.release();
+                                if (err) {
+                                    console.error('Error al guardar mensaje en BD:', err);
+                                    return;
+                                }
+
+                                const objetoMensaje = {
+                                    id_mensaje: result.insertId,
+                                    usuario_id: datos.usuario_id,
+                                    usuario_nombre: datos.usuario_nombre,
+                                    mensaje: datos.mensaje,
+                                    chat_id: datos.chat_id,
+                                    fecha: new Date(),
+                                    tipo_mensaje: tipo
+                                };
+
+                                // Enviar el mensaje al destinatario (broadcast excluye al emisor)
+                                socket.broadcast.to(roomName).emit('mensaje_recibido', objetoMensaje);
+                                // Confirmar al emisor con el id_mensaje de BD (para asignar data-id al DOM)
+                                socket.emit('mensaje_enviado_confirmado', objetoMensaje);
+
+                                console.log(`Mensaje guardado (id: ${result.insertId}) y enviado a sala: ${roomName}`);
+                            }
+                        );
                     }
                 );
             });
@@ -100,10 +222,10 @@ module.exports = (io) => {
             console.log('Marcando mensaje como leído:', datos.id_mensaje);
             pool.getConnection((err, connection) => {
                 if (err) return;
-                // Solo actualizamos si todavía no estaba marcado (leido = 0)
+                // Marcar como leídos todos los mensajes del emisor en este chat hasta este id
                 connection.query(
-                    'UPDATE mensajes SET leido = 1 WHERE id_mensaje = ? AND leido = 0',
-                    [datos.id_mensaje],
+                    'UPDATE mensajes SET leido = 1 WHERE id_chat = ? AND id_mensaje <= ? AND leido = 0 AND id_usuario = ?',
+                    [datos.chat_id, datos.id_mensaje, datos.usuario_emisor_id],
                     (err, result) => {
                         connection.release();
                         if (err || result.affectedRows === 0) return; // ya estaba leído o error
@@ -121,7 +243,113 @@ module.exports = (io) => {
             });
         });
 
-        // ── Evento 4: Usuario se desconecta ─────────────────────────────────────
+        // ── Evento 4: Aceptar cita ───────────────────────────────────
+        socket.on('aceptar_cita', (datos) => {
+            console.log('Evento aceptar_cita recibido:', datos);
+            const { id_mensaje, chat_id, anuncio_id, usuario_id, usuario_destino_id } = datos;
+            const roomName = crearNombreRoom(usuario_id, usuario_destino_id, anuncio_id);
+
+            pool.getConnection((err, connection) => {
+                if (err) {
+                    console.error('Error al conectar con la base de datos:', err);
+                    return;
+                }
+
+                connection.query(
+                    'SELECT contenido FROM mensajes WHERE id_mensaje = ? AND id_chat = ?',
+                    [id_mensaje, chat_id],
+                    (err, results) => {
+                        if (err || results.length === 0) {
+                            connection.release();
+                            console.error('Error al obtener el mensaje de la cita:', err);
+                            return;
+                        }
+
+                        try {
+                            const datosCita = JSON.parse(results[0].contenido);
+                            datosCita.estado = 'aceptada';
+
+                            connection.query(
+                                'INSERT INTO reservas (id_cliente, id_proveedor, fecha, hora_inicio, hora_fin, precio_hora, id_chat) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                                [usuario_destino_id, usuario_id, datosCita.fecha, datosCita.hora_inicio, datosCita.hora_fin, datosCita.precio_hora, chat_id],
+                                (err) => {
+                                    if (err) {
+                                        connection.release();
+                                        console.error('Error al insertar reserva:', err);
+                                        return;
+                                    }
+
+                                    connection.query(
+                                        'UPDATE mensajes SET contenido = ? WHERE id_mensaje = ?',
+                                        [JSON.stringify(datosCita), id_mensaje],
+                                        (err) => {
+                                            connection.release();
+                                            if (err) {
+                                                console.error('Error al actualizar estado de la cita:', err);
+                                                return;
+                                            }
+                                            io.to(roomName).emit('cita_estado_actualizado', { id_mensaje, nuevo_estado: 'aceptada' });
+                                        }
+                                    );
+                                }
+                            );
+                        } catch (e) {
+                            connection.release();
+                            console.error('Error al parsear JSON de la cita:', e);
+                        }
+                    }
+                );
+            });
+        });
+
+        // ── Evento 5: Rechazar cita ───────────────────────────────────
+        socket.on('rechazar_cita', (datos) => {
+            console.log('Evento rechazar_cita recibido:', datos);
+            const { id_mensaje, chat_id, anuncio_id, usuario_id, usuario_destino_id } = datos;
+            const roomName = crearNombreRoom(usuario_id, usuario_destino_id, anuncio_id);
+
+            pool.getConnection((err, connection) => {
+                if (err) {
+                    console.error('Error al conectar con la base de datos:', err);
+                    return;
+                }
+
+                connection.query(
+                    'SELECT contenido FROM mensajes WHERE id_mensaje = ? AND id_chat = ?',
+                    [id_mensaje, chat_id],
+                    (err, results) => {
+                        if (err || results.length === 0) {
+                            connection.release();
+                            console.error('Error al obtener el mensaje de la cita:', err);
+                            return;
+                        }
+
+                        try {
+                            const datosCita = JSON.parse(results[0].contenido);
+                            datosCita.estado = 'rechazada';
+
+                            connection.query(
+                                'UPDATE mensajes SET contenido = ? WHERE id_mensaje = ?',
+                                [JSON.stringify(datosCita), id_mensaje],
+                                (err) => {
+                                    connection.release();
+                                    if (err) {
+                                        console.error('Error al actualizar estado de la cita:', err);
+                                        return;
+                                    }
+                                    io.to(roomName).emit('cita_estado_actualizado', { id_mensaje, nuevo_estado: 'rechazada' });
+                                }
+                            );
+                        } catch (e) {
+                            connection.release();
+                            console.error('Error al parsear JSON de la cita:', e);
+                        }
+                    }
+                );
+            });
+        });
+
+        // ── Evento 6: Usuario se desconecta ─────────────────────────────────────
         socket.on('disconnect', () => {
             const usuario = usuariosConectados[socket.id];
             if (usuario && usuario.usuario_destino_id) {
