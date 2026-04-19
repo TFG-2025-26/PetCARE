@@ -13,6 +13,10 @@ const anuncios = (req, res) =>{
     res.render('anuncios');
 }
 
+const misAnuncios = (req, res) => {
+    res.render('misAnuncios');
+}
+
 const getAnuncios = (req, res) => {
     const pagina = parseInt(req.query.pagina) || 1;
     const limite = parseInt(req.query.limite) || 10;
@@ -35,9 +39,9 @@ const getAnuncios = (req, res) => {
         FROM anuncios a
         JOIN usuarios u ON a.id_usuario = u.id_usuario
         LEFT JOIN valoraciones v ON v.id_destinatario = u.id_usuario
-        WHERE a.eliminado = 0 AND a.activo = 1
+        WHERE a.eliminado = 0 AND a.activo = 1 AND a.id_usuario != ?
     `;
-    const params = [];
+    const params = [req.session.usuario.id];
 
     if (tipoAnuncio && tipoAnuncio !== 'puntual/recurrente') {
         query += ` AND a.tipo_anuncio = ?`;
@@ -126,6 +130,92 @@ const getAnuncios = (req, res) => {
         });
     });
 }
+
+const getMisAnuncios = (req, res) => {
+    const id_usuario = req.session.usuario.id;
+    const pagina = parseInt(req.query.pagina) || 1;
+    const limite = parseInt(req.query.limite) || 10;
+    const offset = (pagina - 1) * limite;
+
+    const query = `
+        SELECT
+            a.id_anuncio,
+            a.tipo_anuncio,
+            a.descripcion,
+            a.tipo_mascota,
+            a.precio_hora,
+            a.tipo_servicio,
+            u.id_usuario,
+            u.nombre_usuario,
+            u.foto,
+            COALESCE(AVG(v.puntuacion), 0) AS valoracion_media
+        FROM anuncios a
+        JOIN usuarios u ON a.id_usuario = u.id_usuario
+        LEFT JOIN valoraciones v ON v.id_destinatario = u.id_usuario
+        WHERE a.eliminado = 0 AND a.id_usuario = ?
+        GROUP BY a.id_anuncio, u.id_usuario, u.nombre_usuario
+        ORDER BY a.id_anuncio DESC LIMIT ? OFFSET ?
+    `;
+    const params = [id_usuario, limite + 1, offset];
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error("Error al conectar a la base de datos:", err);
+            return res.status(500).json({ error: "Error al conectar a la base de datos" });
+        }
+
+        connection.query(query, params, (err, anuncios) => {
+            if (err) {
+                connection.release();
+                console.error("Error al obtener los anuncios:", err);
+                return res.status(500).json({ error: "Error al obtener los anuncios" });
+            }
+
+            const hayMasPaginas = anuncios.length > limite;
+            if (hayMasPaginas) anuncios.pop();
+
+            if (anuncios.length === 0) {
+                connection.release();
+                return res.json({ anuncios: [], hayMasPaginas: false });
+            }
+
+            anuncios.forEach(a => {
+                if (a.descripcion === null || a.descripcion.trim() === '') {
+                    a.descripcion = 'No has añadido una descripción para este anuncio.';
+                }
+            });
+
+            const ids = anuncios.map(a => a.id_anuncio);
+            connection.query(
+                `SELECT id_disp, tipo, fecha_inicio, dia_semana, hora_inicio, hora_fin, id_anuncio
+                 FROM disponibilidad WHERE id_anuncio IN (?)`,
+                [ids],
+                (err, disponibilidades) => {
+                    connection.release();
+                    if (err) {
+                        console.error("Error al obtener las disponibilidades:", err);
+                        return res.status(500).json({ error: "Error al obtener las disponibilidades" });
+                    }
+
+                    const dispMap = {};
+                    disponibilidades.forEach(d => {
+                        if (!dispMap[d.id_anuncio]) dispMap[d.id_anuncio] = [];
+                        dispMap[d.id_anuncio].push(d);
+                    });
+
+                    anuncios.forEach(a => {
+                        a.disponibilidades = dispMap[a.id_anuncio] || [];
+                    });
+
+                    return res.json({ anuncios, hayMasPaginas });
+                }
+            );
+        });
+    });
+}
+
+
+
 
 const getPublicarAnuncio = (req, res) =>{
     res.render('publicarAnuncio', { error: null, errores: [] });
@@ -284,7 +374,9 @@ const getEmpresas = (req, res) => {
 
 module.exports = {
     anuncios,
+    misAnuncios,
     getAnuncios,
+    getMisAnuncios,
     getPublicarAnuncio,
     postPublicarAnuncio,
     getServicios,

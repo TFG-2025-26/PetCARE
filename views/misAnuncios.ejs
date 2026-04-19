@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Anuncios - PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="full-height-layout">
+    <%- include('plantillas/navbar') %> 
+
+    <main class="main-anuncios">
+        <h1 class="titulo-anuncios titulo-mis-anuncios">Mis anuncios</h1>
+
+        <div class="anuncios-container" id="anuncios-container">
+            
+        </div>
+
+        <div class="ver-mas-anuncios-container">
+            <button id="ver-mas-anuncios" disabled>Ver más</button>
+        </div>
+        
+    </main>
+
+    <%- include('plantillas/footer') %>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="/js/misAnuncios.js"></script>
+
+</body>
+</html>
