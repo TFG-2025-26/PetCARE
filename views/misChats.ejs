@@ -30,6 +30,18 @@
                 <p class="mis-chats-empty" id="empty-iniciados" style="display:none">
                     Aún no has contactado con nadie.
                 </p>
+
+                <!-- Chats archivados de esta columna -->
+                <div class="chats-archivados-seccion" id="seccion-archivados-iniciados" style="display:none">
+                    <h3 class="chats-archivados-titulo">Archivados</h3>
+                    <div class="chats-lista" id="lista-archivados-iniciados"></div>
+                    <div class="ver-mas-chats-container" id="vm-archivados-iniciados" style="display:none">
+                        <button class="btn-ver-mas-chats" id="btn-mas-archivados-iniciados">Ver más</button>
+                    </div>
+                    <p class="mis-chats-empty" id="empty-archivados-iniciados" style="display:none">
+                        No tienes chats archivados en esta sección.
+                    </p>
+                </div>
             </section>
 
             <!-- ── Columna derecha: chats que otros iniciaron conmigo ───── -->
@@ -47,10 +59,41 @@
                 <p class="mis-chats-empty" id="empty-recibidos" style="display:none">
                     Nadie te ha contactado todavía.
                 </p>
+
+                <!-- Chats archivados de esta columna -->
+                <div class="chats-archivados-seccion" id="seccion-archivados-recibidos" style="display:none">
+                    <h3 class="chats-archivados-titulo">Archivados</h3>
+                    <div class="chats-lista" id="lista-archivados-recibidos"></div>
+                    <div class="ver-mas-chats-container" id="vm-archivados-recibidos" style="display:none">
+                        <button class="btn-ver-mas-chats" id="btn-mas-archivados-recibidos">Ver más</button>
+                    </div>
+                    <p class="mis-chats-empty" id="empty-archivados-recibidos" style="display:none">
+                        No tienes chats archivados en esta sección.
+                    </p>
+                </div>
             </section>
 
         </div><!-- /.mis-chats-wrapper -->
     </main>
+
+    <!-- Modal confirmar archivar chat -->
+    <div class="mac-overlay" id="modalArchivarChat" style="display:none;">
+        <div class="mac-box">
+            <div class="mac-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="28" height="28"><path d="M21 8H3l1 13h16l1-13z"/><path d="M1 5h22v3H1z" stroke-linejoin="round"/><path d="M10 12h4"/></svg>
+            </div>
+            <button class="mac-close" type="button" id="btnCerrarModalArchivar" aria-label="Cerrar">✕</button>
+            <h3 class="mac-titulo">¿Archivar este chat?</h3>
+            <p class="mac-desc">A veces hay que ordenar la perrera 🐾<br>Se archivará para ambos y no se podrán enviar más mensajes.</p>
+            <div class="mac-footer">
+                <button class="mac-btn-cancelar" type="button" id="btnCancelarArchivar">Cancelar</button>
+                <button class="mac-btn-confirmar" type="button" id="btnConfirmarArchivar">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M21 8H3l1 13h16l1-13z"/><path d="M1 5h22v3H1z"/><path d="M10 12h4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+                    Archivar
+                </button>
+            </div>
+        </div>
+    </div>
 
     <%- include('plantillas/footer') %>
 

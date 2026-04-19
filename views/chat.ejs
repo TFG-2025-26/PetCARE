@@ -32,6 +32,7 @@
         </div>
 
         <!-- Barra de info del anuncio -->
+        <% if (anuncio) { %>
         <div class="chat-anuncio-bar">
             <div class="chat-anuncio-badges">
                 <span class="chat-anuncio-badge badge-servicio"><%= anuncio.tipoServicio %></span>
@@ -96,6 +97,7 @@
             <% } %>
         </div>
         <% } %>
+        <% } %> <%# fin if (anuncio) %>
         <!-- Área de mensajes -->
          <div class="chat-mensajes" id="mensajes">
             <div id="cargarMasContainer" class="chat-cargar-mas" style="<%= hayMasAnteriores ? '' : 'display:none' %>">
@@ -108,8 +110,13 @@
             <% } %>
          </div>
 
-         
+        <% if (!chatActivo) { %>
+        <div class="chat-archivado-banner">
+            <span>Esta conversación ha sido archivada</span>
+        </div>
+        <% } %>
 
+        <% if (chatActivo) { %>
         <!-- Formulario de mensaje -->
          <div class="chat-input">
             <!-- Botón para solicitar cita -->
@@ -121,7 +128,6 @@
                 <span>Enviar</span>
             </button>
          </div>
-    </main>
 
     <!-- Modal para solicitar cita -->
      <div id="modalSolicitarCita" class="modal">
@@ -131,7 +137,7 @@
                 <button type="button" class="modal-close" id="btnCerrarModal">&times;</button>
             </div>
             <form id="formSolicitarCita" class="form-solicitar-cita">
-                <input type="hidden" id="citaTipoServicio" value="<%= anuncio.tipoServicio %>">
+                <input type="hidden" id="citaTipoServicio" value="<%= anuncio ? anuncio.tipoServicio : '' %>">
                 <div class="form-cita-grid">
                     <div class="form-group">
                         <label for="citaFecha">Fecha:</label>
@@ -161,8 +167,10 @@
             </form>
         </div>
      </div>
+        <% } %> <%# fin if (chatActivo) %>
 
-    </div>
+    </main>
+    </div> <%# cierre .chat-wrapper %>
 
     <%- include('plantillas/footer') %>
 
@@ -172,8 +180,9 @@
         const usuarioActualNombre = <%- JSON.stringify(usuarioActualNombre) %>;
         const usuarioDestinoId = <%= usuarioDestino.id %>;
         const usuarioDestinoNombre = <%- JSON.stringify(usuarioDestino.nombre) %>;
-        const anuncioId = <%= anuncio.id %>;
+        const anuncioId = <%= anuncio ? anuncio.id : 0 %>;
         const chatId = <%= chatId %>;
+        const chatActivo = <%= chatActivo ? 'true' : 'false' %>;
         let hayMasAnteriores = <%= hayMasAnteriores ? 'true' : 'false' %>;
         let primerIdMensaje = <%= mensajesIniciales.length > 0 ? mensajesIniciales[0].id_mensaje : 0 %>;
         const mensajesInicialesData = <%- JSON.stringify(mensajesIniciales) %>;

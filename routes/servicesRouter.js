@@ -71,8 +71,10 @@ router.get('/empresas', servicesController.empresas);
 router.get('/get-empresas', servicesController.getEmpresas);
 router.get('/chat', isAuthenticated, chatController.getChatPage);
 router.get('/chat/historial', isAuthenticated, chatController.getHistorial);
+router.get('/chat/archivado', isAuthenticated, chatController.getChatArchivadoPage);
 router.get('/mis-chats', isAuthenticated, chatController.getMisChats);
 router.get('/mis-chats/data', isAuthenticated, chatController.getMisChatsData);
+router.put('/mis-chats/:id/eliminar', isAuthenticated, chatController.eliminarChat);
 router.get('/citas', isAuthenticated, citasController.getCitas);
 
 module.exports = router;
