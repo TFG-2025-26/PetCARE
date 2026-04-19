@@ -10,6 +10,7 @@
                 <li><a href="/services">Servicios</a></li>
                 <li><a href="/services/mis-chats">Chats</a></li>
                 <li><a href="/services/citas">Mis citas</a></li>
+                <li><a href="/services/mis-anuncios">Mis anuncios</a></li>
                 <li><a href="">Sobre nosotros</a></li>
             <% } else { %>
                 <li><a href="/services">Servicios</a></li>
@@ -48,6 +49,8 @@
                 <li><a href="/pets/mypets">Mis Animales</a></li>
                 <li><a href="/services">Servicios</a></li>
                 <li><a href="/services/mis-chats">Chats</a></li>
+                <li><a href="/services/citas">Mis citas</a></li>
+                <li><a href="/services/mis-anuncios">Mis anuncios</a></li>
                 <li><a href="">Sobre nosotros</a></li>
             <% } else { %>
                 <li><a href="/services">Servicios</a></li>
@@ -95,6 +98,17 @@
           if (window.innerWidth > 768) {
             setMenuState(false);
           }
+        });
+      })();
+
+      // Marcar enlace activo
+      (function () {
+        const path = window.location.pathname;
+        document.querySelectorAll('.nav-links a, .mobile-nav-links a').forEach(function (a) {
+          const href = a.getAttribute('href');
+          if (!href) return;
+          const match = href === '/' ? path === '/' : path === href;
+          if (match) a.classList.add('nav-active');
         });
       })();
     </script>

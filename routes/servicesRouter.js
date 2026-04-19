@@ -65,6 +65,10 @@ const anuncioValidationRules = [
 router.get('/', servicesController.getServicios);
 router.get('/anuncios', servicesController.anuncios);
 router.get('/get-anuncios', servicesController.getAnuncios);
+router.get('/mis-anuncios', isAuthenticated, servicesController.misAnuncios);
+router.get('/get-mis-anuncios', isAuthenticated, servicesController.getMisAnuncios);
+router.put('/anuncios/:id/eliminar', isAuthenticated, servicesController.eliminarAnuncio);
+router.put('/anuncios/:id/reactivar', isAuthenticated, servicesController.reactivarAnuncio);
 router.get('/publicar-anuncio', isAuthenticated, servicesController.getPublicarAnuncio);
 router.post('/publicar-anuncio', isAuthenticated, anuncioValidationRules, servicesController.postPublicarAnuncio);
 router.get('/empresas', servicesController.empresas);
