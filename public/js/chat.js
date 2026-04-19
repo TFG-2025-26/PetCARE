@@ -102,14 +102,14 @@ socket.on('mensaje_visto', (datos) => {
 
 // ─── ENVIAR MENSAJE ──────────────────────────────────────────────────────────
 
-inputMensaje.addEventListener('keypress', (e) => {
+inputMensaje && inputMensaje.addEventListener('keypress', (e) => {
     if (e.key === 'Enter' && inputMensaje.value.trim() && conectado) {
         e.preventDefault();
         enviarMensaje();
     }
 });
 
-btnEnviar.addEventListener('click', () => {
+btnEnviar && btnEnviar.addEventListener('click', () => {
     if (inputMensaje.value.trim() && conectado) enviarMensaje();
 });
 
@@ -276,8 +276,8 @@ function crearDivMensaje(texto, esPropio, idMensaje = null, leido = false, tipoM
             const datosCita = JSON.parse(texto);
             let botonesHTML = '';
 
-            // Solo mostrar los botones si es un mensaje ajeno y el estado de la cita es "pendiente"
-            if (!esPropio && datosCita.estado === 'pendiente') {
+            // Solo mostrar los botones si es un mensaje ajeno, estado pendiente, y el chat está activo
+            if (!esPropio && datosCita.estado === 'pendiente' && (typeof chatActivo === 'undefined' || chatActivo)) {
                 botonesHTML = `
                     <div class="cita-acciones">
                         <button class="btn-rechazar-cita" data-id-mensaje="${idMensaje}">Rechazar</button>
@@ -333,11 +333,13 @@ function actualizarEstado(texto, estoyConectado = true) {
 }
 
 function deshabilitarInputs() {
+    if (!inputMensaje || !btnEnviar) return;
     inputMensaje.disabled = true;
     btnEnviar.disabled = true;
 }
 
 function habilitarInputs() {
+    if (!inputMensaje || !btnEnviar) return;
     inputMensaje.disabled = false;
     btnEnviar.disabled = false;
     inputMensaje.focus();

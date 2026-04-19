@@ -150,13 +150,129 @@ const getChatPage = (req, res, next) => {
                                                 },
                                                 chatId: idChat,
                                                 mensajesIniciales: mensajes,
-                                                hayMasAnteriores
+                                                hayMasAnteriores,
+                                                chatActivo: true
                                             });
                                         }
                                     );
                                 });
                             }
                         );
+                    }
+                );
+            }
+        );
+    });
+};
+
+/*
+ * GET /services/chat/archivado?chat_id=X
+ * Renderiza la vista de solo lectura de un chat archivado (activo=0).
+ * El usuario debe ser participante. El anuncio puede no existir (fue eliminado).
+ */
+const getChatArchivadoPage = (req, res, next) => {
+    const chatId = parseInt(req.query.chat_id);
+    const usuarioActualId = req.session.usuario.id;
+
+    if (!chatId) return next(createHttpError(400, 'Debes especificar el chat (chat_id)'));
+
+    pool.getConnection((err, connection) => {
+        if (err) return next(createHttpError(500, 'Error al conectar con la base de datos'));
+
+        // 1. Verificar que el usuario es participante
+        connection.query(
+            `SELECT c.id_chat, c.id_anuncio
+             FROM chats c
+             JOIN chat_usuario cu ON cu.id_chat = c.id_chat AND cu.id_usuario = ?
+             WHERE c.id_chat = ?
+             LIMIT 1`,
+            [usuarioActualId, chatId],
+            (err, chats) => {
+                if (err) { connection.release(); return next(createHttpError(500, 'Error al obtener el chat')); }
+                if (!chats.length) { connection.release(); return next(createHttpError(404, 'Chat no encontrado')); }
+
+                const idAnuncio = chats[0].id_anuncio;
+
+                // 2. Obtener el otro participante
+                connection.query(
+                    `SELECT u.id_usuario, u.nombre_usuario, u.foto
+                     FROM chat_usuario cu
+                     JOIN usuarios u ON u.id_usuario = cu.id_usuario
+                     WHERE cu.id_chat = ? AND cu.id_usuario != ?
+                     LIMIT 1`,
+                    [chatId, usuarioActualId],
+                    (err, usuarios) => {
+                        if (err) { connection.release(); return next(createHttpError(500, 'Error al obtener el participante')); }
+                        if (!usuarios.length) { connection.release(); return next(createHttpError(404, 'No se encontró el otro participante del chat')); }
+
+                        const usuarioDestino = usuarios[0];
+
+                        // 3. Intentar obtener datos del anuncio (puede haber sido eliminado)
+                        const obtenerAnuncio = (cb) => {
+                            if (!idAnuncio) return cb(null, null, []);
+                            connection.query(
+                                `SELECT id_anuncio, id_usuario, tipo_anuncio, tipo_servicio, tipo_mascota, precio_hora
+                                 FROM anuncios WHERE id_anuncio = ?`,
+                                [idAnuncio],
+                                (err, anuncios) => {
+                                    if (err || !anuncios.length) return cb(null, null, []);
+                                    connection.query(
+                                        `SELECT tipo, fecha_inicio, dia_semana, hora_inicio, hora_fin
+                                         FROM disponibilidad WHERE id_anuncio = ?
+                                         ORDER BY fecha_inicio ASC, dia_semana ASC, hora_inicio ASC`,
+                                        [idAnuncio],
+                                        (err, disps) => cb(null, anuncios[0], err ? [] : disps)
+                                    );
+                                }
+                            );
+                        };
+
+                        obtenerAnuncio((err, anuncioRow, disponibilidades) => {
+                            // 4. Cargar los últimos mensajes
+                            connection.query(
+                                `SELECT m.id_mensaje, m.tipo_mensaje, m.contenido, m.fecha, m.leido, m.id_usuario,
+                                        u.nombre_usuario
+                                 FROM mensajes m
+                                 LEFT JOIN usuarios u ON u.id_usuario = m.id_usuario
+                                 WHERE m.id_chat = ?
+                                 ORDER BY m.id_mensaje DESC
+                                 LIMIT ?`,
+                                [chatId, MENSAJES_POR_PAGINA + 1],
+                                (err, mensajes) => {
+                                    connection.release();
+                                    if (err) return next(createHttpError(500, 'Error al cargar los mensajes'));
+
+                                    const hayMasAnteriores = mensajes.length > MENSAJES_POR_PAGINA;
+                                    if (hayMasAnteriores) mensajes.pop();
+                                    mensajes.reverse();
+
+                                    const anuncio = anuncioRow ? {
+                                        id: anuncioRow.id_anuncio,
+                                        tipoAnuncio: anuncioRow.tipo_anuncio,
+                                        tipoServicio: anuncioRow.tipo_servicio,
+                                        tipoMascota: anuncioRow.tipo_mascota,
+                                        precioHora: anuncioRow.precio_hora,
+                                        disponibilidades
+                                    } : null;
+
+                                    res.render('chat', {
+                                        usuarioActualId,
+                                        usuarioActualNombre: req.session.usuario.nombre_usuario,
+                                        esCliente: anuncioRow ? anuncioRow.id_usuario !== usuarioActualId : false,
+                                        usuarioDestino: {
+                                            id: usuarioDestino.id_usuario,
+                                            nombre: usuarioDestino.nombre_usuario,
+                                            foto: usuarioDestino.foto
+                                        },
+                                        anuncio,
+                                        chatId,
+                                        mensajesIniciales: mensajes,
+                                        hayMasAnteriores,
+                                        chatActivo: false
+                                    });
+                                }
+                            );
+                        });
                     }
                 );
             }
@@ -243,6 +359,7 @@ const getMisChats = (req, res, next) => {
 const getMisChatsData = (req, res) => {
     const tipo = req.query.tipo;
     const pagina = Math.max(1, parseInt(req.query.pagina) || 1);
+    const archivados = req.query.archivados === '1';
     const LIMITE = 10;
     const offset = (pagina - 1) * LIMITE;
     const userId = req.session.usuario.id;
@@ -251,72 +368,128 @@ const getMisChatsData = (req, res) => {
         return res.status(400).json({ error: 'Parámetro tipo inválido' });
     }
 
-    console.log(`getMisChatsData: userId=${userId}, tipo=${tipo}, pagina=${pagina}`);
+    console.log(`getMisChatsData: userId=${userId}, tipo=${tipo}, pagina=${pagina}, archivados=${archivados}`);
 
     pool.getConnection((err, connection) => {
         if (err) return res.status(500).json({ error: 'Error de conexión' });
 
         let query, params;
 
-        if (tipo === 'iniciados') {
-            // Chats donde estoy como participante PERO no soy el dueño del anuncio.
-            // El "destino" es el dueño del anuncio (u_dest).
-            query = `
-                SELECT
-                    c.id_chat,
-                    c.id_anuncio,
-                    a.tipo_servicio,
-                    a.tipo_mascota,
-                    a.tipo_anuncio,
-                    a.precio_hora,
-                    u_dest.id_usuario   AS destino_id,
-                    u_dest.nombre_usuario AS destino_nombre,
-                    u_dest.foto         AS destino_foto,
-                    (SELECT m.contenido    FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultimo_mensaje,
-                    (SELECT m.tipo_mensaje FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultimo_tipo_mensaje,
-                    (SELECT m.fecha        FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultima_fecha,
-                    (SELECT COUNT(*) FROM mensajes m WHERE m.id_chat = c.id_chat AND m.leido = 0 AND m.id_usuario != ?) AS mensajes_no_leidos
-                FROM chats c
-                JOIN chat_usuario cu  ON cu.id_chat   = c.id_chat  AND cu.id_usuario = ?
-                JOIN anuncios a       ON a.id_anuncio  = c.id_anuncio
-                JOIN usuarios u_dest  ON u_dest.id_usuario = a.id_usuario
-                WHERE c.activo = 1
-                  AND a.id_usuario != ?
-                  AND a.eliminado = 0
-                ORDER BY COALESCE(ultima_fecha, '1970-01-01') DESC
-                LIMIT ? OFFSET ?
-            `;
-            params = [userId, userId, userId, LIMITE + 1, offset];
+        if (!archivados) {
+            // ── Chats activos (comportamiento original) ──────────────────────────
+            if (tipo === 'iniciados') {
+                query = `
+                    SELECT
+                        c.id_chat,
+                        c.id_anuncio,
+                        a.tipo_servicio,
+                        a.tipo_mascota,
+                        a.tipo_anuncio,
+                        a.precio_hora,
+                        u_dest.id_usuario   AS destino_id,
+                        u_dest.nombre_usuario AS destino_nombre,
+                        u_dest.foto         AS destino_foto,
+                        (SELECT m.contenido    FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultimo_mensaje,
+                        (SELECT m.tipo_mensaje FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultimo_tipo_mensaje,
+                        (SELECT m.fecha        FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultima_fecha,
+                        (SELECT COUNT(*) FROM mensajes m WHERE m.id_chat = c.id_chat AND m.leido = 0 AND m.id_usuario != ?) AS mensajes_no_leidos
+                    FROM chats c
+                    JOIN chat_usuario cu  ON cu.id_chat   = c.id_chat  AND cu.id_usuario = ?
+                    JOIN anuncios a       ON a.id_anuncio  = c.id_anuncio
+                    JOIN usuarios u_dest  ON u_dest.id_usuario = a.id_usuario
+                    WHERE c.activo = 1
+                      AND a.id_usuario != ?
+                      AND a.eliminado = 0
+                    ORDER BY COALESCE(ultima_fecha, '1970-01-01') DESC
+                    LIMIT ? OFFSET ?
+                `;
+                params = [userId, userId, userId, LIMITE + 1, offset];
+            } else {
+                query = `
+                    SELECT
+                        c.id_chat,
+                        c.id_anuncio,
+                        a.tipo_servicio,
+                        a.tipo_mascota,
+                        a.tipo_anuncio,
+                        a.precio_hora,
+                        u_dest.id_usuario   AS destino_id,
+                        u_dest.nombre_usuario AS destino_nombre,
+                        u_dest.foto         AS destino_foto,
+                        (SELECT m.contenido    FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultimo_mensaje,
+                        (SELECT m.tipo_mensaje FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultimo_tipo_mensaje,
+                        (SELECT m.fecha        FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultima_fecha,
+                        (SELECT COUNT(*) FROM mensajes m WHERE m.id_chat = c.id_chat AND m.leido = 0 AND m.id_usuario != ?) AS mensajes_no_leidos
+                    FROM chats c
+                    JOIN chat_usuario cu   ON cu.id_chat  = c.id_chat AND cu.id_usuario = ?
+                    JOIN chat_usuario cu2  ON cu2.id_chat = c.id_chat AND cu2.id_usuario != ?
+                    JOIN anuncios a        ON a.id_anuncio = c.id_anuncio
+                    JOIN usuarios u_dest   ON u_dest.id_usuario = cu2.id_usuario
+                    WHERE c.activo = 1
+                      AND a.id_usuario = ?
+                      AND a.eliminado = 0
+                    ORDER BY COALESCE(ultima_fecha, '1970-01-01') DESC
+                    LIMIT ? OFFSET ?
+                `;
+                params = [userId, userId, userId, userId, LIMITE + 1, offset];
+            }
         } else {
-            // Chats donde yo soy el dueño del anuncio.
-            // El "destino" es el OTRO participante en chat_usuario (cu2).
-            query = `
-                SELECT
-                    c.id_chat,
-                    c.id_anuncio,
-                    a.tipo_servicio,
-                    a.tipo_mascota,
-                    a.tipo_anuncio,
-                    a.precio_hora,
-                    u_dest.id_usuario   AS destino_id,
-                    u_dest.nombre_usuario AS destino_nombre,
-                    u_dest.foto         AS destino_foto,
-                    (SELECT m.contenido    FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultimo_mensaje,
-                    (SELECT m.tipo_mensaje FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultimo_tipo_mensaje,
-                    (SELECT m.fecha        FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultima_fecha,
-                    (SELECT COUNT(*) FROM mensajes m WHERE m.id_chat = c.id_chat AND m.leido = 0 AND m.id_usuario != ?) AS mensajes_no_leidos
-                FROM chats c
-                JOIN chat_usuario cu   ON cu.id_chat  = c.id_chat AND cu.id_usuario = ?
-                JOIN chat_usuario cu2  ON cu2.id_chat = c.id_chat AND cu2.id_usuario != ?
-                JOIN anuncios a        ON a.id_anuncio = c.id_anuncio
-                JOIN usuarios u_dest   ON u_dest.id_usuario = cu2.id_usuario
-                WHERE c.activo = 1
-                  AND a.id_usuario = ?
-                  AND a.eliminado = 0
-                ORDER BY COALESCE(ultima_fecha, '1970-01-01') DESC
-                LIMIT ? OFFSET ?
-            `;
-            params = [userId, userId, userId, userId, LIMITE + 1, offset];
+            // ── Chats archivados (activo = 0) ─────────────────────────────────────
+            if (tipo === 'iniciados') {
+                // Chats donde NO soy dueño del anuncio, o el anuncio fue eliminado
+                query = `
+                    SELECT
+                        c.id_chat,
+                        c.id_anuncio,
+                        a.tipo_servicio,
+                        a.tipo_mascota,
+                        a.tipo_anuncio,
+                        a.precio_hora,
+                        u_dest.id_usuario   AS destino_id,
+                        u_dest.nombre_usuario AS destino_nombre,
+                        u_dest.foto         AS destino_foto,
+                        (SELECT m.contenido    FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultimo_mensaje,
+                        (SELECT m.tipo_mensaje FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultimo_tipo_mensaje,
+                        (SELECT m.fecha        FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultima_fecha
+                    FROM chats c
+                    JOIN chat_usuario cu   ON cu.id_chat  = c.id_chat AND cu.id_usuario = ?
+                    JOIN chat_usuario cu2  ON cu2.id_chat = c.id_chat AND cu2.id_usuario != ?
+                    JOIN usuarios u_dest   ON u_dest.id_usuario = cu2.id_usuario
+                    LEFT JOIN anuncios a   ON a.id_anuncio = c.id_anuncio
+                    WHERE c.activo = 0
+                      AND (c.id_anuncio IS NULL OR a.id_usuario != ?)
+                    ORDER BY COALESCE(ultima_fecha, '1970-01-01') DESC
+                    LIMIT ? OFFSET ?
+                `;
+                params = [userId, userId, userId, LIMITE + 1, offset];
+            } else {
+                // Chats donde SÍ soy el dueño del anuncio
+                query = `
+                    SELECT
+                        c.id_chat,
+                        c.id_anuncio,
+                        a.tipo_servicio,
+                        a.tipo_mascota,
+                        a.tipo_anuncio,
+                        a.precio_hora,
+                        u_dest.id_usuario   AS destino_id,
+                        u_dest.nombre_usuario AS destino_nombre,
+                        u_dest.foto         AS destino_foto,
+                        (SELECT m.contenido    FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultimo_mensaje,
+                        (SELECT m.tipo_mensaje FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultimo_tipo_mensaje,
+                        (SELECT m.fecha        FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultima_fecha
+                    FROM chats c
+                    JOIN chat_usuario cu   ON cu.id_chat  = c.id_chat AND cu.id_usuario = ?
+                    JOIN chat_usuario cu2  ON cu2.id_chat = c.id_chat AND cu2.id_usuario != ?
+                    JOIN anuncios a        ON a.id_anuncio = c.id_anuncio
+                    JOIN usuarios u_dest   ON u_dest.id_usuario = cu2.id_usuario
+                    WHERE c.activo = 0
+                      AND a.id_usuario = ?
+                    ORDER BY COALESCE(ultima_fecha, '1970-01-01') DESC
+                    LIMIT ? OFFSET ?
+                `;
+                params = [userId, userId, userId, LIMITE + 1, offset];
+            }
         }
 
         connection.query(query, params, (err, rows) => {
@@ -326,7 +499,6 @@ const getMisChatsData = (req, res) => {
                 return res.status(500).json({ error: 'Error al obtener chats' });
             }
 
-            // Si llegaron LIMITE+1 filas hay una página más; quitamos la extra del resultado
             const hayMas = rows.length > LIMITE;
             const chats = hayMas ? rows.slice(0, LIMITE) : rows;
 
@@ -336,4 +508,40 @@ const getMisChatsData = (req, res) => {
     });
 };
 
-module.exports = { getChatPage, getHistorial, getMisChats, getMisChatsData };
+/*
+ * PUT /services/mis-chats/:id/eliminar
+ * Marca el chat como inactivo (activo=0). Verificación de participante incluida.
+ */
+const eliminarChat = (req, res) => {
+    const chatId = parseInt(req.params.id);
+    const userId = req.session.usuario.id;
+
+    if (!chatId) return res.status(400).json({ error: 'ID de chat inválido' });
+
+    pool.getConnection((err, connection) => {
+        if (err) return res.status(500).json({ error: 'Error de conexión' });
+
+        // Verificar que el usuario es participante del chat
+        connection.query(
+            'SELECT id_chat FROM chat_usuario WHERE id_chat = ? AND id_usuario = ? LIMIT 1',
+            [chatId, userId],
+            (err, rows) => {
+                if (err) { connection.release(); return res.status(500).json({ error: 'Error de base de datos' }); }
+                if (!rows.length) { connection.release(); return res.status(403).json({ error: 'No tienes acceso a este chat' }); }
+
+                connection.query(
+                    'UPDATE chats SET activo = 0 WHERE id_chat = ?',
+                    [chatId],
+                    (err) => {
+                        connection.release();
+                        if (err) return res.status(500).json({ error: 'Error al archivar el chat' });
+                        console.log(`Chat ${chatId} archivado por usuario ${userId}`);
+                        res.json({ ok: true });
+                    }
+                );
+            }
+        );
+    });
+};
+
+module.exports = { getChatPage, getChatArchivadoPage, getHistorial, getMisChats, getMisChatsData, eliminarChat };

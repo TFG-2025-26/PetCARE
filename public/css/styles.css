@@ -3751,3 +3751,182 @@ footer, .footer {
         grid-row: 2;
     }
 }
+/* -- Archivar chat: banner + botones --------------------------- */
+.chat-archivado-banner {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   margin: 1.5rem auto 0.5rem;
+   padding: 0.65rem 1.4rem;
+   background: rgba(120,80,40,0.07);
+   border: 1px dashed rgba(120,80,40,0.3);
+   border-radius: var(--radius-pill);
+   color: var(--muted);
+   font-size: 0.88rem;
+   font-style: italic;
+   max-width: 340px;
+}
+
+/* Wrapper para tarjeta activa + bot�n eliminar */
+.chat-card-wrapper {
+   position: relative;
+}
+
+.chat-card-wrapper .chat-card {
+   padding-right: 2.5rem;
+}
+
+.btn-eliminar-chat {
+   position: absolute;
+   top: 50%;
+   right: 8px;
+   transform: translateY(-50%);
+   background: none;
+   border: none;
+   cursor: pointer;
+   color: #bbb;
+   padding: 5px;
+   border-radius: 50%;
+   line-height: 1;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   transition: color 0.15s, background 0.15s;
+}
+.btn-eliminar-chat:hover { color: #c0392b; background: rgba(192,57,43,0.08); }
+
+/* Secci�n archivados dentro de cada columna */
+.chats-archivados-seccion {
+   margin-top: 1.5rem;
+   padding-top: 1.2rem;
+   border-top: 1.5px dashed var(--warm);
+}
+
+.chats-archivados-titulo {
+   font-family: 'DM Sans', sans-serif;
+   font-size: 0.82rem;
+   font-weight: 500;
+   text-transform: uppercase;
+   letter-spacing: 0.08em;
+   color: var(--muted);
+   margin: 0 0 0.9rem;
+}
+
+.chat-card-wrapper + .chat-card-wrapper > .chat-card {
+   border-top: 1px solid var(--warm);
+}
+
+/* -- Modal archivar chat (mac-*) ------------------------------- */
+.mac-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(30, 18, 10, 0.52);
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    animation: fadeIn 0.18s ease both;
+}
+
+.mac-box {
+    position: relative;
+    background: var(--white);
+    border-radius: 20px;
+    box-shadow: 0 12px 40px rgba(61,43,31,0.18), 0 2px 8px rgba(61,43,31,0.08);
+    padding: 2.2rem 2rem 1.8rem;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    animation: fadeUp 0.25s ease both;
+    border-top: 3px solid var(--amber);
+}
+
+.mac-icon-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    background: rgba(196, 130, 30, 0.1);
+    border-radius: 50%;
+    color: var(--amber);
+    margin-bottom: 1rem;
+}
+
+.mac-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: var(--warm);
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s;
+}
+.mac-close:hover { background: #e8ddd4; color: var(--brown); }
+
+.mac-titulo {
+    font-family: 'Fraunces', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--brown);
+    margin: 0 0 0.7rem;
+}
+
+.mac-desc {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.55;
+    margin: 0 0 1.8rem;
+}
+
+.mac-desc strong {
+    color: var(--brown);
+    font-weight: 500;
+}
+
+.mac-footer {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.mac-btn-cancelar {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--muted);
+    background: var(--warm);
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: 0.7rem 1.5rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.mac-btn-cancelar:hover { background: #e8ddd4; color: var(--brown); }
+
+.mac-btn-confirmar {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--white);
+    background: var(--brown);
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: 0.7rem 1.5rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: background 0.2s, opacity 0.2s;
+}
+.mac-btn-confirmar:hover { opacity: 0.88; }
