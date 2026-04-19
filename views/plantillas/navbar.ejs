@@ -100,4 +100,15 @@
           }
         });
       })();
+
+      // Marcar enlace activo
+      (function () {
+        const path = window.location.pathname;
+        document.querySelectorAll('.nav-links a, .mobile-nav-links a').forEach(function (a) {
+          const href = a.getAttribute('href');
+          if (!href) return;
+          const match = href === '/' ? path === '/' : path === href;
+          if (match) a.classList.add('nav-active');
+        });
+      })();
     </script>

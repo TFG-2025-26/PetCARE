@@ -73,6 +73,8 @@ nav { position: sticky; top: 0; left: 0; right: 0; z-index: 100; display: flex; 
 .nav-links { display: flex; gap: 2.5rem; list-style: none; }
 .nav-links a { text-decoration: none; font-size: 0.9rem; font-weight: 500; color: var(--muted); transition: color 0.2s; letter-spacing: 0.02em; }
 .nav-links a:hover { color: var(--brown); }
+.nav-links a.nav-active { color: var(--brown); font-weight: 600; }
+.mobile-nav-links a.nav-active { background: rgba(122,101,88,0.1); border-color: rgba(122,101,88,0.3); font-weight: 600; }
 .nav-actions { display: flex; gap: 1rem; align-items: center; }
 .nav-toggle {
    display: none;
