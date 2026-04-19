@@ -2,6 +2,7 @@
 
 let anuncios = [];
 let paginaActual = 1;
+let anuncioAEliminar = null;
 
 
 function fetchAnuncios(acumular) {
@@ -138,18 +139,9 @@ function renderDisponibilidad(disponibilidades, tipo) {
 }
 
 
-function renderizarAnuncios(listaAnuncios) {
-    const contenedor = $('#anuncios-container');
-    contenedor.empty();
-
-    if (listaAnuncios.length === 0) {
-        contenedor.html('<div class="no-anuncios"><p>Todavía no has publicado ningún anuncio.</p></div>');
-        return;
-    }
-
-    listaAnuncios.forEach(function(anuncio) {
-        const tarjeta = `
-            <div class="tarjeta-anuncio">
+function buildTarjeta(anuncio, inactivo) {
+    return `
+            <div class="tarjeta-anuncio${inactivo ? ' tarjeta-anuncio--inactiva' : ''}" data-id="${anuncio.id_anuncio}">
                 <div class="tarjeta-anuncio-contenido">
                     <div class="info-perfil-anuncio">
                         <img src="${anuncio.foto || '/images/no-pet.png'}" alt="Foto de perfil">
@@ -173,9 +165,14 @@ function renderizarAnuncios(listaAnuncios) {
                         </div>
                     </div>
                     <div class="seccion-dcha-anuncio">
+                        ${inactivo ? '<span class="badge-inactivo">Inactivo</span>' : ''}
                         <div class="precio-anuncio">
                             <p>${anuncio.precio_hora}€</p>
                             <span>por hora</span>
+                        </div>
+                        <div class="acciones-anuncio">
+                            ${inactivo ? `<button class="btn-reactivar-anuncio" data-id="${anuncio.id_anuncio}" title="Reactivar anuncio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>` : ''}
+                            <button class="btn-eliminar-anuncio" data-id="${anuncio.id_anuncio}" title="Eliminar anuncio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="17" height="17"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
                         </div>
                     </div>
                 </div>
@@ -185,7 +182,80 @@ function renderizarAnuncios(listaAnuncios) {
                 </div>
             </div>
         `;
-        contenedor.append(tarjeta);
+}
+
+
+function renderizarAnuncios(listaAnuncios) {
+    const contenedor = $('#anuncios-container');
+    contenedor.empty();
+
+    if (listaAnuncios.length === 0) {
+        contenedor.html('<div class="no-anuncios"><p>Todavía no has publicado ningún anuncio.</p></div>');
+        return;
+    }
+
+    const activos = listaAnuncios.filter(function(a) { return a.activo; });
+    const inactivos = listaAnuncios.filter(function(a) { return !a.activo; });
+
+    let html = '<div class="mis-anuncios-seccion" id="seccion-activos">';
+    if (activos.length > 0) {
+        activos.forEach(function(anuncio) { html += buildTarjeta(anuncio, false); });
+    } else {
+        html += '<div class="no-anuncios"><p>No tienes anuncios activos.</p></div>';
+    }
+    html += '</div>';
+
+    if (inactivos.length > 0) {
+        html += '<div class="mis-anuncios-seccion mis-anuncios-seccion--inactivos" id="seccion-inactivos">';
+        html += '<h2 class="mis-anuncios-seccion-titulo">Anuncios inactivos</h2>';
+        inactivos.forEach(function(anuncio) { html += buildTarjeta(anuncio, true); });
+        html += '</div>';
+    }
+
+    contenedor.html(html);
+}
+
+
+function abrirModalEliminar(id, inactivo) {
+    anuncioAEliminar = id;
+    $('#btn-confirmar-eliminar-simple').closest('.mea-opcion').toggle(!inactivo);
+    $('#modal-eliminar-anuncio').fadeIn(150);
+}
+
+function cerrarModalEliminar() {
+    anuncioAEliminar = null;
+    $('#modal-eliminar-anuncio').fadeOut(150);
+}
+
+function confirmarEliminar(tipo) {
+    if (!anuncioAEliminar) return;
+    const id = anuncioAEliminar;
+    cerrarModalEliminar();
+
+    $.ajax({
+        url: `/services/anuncios/${id}/eliminar`,
+        method: 'PUT',
+        contentType: 'application/json',
+        data: JSON.stringify({ tipo }),
+        success: function () {
+            if (tipo === 'simple') {
+                location.reload();
+            } else {
+                $(`.tarjeta-anuncio[data-id="${id}"]`).fadeOut(300, function() {
+                    $(this).remove();
+                    anuncios = anuncios.filter(a => a.id_anuncio !== id);
+                    if (anuncios.length === 0) {
+                        $('#anuncios-container').html('<div class="no-anuncios"><p>Todavía no has publicado ningún anuncio.</p></div>');
+                    }
+                });
+            }
+        },
+        error: function (xhr) {
+            const msg = xhr.responseJSON && xhr.responseJSON.error
+                ? xhr.responseJSON.error
+                : 'Error al eliminar el anuncio. Inténtalo de nuevo.';
+            alert(msg);
+        }
     });
 }
 
@@ -196,4 +266,35 @@ $(document).ready(function() {
     $('#ver-mas-anuncios').click(function() {
         fetchAnuncios(true);
     });
+
+    $('#anuncios-container').on('click', '.btn-eliminar-anuncio', function() {
+        const inactivo = $(this).closest('.tarjeta-anuncio--inactiva').length > 0;
+        abrirModalEliminar(parseInt($(this).data('id')), inactivo);
+    });
+
+    $('#anuncios-container').on('click', '.btn-reactivar-anuncio', function() {
+        const id = parseInt($(this).data('id'));
+        $.ajax({
+            url: `/services/anuncios/${id}/reactivar`,
+            method: 'PUT',
+            success: function() { location.reload(); },
+            error: function(xhr) {
+                const msg = xhr.responseJSON && xhr.responseJSON.error
+                    ? xhr.responseJSON.error
+                    : 'Error al reactivar el anuncio.';
+                alert(msg);
+            }
+        });
+    });
+
+    $('#btn-cerrar-modal-anuncio, #btn-cancelar-modal-anuncio').click(function() {
+        cerrarModalEliminar();
+    });
+
+    $('#modal-eliminar-anuncio').click(function(e) {
+        if ($(e.target).is('#modal-eliminar-anuncio')) cerrarModalEliminar();
+    });
+
+    $('#btn-confirmar-eliminar-total').click(function() { confirmarEliminar('total'); });
+    $('#btn-confirmar-eliminar-simple').click(function() { confirmarEliminar('simple'); });
 });

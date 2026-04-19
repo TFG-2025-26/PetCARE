@@ -1132,6 +1132,14 @@ footer, .footer {
    gap: 1.5rem;
 }
 
+.mis-anuncios-header {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   padding: 2rem 6rem 0 6rem;
+   animation: clinic-enter 0.5s ease both;
+}
+
 .titulo-anuncios {
    font-family: 'Fraunces', serif;
    font-size: 1.8rem;
@@ -1140,6 +1148,19 @@ footer, .footer {
    padding: 2rem 1rem 1rem 1rem;
    text-align: center;
    animation: clinic-enter 0.5s ease both;
+}
+
+.mis-anuncios-header .titulo-anuncios {
+   padding: 0;
+   animation: none;
+}
+
+@media (max-width: 760px) {
+   .mis-anuncios-header {
+      padding: 1.5rem 1.5rem 0;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+   }
 }
 
 .filtros-container {
@@ -3764,7 +3785,7 @@ footer, .footer {
    color: var(--muted);
    font-size: 0.88rem;
    font-style: italic;
-   max-width: 340px;
+   max-width: 440px;
 }
 
 /* Wrapper para tarjeta activa + bot�n eliminar */
@@ -3930,3 +3951,266 @@ footer, .footer {
     transition: background 0.2s, opacity 0.2s;
 }
 .mac-btn-confirmar:hover { opacity: 0.88; }
+
+/* ══════════════════════════════════════════
+   MIS ANUNCIOS — botón eliminar + modal
+   (mea-* = modal-eliminar-anuncio)
+══════════════════════════════════════════ */
+
+/* ── Botón eliminar en tarjeta ── */
+.btn-eliminar-anuncio {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 6px 8px;
+    border-radius: var(--radius-sm);
+    transition: color 0.15s, background 0.15s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-end;
+}
+.btn-eliminar-anuncio:hover {
+    color: var(--danger);
+    background: var(--danger-bg);
+}
+
+/* ── Overlay ── */
+.mea-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(30, 18, 10, 0.52);
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    animation: fadeIn 0.18s ease both;
+}
+
+/* ── Caja ── */
+.mea-box {
+    position: relative;
+    background: var(--white);
+    border-radius: 20px;
+    box-shadow: 0 12px 40px rgba(61,43,31,0.18), 0 2px 8px rgba(61,43,31,0.08);
+    padding: 2.2rem 2rem 1.8rem;
+    width: 100%;
+    max-width: 440px;
+    text-align: center;
+    animation: fadeUp 0.25s ease both;
+    border-top: 3px solid var(--danger);
+}
+
+/* ── Icono ── */
+.mea-icon-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    background: rgba(192, 57, 43, 0.1);
+    border-radius: 50%;
+    color: var(--danger);
+    margin-bottom: 1rem;
+}
+
+/* ── Botón cerrar ── */
+.mea-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: var(--warm);
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s;
+}
+.mea-close:hover { background: #e8ddd4; color: var(--brown); }
+
+/* ── Título y descripción ── */
+.mea-titulo {
+    font-family: 'Fraunces', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--brown);
+    margin: 0 0 0.5rem;
+}
+
+.mea-desc {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.55;
+    margin: 0 0 1.2rem;
+}
+
+/* ── Opciones ── */
+.mea-opciones {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: left;
+    margin-bottom: 1.4rem;
+}
+
+.mea-opcion {
+    border: 1.5px solid rgba(61,43,31,0.12);
+    border-radius: var(--radius-md);
+    padding: 0.9rem 1rem;
+    background: var(--cream);
+    transition: border-color 0.2s;
+}
+
+.mea-opcion--danger {
+    border-color: rgba(192,57,43,0.22);
+    background: rgba(192,57,43,0.04);
+}
+
+.mea-opcion-desc {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.45;
+    margin: 0.4rem 0 0;
+}
+
+/* ── Botón eliminar completamente ── */
+.mea-btn-total {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--white);
+    background: var(--danger);
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: 0.6rem 1.1rem;
+    cursor: pointer;
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    transition: opacity 0.2s, transform 0.15s;
+}
+.mea-btn-total:hover { opacity: 0.88; transform: translateY(-1px); }
+
+/* ── Botón solo desactivar ── */
+.mea-btn-simple {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--brown);
+    background: var(--white);
+    border: 1.5px solid rgba(61,43,31,0.22);
+    border-radius: var(--radius-pill);
+    padding: 0.6rem 1.1rem;
+    cursor: pointer;
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+}
+.mea-btn-simple:hover { background: var(--warm); border-color: var(--brown); transform: translateY(-1px); }
+
+/* ── Pie del modal ── */
+.mea-footer {
+    display: flex;
+    justify-content: center;
+}
+
+.mea-btn-cancelar {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--muted);
+    background: var(--warm);
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: 0.6rem 1.4rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.mea-btn-cancelar:hover { background: #e8ddd4; color: var(--brown); }
+
+/* ── Secciones activos / inactivos ── */
+.mis-anuncios-seccion {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.mis-anuncios-seccion--inactivos {
+    border-top: 2px dashed rgba(122, 101, 88, 0.25);
+    padding-top: 0.5rem;
+}
+
+.mis-anuncios-seccion-titulo {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 0;
+}
+
+.tarjeta-anuncio--inactiva {
+    opacity: 0.58;
+    border-left-color: var(--muted);
+}
+.tarjeta-anuncio--inactiva:hover {
+    opacity: 0.75;
+    transform: none;
+}
+
+.badge-inactivo {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--muted);
+    background: rgba(122,101,88,0.12);
+    border: 1px solid rgba(122,101,88,0.3);
+    border-radius: var(--radius-pill);
+    padding: 0.2rem 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    align-self: flex-end;
+}
+
+.acciones-anuncio {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+}
+
+.btn-reactivar-anuncio {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: var(--radius-lg);
+    background: rgba(91, 140, 90, 0.12);
+    color: #5b8c5a;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s;
+    flex-shrink: 0;
+}
+.btn-reactivar-anuncio:hover {
+    background: rgba(91, 140, 90, 0.22);
+    color: #3d6b3c;
+}

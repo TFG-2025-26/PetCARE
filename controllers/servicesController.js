@@ -23,6 +23,7 @@ const getAnuncios = (req, res) => {
     const offset = (pagina - 1) * limite;
 
     const { tipoAnuncio, tipoServicio, tipoAnimal, precioMax, valoracionMin } = req.query;
+    const id_usuario = req.session.usuario ? req.session.usuario.id : null;
 
     let query = `
         SELECT
@@ -39,9 +40,14 @@ const getAnuncios = (req, res) => {
         FROM anuncios a
         JOIN usuarios u ON a.id_usuario = u.id_usuario
         LEFT JOIN valoraciones v ON v.id_destinatario = u.id_usuario
-        WHERE a.eliminado = 0 AND a.activo = 1 AND a.id_usuario != ?
+        WHERE a.eliminado = 0 AND a.activo = 1
     `;
-    const params = [req.session.usuario.id];
+    const params = [];
+
+    if (id_usuario) {
+        query += ` AND a.id_usuario != ?`;
+        params.push(id_usuario);
+    }
 
     if (tipoAnuncio && tipoAnuncio !== 'puntual/recurrente') {
         query += ` AND a.tipo_anuncio = ?`;
@@ -145,6 +151,7 @@ const getMisAnuncios = (req, res) => {
             a.tipo_mascota,
             a.precio_hora,
             a.tipo_servicio,
+            a.activo,
             u.id_usuario,
             u.nombre_usuario,
             u.foto,
@@ -372,11 +379,82 @@ const getEmpresas = (req, res) => {
     });
 }
 
+const eliminarAnuncio = (req, res) => {
+    const id_usuario = req.session.usuario.id;
+    const id_anuncio = parseInt(req.params.id);
+    const tipo = req.body.tipo;
+
+    if (!['total', 'simple'].includes(tipo)) {
+        return res.status(400).json({ error: 'Tipo de eliminación no válido.' });
+    }
+
+    pool.getConnection((err, connection) => {
+        if (err) return res.status(500).json({ error: 'Error de conexión.' });
+
+        if (tipo === 'total') {
+            // Marcar anuncio como eliminado + desactivar chats relacionados
+            connection.query(
+                'UPDATE anuncios SET eliminado = 1, activo = 0 WHERE id_anuncio = ? AND id_usuario = ?',
+                [id_anuncio, id_usuario],
+                (err, result) => {
+                    if (err) { connection.release(); return res.status(500).json({ error: 'Error al eliminar el anuncio.' }); }
+                    if (result.affectedRows === 0) { connection.release(); return res.status(403).json({ error: 'No tienes permiso para eliminar este anuncio.' }); }
+
+                    connection.query(
+                        'UPDATE chats SET activo = 0 WHERE id_anuncio = ?',
+                        [id_anuncio],
+                        (err) => {
+                            connection.release();
+                            if (err) return res.status(500).json({ error: 'Anuncio eliminado pero error al archivar chats.' });
+                            return res.json({ ok: true });
+                        }
+                    );
+                }
+            );
+        } else {
+            // Solo desactivar
+            connection.query(
+                'UPDATE anuncios SET activo = 0 WHERE id_anuncio = ? AND id_usuario = ?',
+                [id_anuncio, id_usuario],
+                (err, result) => {
+                    connection.release();
+                    if (err) return res.status(500).json({ error: 'Error al desactivar el anuncio.' });
+                    if (result.affectedRows === 0) return res.status(403).json({ error: 'No tienes permiso para modificar este anuncio.' });
+                    return res.json({ ok: true });
+                }
+            );
+        }
+    });
+};
+
+const reactivarAnuncio = (req, res) => {
+    const id_usuario = req.session.usuario.id;
+    const id_anuncio = parseInt(req.params.id);
+
+    pool.getConnection((err, connection) => {
+        if (err) return res.status(500).json({ error: 'Error de conexión.' });
+
+        connection.query(
+            'UPDATE anuncios SET activo = 1 WHERE id_anuncio = ? AND id_usuario = ? AND eliminado = 0',
+            [id_anuncio, id_usuario],
+            (err, result) => {
+                connection.release();
+                if (err) return res.status(500).json({ error: 'Error al reactivar el anuncio.' });
+                if (result.affectedRows === 0) return res.status(403).json({ error: 'No tienes permiso para modificar este anuncio.' });
+                return res.json({ ok: true });
+            }
+        );
+    });
+};
+
 module.exports = {
     anuncios,
     misAnuncios,
     getAnuncios,
+    getMisAnuncio: getMisAnuncios,
     getMisAnuncios,
+    eliminarAnuncio,
+    reactivarAnuncio,
     getPublicarAnuncio,
     postPublicarAnuncio,
     getServicios,

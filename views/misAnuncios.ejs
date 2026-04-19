@@ -11,7 +11,10 @@
     <%- include('plantillas/navbar') %> 
 
     <main class="main-anuncios">
-        <h1 class="titulo-anuncios titulo-mis-anuncios">Mis anuncios</h1>
+        <div class="mis-anuncios-header">
+            <h1 class="titulo-anuncios">Mis anuncios</h1>
+            <a href="/services/publicar-anuncio" class="btn-primary">+ Publicar anuncio</a>
+        </div>
 
         <div class="anuncios-container" id="anuncios-container">
             
@@ -24,6 +27,36 @@
     </main>
 
     <%- include('plantillas/footer') %>
+
+    <div class="mea-overlay" id="modal-eliminar-anuncio" style="display:none;">
+        <div class="mea-box">
+            <div class="mea-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="28" height="28"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            </div>
+            <button class="mea-close" type="button" id="btn-cerrar-modal-anuncio" aria-label="Cerrar">✕</button>
+            <h3 class="mea-titulo">¿Eliminar este anuncio?</h3>
+            <p class="mea-desc">Elige cómo quieres eliminarlo:</p>
+            <div class="mea-opciones">
+                <div class="mea-opcion mea-opcion--danger">
+                    <button class="mea-btn-total" type="button" id="btn-confirmar-eliminar-total">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="15" height="15"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
+                        Eliminar completamente
+                    </button>
+                    <p class="mea-opcion-desc">Se borrará el anuncio de forma permanente y se archivarán todos los chats relacionados.</p>
+                </div>
+                <div class="mea-opcion">
+                    <button class="mea-btn-simple" type="button" id="btn-confirmar-eliminar-simple">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="15" height="15"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                        Solo desactivar
+                    </button>
+                    <p class="mea-opcion-desc">El anuncio dejará de aparecer en las búsquedas, pero los chats se mantendrán.</p>
+                </div>
+            </div>
+            <div class="mea-footer">
+                <button class="mea-btn-cancelar" type="button" id="btn-cancelar-modal-anuncio">Cancelar</button>
+            </div>
+        </div>
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="/js/misAnuncios.js"></script>
