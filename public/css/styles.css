@@ -1900,16 +1900,16 @@ footer, .footer {
    min-height: 0;
    width: min(780px, 100%);
    background: var(--white);
-   border: 1px solid rgba(61,43,31,0.1);
+   border: 1px solid rgba(61, 43, 31, 0.222);
    border-radius: var(--radius-lg);
-   box-shadow: var(--shadow-md);
+   box-shadow: var(--shadow-lg);
    overflow: hidden;
    animation: fadeUp 0.6s ease both;
 }
 
 /* --- Cabecera --- */
 .chat-header {
-   background: var(--white);
+   background: var(--warm);
    border-bottom: 1px solid rgba(61,43,31,0.1);
    padding: 1rem 1.5rem;
    display: flex;
@@ -2205,7 +2205,7 @@ footer, .footer {
    display: flex;
    gap: 0.75rem;
    padding: 1rem 1.5rem;
-   background: var(--white);
+   background: var(--warm);
    border-top: 1px solid rgba(61,43,31,0.08);
    flex-shrink: 0;
 }
@@ -4291,7 +4291,7 @@ footer, .footer {
 .chat-valoracion-gracias {
     text-align: center;
     padding: 0.75rem 1.2rem;
-    background: rgba(200, 135, 58, 0.08);
+    background: var(--warm);
     border: 1px solid rgba(200, 135, 58, 0.25);
     border-radius: 12px;
     margin: 0.5rem 1rem;
@@ -4308,7 +4308,7 @@ footer, .footer {
     gap: 1rem;
     flex-wrap: wrap;
     padding: 0.85rem 1.2rem;
-    background: rgba(200, 135, 58, 0.07);
+    background: var(--warm);
     border: 1px solid rgba(200, 135, 58, 0.22);
     border-radius: 12px;
     margin: 0.5rem 1rem;
