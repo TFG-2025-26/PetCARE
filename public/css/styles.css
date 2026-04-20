@@ -3055,7 +3055,7 @@ footer, .footer {
 .mis-chats-page {
    width: min(1100px, 100% - 2 * var(--page-gutter));
    margin: 0 auto;
-   padding: clamp(2rem, 4vw, 3.5rem) 0 clamp(2.5rem, 5vw, 4rem);
+   padding: clamp(1rem, 2vw, 1.5rem) 0 clamp(2.5rem, 5vw, 4rem);
 }
 
 .mis-chats-titulo {
