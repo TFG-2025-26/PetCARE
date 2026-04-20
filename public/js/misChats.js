@@ -121,7 +121,14 @@ function crearTarjeta(chat, archivada = false) {
                         ${badgeMascota}
                     </div>
                     <div class="chat-card-preview">
-                        <span class="chat-card-ultimo-msg">${chat.ultimo_tipo_mensaje === 'cita' ? '📅 Cita solicitada' : truncar(chat.ultimo_mensaje, 60)}</span>
+                        <span class="chat-card-ultimo-msg">${(() => {
+                            if (archivada && chat.finalizar_usuario1 && chat.finalizar_usuario2) {
+                                return chat.ya_valorado
+                                    ? `✓ Has valorado a ${chat.destino_nombre}`
+                                    : `⭐ Valora a ${chat.destino_nombre}`;
+                            }
+                            return chat.ultimo_tipo_mensaje === 'cita' ? '📅 Cita solicitada' : truncar(chat.ultimo_mensaje, 60);
+                        })()}</span>
                         ${noLeidosHtml}
                     </div>
                 </div>

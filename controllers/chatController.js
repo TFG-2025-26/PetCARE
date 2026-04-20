@@ -111,6 +111,20 @@ const getChatPage = (req, res, next) => {
                                 obtenerOCrearChat(connection, usuarioActualId, parseInt(usuarioDestinoId), parseInt(anuncioId), (err, idChat) => {
                                     if (err) { connection.release(); return next(createHttpError(500, 'Error al preparar el chat')); }
 
+                                    // 4b. Obtener estado de finalización del chat
+                                    connection.query(
+                                        `SELECT c.finalizar_usuario1, c.finalizar_usuario2,
+                                                (SELECT MIN(cu.id_usuario) FROM chat_usuario cu WHERE cu.id_chat = c.id_chat) AS u_min
+                                         FROM chats c WHERE c.id_chat = ?`,
+                                        [idChat],
+                                        (err, chatInfo) => {
+                                            if (err || !chatInfo.length) { connection.release(); return next(createHttpError(500, 'Error al obtener estado del chat')); }
+
+                                            const { finalizar_usuario1, finalizar_usuario2, u_min } = chatInfo[0];
+                                            const esUsuarioMin = usuarioActualId === u_min;
+                                            const miFinalizacion   = esUsuarioMin ? !!finalizar_usuario1 : !!finalizar_usuario2;
+                                            const otroFinalizacion = esUsuarioMin ? !!finalizar_usuario2 : !!finalizar_usuario1;
+
                                     // 5. Cargar los últimos N mensajes en orden DESC y luego invertir para
                                     //    mostrarlos cronológicamente. Se pide N+1 para saber si hay más.
                                     connection.query(
@@ -151,8 +165,14 @@ const getChatPage = (req, res, next) => {
                                                 chatId: idChat,
                                                 mensajesIniciales: mensajes,
                                                 hayMasAnteriores,
-                                                chatActivo: true
+                                                chatActivo: true,
+                                                miFinalizacion,
+                                                otroFinalizacion,
+                                                pendienteValorar: false,
+                                                yaValorado: false
                                             });
+                                        }
+                                    );
                                         }
                                     );
                                 });
@@ -181,7 +201,7 @@ const getChatArchivadoPage = (req, res, next) => {
 
         // 1. Verificar que el usuario es participante
         connection.query(
-            `SELECT c.id_chat, c.id_anuncio
+            `SELECT c.id_chat, c.id_anuncio, c.finalizar_usuario1, c.finalizar_usuario2
              FROM chats c
              JOIN chat_usuario cu ON cu.id_chat = c.id_chat AND cu.id_usuario = ?
              WHERE c.id_chat = ?
@@ -192,6 +212,7 @@ const getChatArchivadoPage = (req, res, next) => {
                 if (!chats.length) { connection.release(); return next(createHttpError(404, 'Chat no encontrado')); }
 
                 const idAnuncio = chats[0].id_anuncio;
+                const chatFinalizado = !!(chats[0].finalizar_usuario1 && chats[0].finalizar_usuario2);
 
                 // 2. Obtener el otro participante
                 connection.query(
@@ -239,8 +260,7 @@ const getChatArchivadoPage = (req, res, next) => {
                                  LIMIT ?`,
                                 [chatId, MENSAJES_POR_PAGINA + 1],
                                 (err, mensajes) => {
-                                    connection.release();
-                                    if (err) return next(createHttpError(500, 'Error al cargar los mensajes'));
+                                    if (err) { connection.release(); return next(createHttpError(500, 'Error al cargar los mensajes')); }
 
                                     const hayMasAnteriores = mensajes.length > MENSAJES_POR_PAGINA;
                                     if (hayMasAnteriores) mensajes.pop();
@@ -255,21 +275,42 @@ const getChatArchivadoPage = (req, res, next) => {
                                         disponibilidades
                                     } : null;
 
-                                    res.render('chat', {
-                                        usuarioActualId,
-                                        usuarioActualNombre: req.session.usuario.nombre_usuario,
-                                        esCliente: anuncioRow ? anuncioRow.id_usuario !== usuarioActualId : false,
-                                        usuarioDestino: {
-                                            id: usuarioDestino.id_usuario,
-                                            nombre: usuarioDestino.nombre_usuario,
-                                            foto: usuarioDestino.foto
-                                        },
-                                        anuncio,
-                                        chatId,
-                                        mensajesIniciales: mensajes,
-                                        hayMasAnteriores,
-                                        chatActivo: false
-                                    });
+                                    const renderChat = (pendienteValorar, yaValorado) => {
+                                        res.render('chat', {
+                                            usuarioActualId,
+                                            usuarioActualNombre: req.session.usuario.nombre_usuario,
+                                            esCliente: anuncioRow ? anuncioRow.id_usuario !== usuarioActualId : false,
+                                            usuarioDestino: {
+                                                id: usuarioDestino.id_usuario,
+                                                nombre: usuarioDestino.nombre_usuario,
+                                                foto: usuarioDestino.foto
+                                            },
+                                            anuncio,
+                                            chatId,
+                                            mensajesIniciales: mensajes,
+                                            hayMasAnteriores,
+                                            chatActivo: false,
+                                            miFinalizacion: false,
+                                            otroFinalizacion: false,
+                                            pendienteValorar,
+                                            yaValorado
+                                        });
+                                    };
+
+                                    if (chatFinalizado) {
+                                        connection.query(
+                                            'SELECT id_valoracion FROM valoraciones WHERE id_autor = ? AND id_chat = ? LIMIT 1',
+                                            [usuarioActualId, chatId],
+                                            (err, valRows) => {
+                                                connection.release();
+                                                const yaValorado = !err && valRows.length > 0;
+                                                renderChat(!yaValorado, yaValorado);
+                                            }
+                                        );
+                                    } else {
+                                        connection.release();
+                                        renderChat(false, false);
+                                    }
                                 }
                             );
                         });
@@ -441,6 +482,8 @@ const getMisChatsData = (req, res) => {
                     SELECT
                         c.id_chat,
                         c.id_anuncio,
+                        c.finalizar_usuario1,
+                        c.finalizar_usuario2,
                         a.tipo_servicio,
                         a.tipo_mascota,
                         a.tipo_anuncio,
@@ -450,7 +493,8 @@ const getMisChatsData = (req, res) => {
                         u_dest.foto         AS destino_foto,
                         (SELECT m.contenido    FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultimo_mensaje,
                         (SELECT m.tipo_mensaje FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultimo_tipo_mensaje,
-                        (SELECT m.fecha        FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultima_fecha
+                        (SELECT m.fecha        FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultima_fecha,
+                        (SELECT COUNT(*) FROM valoraciones v WHERE v.id_autor = ? AND v.id_chat = c.id_chat LIMIT 1) AS ya_valorado
                     FROM chats c
                     JOIN chat_usuario cu   ON cu.id_chat  = c.id_chat AND cu.id_usuario = ?
                     JOIN chat_usuario cu2  ON cu2.id_chat = c.id_chat AND cu2.id_usuario != ?
@@ -461,13 +505,15 @@ const getMisChatsData = (req, res) => {
                     ORDER BY COALESCE(ultima_fecha, '1970-01-01') DESC
                     LIMIT ? OFFSET ?
                 `;
-                params = [userId, userId, userId, LIMITE + 1, offset];
+                params = [userId, userId, userId, userId, LIMITE + 1, offset];
             } else {
                 // Chats donde SÍ soy el dueño del anuncio
                 query = `
                     SELECT
                         c.id_chat,
                         c.id_anuncio,
+                        c.finalizar_usuario1,
+                        c.finalizar_usuario2,
                         a.tipo_servicio,
                         a.tipo_mascota,
                         a.tipo_anuncio,
@@ -477,7 +523,8 @@ const getMisChatsData = (req, res) => {
                         u_dest.foto         AS destino_foto,
                         (SELECT m.contenido    FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultimo_mensaje,
                         (SELECT m.tipo_mensaje FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultimo_tipo_mensaje,
-                        (SELECT m.fecha        FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultima_fecha
+                        (SELECT m.fecha        FROM mensajes m WHERE m.id_chat = c.id_chat ORDER BY m.id_mensaje DESC LIMIT 1) AS ultima_fecha,
+                        (SELECT COUNT(*) FROM valoraciones v WHERE v.id_autor = ? AND v.id_chat = c.id_chat LIMIT 1) AS ya_valorado
                     FROM chats c
                     JOIN chat_usuario cu   ON cu.id_chat  = c.id_chat AND cu.id_usuario = ?
                     JOIN chat_usuario cu2  ON cu2.id_chat = c.id_chat AND cu2.id_usuario != ?
@@ -488,7 +535,7 @@ const getMisChatsData = (req, res) => {
                     ORDER BY COALESCE(ultima_fecha, '1970-01-01') DESC
                     LIMIT ? OFFSET ?
                 `;
-                params = [userId, userId, userId, LIMITE + 1, offset];
+                params = [userId, userId, userId, userId, LIMITE + 1, offset];
             }
         }
 
@@ -544,4 +591,72 @@ const eliminarChat = (req, res) => {
     });
 };
 
-module.exports = { getChatPage, getChatArchivadoPage, getHistorial, getMisChats, getMisChatsData, eliminarChat };
+/*
+ * POST /services/chat/valorar
+ * Guarda una valoración (1-5 estrellas + comentario opcional) del servicio finalizado.
+ * Solo disponible cuando ambos usuarios han confirmado la finalización del chat.
+ * Previene duplicados: un usuario solo puede valorar una vez por chat.
+ */
+const postValorar = (req, res) => {
+    const chatId = parseInt(req.body.chat_id);
+    const puntuacion = parseInt(req.body.puntuacion);
+    const comentario = (req.body.comentario || '').trim().substring(0, 500);
+    const id_autor = req.session.usuario.id;
+
+    if (!chatId || isNaN(puntuacion) || puntuacion < 1 || puntuacion > 5) {
+        return res.status(400).json({ error: 'Datos inválidos' });
+    }
+
+    pool.getConnection((err, connection) => {
+        if (err) return res.status(500).json({ error: 'Error de conexión' });
+
+        // Verificar que el usuario es participante y que ambos han finalizado
+        connection.query(
+            `SELECT c.finalizar_usuario1, c.finalizar_usuario2,
+                    (SELECT cu2.id_usuario FROM chat_usuario cu2
+                     WHERE cu2.id_chat = c.id_chat AND cu2.id_usuario != ?) AS id_destinatario
+             FROM chats c
+             JOIN chat_usuario cu ON cu.id_chat = c.id_chat AND cu.id_usuario = ?
+             WHERE c.id_chat = ? LIMIT 1`,
+            [id_autor, id_autor, chatId],
+            (err, rows) => {
+                if (err || !rows.length) {
+                    connection.release();
+                    return res.status(403).json({ error: 'No tienes acceso a este chat' });
+                }
+
+                const { finalizar_usuario1, finalizar_usuario2, id_destinatario } = rows[0];
+
+                if (!finalizar_usuario1 || !finalizar_usuario2) {
+                    connection.release();
+                    return res.status(403).json({ error: 'El servicio no ha sido finalizado por ambos usuarios' });
+                }
+
+                // Comprobar que no haya valoración previa (un autor solo puede valorar una vez a cada destinatario)
+                connection.query(
+                    'SELECT id_valoracion FROM valoraciones WHERE id_autor = ? AND id_chat = ? LIMIT 1',
+                    [id_autor, chatId],
+                    (err, existing) => {
+                        if (err) { connection.release(); return res.status(500).json({ error: 'Error al verificar' }); }
+                        if (existing.length) {
+                            connection.release();
+                            return res.status(409).json({ error: 'Ya has valorado este servicio' });
+                        }
+
+                        connection.query(
+                            'INSERT INTO valoraciones (puntuacion, comentario, id_autor, id_destinatario, id_chat) VALUES (?, ?, ?, ?, ?)',
+                            [puntuacion, comentario || null, id_autor, id_destinatario, chatId],
+                            (err) => {
+                                connection.release();
+                                if (err) return res.status(500).json({ error: 'Error al guardar la valoración' });
+                                res.json({ ok: true });
+                            }
+                        );
+                    }
+                );
+            }
+        );
+    });
+};
+
+module.exports = { getChatPage, getChatArchivadoPage, getHistorial, getMisChats, getMisChatsData, eliminarChat, postValorar };

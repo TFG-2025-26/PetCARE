@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 18-04-2026 a las 17:20:57
+-- Tiempo de generación: 20-04-2026 a las 03:55:15
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -77,7 +77,9 @@ CREATE TABLE `cartilla_medica` (
 CREATE TABLE `chats` (
   `id_chat` int(11) NOT NULL,
   `activo` tinyint(1) NOT NULL DEFAULT 1,
-  `id_anuncio` int(11) DEFAULT NULL
+  `id_anuncio` int(11) DEFAULT NULL,
+  `finalizar_usuario1` tinyint(1) NOT NULL DEFAULT 0,
+  `finalizar_usuario2` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -347,7 +349,8 @@ CREATE TABLE `valoraciones` (
   `comentario` text DEFAULT NULL,
   `id_autor` int(11) NOT NULL,
   `id_destinatario` int(11) DEFAULT NULL,
-  `id_empresa` int(11) DEFAULT NULL
+  `id_empresa` int(11) DEFAULT NULL,
+  `id_chat` int(11) DEFAULT NULL
 ) ;
 
 --
@@ -505,7 +508,8 @@ ALTER TABLE `valoraciones`
   ADD PRIMARY KEY (`id_valoracion`),
   ADD KEY `id_autor` (`id_autor`),
   ADD KEY `id_destinatario` (`id_destinatario`),
-  ADD KEY `id_empresa` (`id_empresa`);
+  ADD KEY `id_empresa` (`id_empresa`),
+  ADD KEY `id_chat` (`id_chat`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
@@ -752,8 +756,9 @@ ALTER TABLE `vacunas`
 ALTER TABLE `valoraciones`
   ADD CONSTRAINT `valoraciones_ibfk_1` FOREIGN KEY (`id_autor`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `valoraciones_ibfk_2` FOREIGN KEY (`id_destinatario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `valoraciones_ibfk_3` FOREIGN KEY (`id_empresa`) REFERENCES `empresas` (`id_empresa`) ON DELETE CASCADE ON UPDATE CASCADE;
---
+  ADD CONSTRAINT `valoraciones_ibfk_3` FOREIGN KEY (`id_empresa`) REFERENCES `empresas` (`id_empresa`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `valoraciones_ibfk_4` FOREIGN KEY (`id_chat`) REFERENCES `chats` (`id_chat`) ON DELETE CASCADE ON UPDATE CASCADE;
+  --
 -- CHECK constraints
 --
 
