@@ -1900,16 +1900,16 @@ footer, .footer {
    min-height: 0;
    width: min(780px, 100%);
    background: var(--white);
-   border: 1px solid rgba(61,43,31,0.1);
+   border: 1px solid rgba(61, 43, 31, 0.222);
    border-radius: var(--radius-lg);
-   box-shadow: var(--shadow-md);
+   box-shadow: var(--shadow-lg);
    overflow: hidden;
    animation: fadeUp 0.6s ease both;
 }
 
 /* --- Cabecera --- */
 .chat-header {
-   background: var(--white);
+   background: var(--warm);
    border-bottom: 1px solid rgba(61,43,31,0.1);
    padding: 1rem 1.5rem;
    display: flex;
@@ -2205,7 +2205,7 @@ footer, .footer {
    display: flex;
    gap: 0.75rem;
    padding: 1rem 1.5rem;
-   background: var(--white);
+   background: var(--warm);
    border-top: 1px solid rgba(61,43,31,0.08);
    flex-shrink: 0;
 }
@@ -2336,6 +2336,13 @@ footer, .footer {
 
    .chat-header {
       padding: 0.85rem 1rem;
+      flex-wrap: wrap;
+   }
+
+   .btn-finalizar-servicio {
+      width: 100%;
+      margin-left: 0;
+      justify-content: center;
    }
 
    .chat-anuncio-bar {
@@ -3048,7 +3055,7 @@ footer, .footer {
 .mis-chats-page {
    width: min(1100px, 100% - 2 * var(--page-gutter));
    margin: 0 auto;
-   padding: clamp(2rem, 4vw, 3.5rem) 0 clamp(2.5rem, 5vw, 4rem);
+   padding: clamp(1rem, 2vw, 1.5rem) 0 clamp(2.5rem, 5vw, 4rem);
 }
 
 .mis-chats-titulo {
@@ -3790,6 +3797,66 @@ footer, .footer {
    max-width: 440px;
 }
 
+/* -- Finalizar servicio: barra + banner ------------------------ */
+.chat-finalizar-bar {
+    display: flex;
+    justify-content: center;
+    padding: 0.5rem 1rem 0.75rem;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+}
+
+.btn-finalizar-servicio {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.38rem 0.9rem;
+    border-radius: var(--radius-pill);
+    border: 1.5px solid var(--amber);
+    background: transparent;
+    color: var(--amber);
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: auto;
+    transition: background 0.18s, color 0.18s, border-color 0.18s;
+}
+
+.btn-finalizar-servicio:hover:not(.btn-finalizar-pendiente) {
+    background: var(--amber);
+    color: #fff;
+    border-color: var(--amber);
+}
+
+.btn-finalizar-pendiente {
+    border-color: rgba(61,43,31,0.2);
+    color: var(--muted);
+    cursor: default;
+    opacity: 0.8;
+}
+
+.btn-finalizar-pendiente svg {
+    stroke: var(--muted);
+}
+
+.chat-finalizar-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0.75rem 1.4rem;
+    background: rgba(200, 135, 58, 0.08);
+    border-top: 1px solid rgba(200, 135, 58, 0.3);
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--amber);
+    text-align: center;
+}
+
 /* Wrapper para tarjeta activa + bot�n eliminar */
 .chat-card-wrapper {
    position: relative;
@@ -3953,6 +4020,317 @@ footer, .footer {
     transition: background 0.2s, opacity 0.2s;
 }
 .mac-btn-confirmar:hover { opacity: 0.88; }
+
+/* ══════════════════════════════════════════
+   MODAL FINALIZAR SERVICIO (chat)
+   (mfs-* = modal-finalizar-servicio)
+══════════════════════════════════════════ */
+.mfs-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(30, 18, 10, 0.52);
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    animation: fadeIn 0.18s ease both;
+}
+
+.mfs-box {
+    position: relative;
+    background: var(--white);
+    border-radius: 20px;
+    box-shadow: 0 12px 40px rgba(61,43,31,0.18), 0 2px 8px rgba(61,43,31,0.08);
+    padding: 2.2rem 2rem 1.8rem;
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+    animation: fadeUp 0.25s ease both;
+    border-top: 3px solid var(--amber);
+}
+
+.mfs-icon-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    background: rgba(200, 135, 58, 0.1);
+    border-radius: 50%;
+    color: var(--amber);
+    margin-bottom: 1rem;
+}
+
+.mfs-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: var(--warm);
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s;
+}
+.mfs-close:hover { background: #e8ddd4; color: var(--brown); }
+
+.mfs-titulo {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--brown);
+    margin: 0 0 0.7rem;
+}
+
+.mfs-desc {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.55;
+    margin: 0 0 1.8rem;
+}
+
+.mfs-footer {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.mfs-btn-cancelar {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--muted);
+    background: var(--warm);
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: 0.7rem 1.5rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.mfs-btn-cancelar:hover { background: #e8ddd4; color: var(--brown); }
+
+.mfs-btn-confirmar {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--white);
+    background: var(--amber);
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: 0.7rem 1.5rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: opacity 0.2s;
+}
+.mfs-btn-confirmar:hover { opacity: 0.88; }
+
+/* ══════════════════════════════════════════
+   MODAL VALORAR SERVICIO (chat)
+   (mv-* = modal-valorar)
+══════════════════════════════════════════ */
+.mv-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(30, 18, 10, 0.52);
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    animation: fadeIn 0.18s ease both;
+}
+
+.mv-box {
+    position: relative;
+    background: var(--white);
+    border-radius: 20px;
+    box-shadow: 0 12px 40px rgba(61,43,31,0.18), 0 2px 8px rgba(61,43,31,0.08);
+    padding: 2.2rem 2rem 1.8rem;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    animation: fadeUp 0.25s ease both;
+    border-top: 3px solid var(--amber);
+}
+
+.mv-icon-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    background: rgba(200, 135, 58, 0.1);
+    border-radius: 50%;
+    color: var(--amber);
+    margin-bottom: 1rem;
+}
+
+.mv-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: var(--warm);
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s;
+}
+.mv-close:hover { background: #e8ddd4; color: var(--brown); }
+
+.mv-titulo {
+    font-family: 'Fraunces', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--brown);
+    margin: 0 0 0.5rem;
+}
+
+.mv-desc {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.55;
+    margin: 0 0 1.4rem;
+}
+
+.mv-estrellas {
+    display: flex;
+    gap: 0.3rem;
+    justify-content: center;
+    margin-bottom: 1.2rem;
+}
+
+.mv-estrella {
+    background: none;
+    border: none;
+    font-size: 2.2rem;
+    color: #ddd;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    transition: color 0.12s, transform 0.1s;
+}
+.mv-estrella:hover,
+.mv-estrella.activa { color: var(--amber); }
+.mv-estrella:hover { transform: scale(1.15); }
+
+.mv-comentario {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--brown);
+    background: var(--warm);
+    border: 1.5px solid transparent;
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    resize: vertical;
+    min-height: 72px;
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 1.4rem;
+}
+.mv-comentario:focus { border-color: var(--amber); }
+.mv-comentario::placeholder { color: var(--muted); opacity: 0.7; }
+
+.mv-footer {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.mv-btn-omitir {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--muted);
+    background: var(--warm);
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: 0.7rem 1.5rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.mv-btn-omitir:hover { background: #e8ddd4; color: var(--brown); }
+
+.mv-btn-enviar {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--white);
+    background: var(--amber);
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: 0.7rem 1.5rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: opacity 0.2s;
+}
+.mv-btn-enviar:hover:not(:disabled) { opacity: 0.88; }
+.mv-btn-enviar:disabled { opacity: 0.45; cursor: default; }
+
+.chat-valoracion-gracias {
+    text-align: center;
+    padding: 0.75rem 1.2rem;
+    background: var(--warm);
+    border: 1px solid rgba(200, 135, 58, 0.25);
+    border-radius: 12px;
+    margin: 0.5rem 1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--brown);
+}
+
+.chat-valorar-accion {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 0.85rem 1.2rem;
+    background: var(--warm);
+    border: 1px solid rgba(200, 135, 58, 0.22);
+    border-radius: 12px;
+    margin: 0.5rem 1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--brown);
+}
+
+.btn-abrir-valorar {
+    background: var(--amber);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: 0.55rem 1.3rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.2s;
+}
+.btn-abrir-valorar:hover { opacity: 0.85; }
 
 /* ══════════════════════════════════════════
    MIS ANUNCIOS — botón eliminar + modal

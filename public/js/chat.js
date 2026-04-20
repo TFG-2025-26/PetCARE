@@ -629,3 +629,190 @@ contenedorMensajes.addEventListener('click', (e) => {
     }
 });
 
+// ─── FINALIZAR SERVICIO ───────────────────────────────────────────────────────
+
+const btnFinalizarServicio = document.getElementById('btnFinalizarServicio');
+const bannerFinalizacion   = document.getElementById('bannerFinalizacion');
+
+// ── Modal confirmar finalizar ─────────────────────────────────────────────────
+const modalFinalizar         = document.getElementById('modalFinalizarServicio');
+const btnConfirmarFinalizar  = document.getElementById('btnConfirmarFinalizar');
+const btnCancelarFinalizar   = document.getElementById('btnCancelarModalFinalizar');
+const btnCerrarFinalizar     = document.getElementById('btnCerrarModalFinalizar');
+
+function abrirModalFinalizar() {
+    if (modalFinalizar) modalFinalizar.style.display = 'flex';
+}
+
+function cerrarModalFinalizar() {
+    if (modalFinalizar) modalFinalizar.style.display = 'none';
+}
+
+if (btnCancelarFinalizar)  btnCancelarFinalizar.addEventListener('click', cerrarModalFinalizar);
+if (btnCerrarFinalizar)    btnCerrarFinalizar.addEventListener('click', cerrarModalFinalizar);
+if (modalFinalizar) {
+    modalFinalizar.addEventListener('click', (e) => {
+        if (e.target === modalFinalizar) cerrarModalFinalizar();
+    });
+}
+
+if (btnConfirmarFinalizar) {
+    btnConfirmarFinalizar.addEventListener('click', () => {
+        cerrarModalFinalizar();
+        socket.emit('solicitar_finalizar', {
+            chat_id: chatId,
+            usuario_id: usuarioActualId,
+            usuario_destino_id: usuarioDestinoId,
+            anuncio_id: anuncioId
+        });
+    });
+}
+
+if (btnFinalizarServicio) {
+    btnFinalizarServicio.addEventListener('click', () => {
+        if (btnFinalizarServicio.classList.contains('btn-finalizar-pendiente')) return;
+        abrirModalFinalizar();
+    });
+}
+
+// Evento: un usuario solicitó finalizar (puede ser yo o el otro)
+socket.on('finalizacion_pendiente', (datos) => {
+    if (datos.usuario_id === usuarioActualId) {
+        // Soy yo quien lo solicitó → poner el botón en estado "esperando"
+        if (btnFinalizarServicio) {
+            btnFinalizarServicio.textContent = 'Esperando confirmación del otro usuario...';
+            btnFinalizarServicio.classList.add('btn-finalizar-pendiente');
+        }
+    } else {
+        // El otro usuario lo solicitó → mostrar banner para que yo confirme
+        if (bannerFinalizacion) {
+            bannerFinalizacion.style.display = '';
+        } else {
+            // Crear el banner dinámicamente si no estaba en el HTML inicial
+            const chatWrapper = document.querySelector('.chat-finalizar-bar');
+            if (chatWrapper) {
+                const banner = document.createElement('div');
+                banner.className = 'chat-finalizar-banner';
+                banner.id = 'bannerFinalizacion';
+                banner.innerHTML = `<span><strong>${usuarioDestinoNombre}</strong> ha solicitado finalizar el servicio. ¿Confirmas?</span>`;
+                chatWrapper.parentNode.insertBefore(banner, chatWrapper);
+            }
+        }
+    }
+});
+
+// Evento: ambos confirmaron → el chat ha sido finalizado/archivado
+socket.on('chat_finalizado', () => {
+    // Deshabilitar la interfaz de escritura
+    if (inputMensaje) inputMensaje.disabled = true;
+    if (btnEnviar)    btnEnviar.disabled = true;
+    if (bannerFinalizacion) bannerFinalizacion.style.display = 'none';
+
+    // Ocultar el área de inputs entera
+    const chatInput = document.querySelector('.chat-input');
+    if (chatInput) chatInput.style.display = 'none';
+
+    // Ocultar el botón de finalizar del header
+    if (btnFinalizarServicio) btnFinalizarServicio.style.display = 'none';
+
+    // Mostrar botón de valoración
+    const mensajesDiv = document.getElementById('mensajes');
+    if (mensajesDiv) {
+        const valorarAccion = document.createElement('div');
+        valorarAccion.className = 'chat-valorar-accion';
+        valorarAccion.id = 'chatValorarAccion';
+        valorarAccion.innerHTML = `<span>El servicio ha finalizado ✓</span><button class="btn-abrir-valorar" id="btnAbrirValorar" type="button">Valorar a ${usuarioDestinoNombre}</button>`;
+        mensajesDiv.insertAdjacentElement('afterend', valorarAccion);
+    }
+});
+
+// ─── VALORAR SERVICIO ─────────────────────────────────────────────────────────────────────
+const modalValorar      = document.getElementById('modalValorar');
+const btnCerrarValorar  = document.getElementById('btnCerrarModalValorar');
+const btnOmitirValorar  = document.getElementById('btnOmitirValorar');
+const btnEnviarValorar  = document.getElementById('btnEnviarValorar');
+const mvEstrellas       = document.getElementById('mvEstrellas');
+const mvComentario      = document.getElementById('mvComentario');
+
+let valoracionSeleccionada = 0;
+
+function abrirModalValorar() {
+    if (modalValorar) modalValorar.style.display = 'flex';
+}
+
+function cerrarModalValorar() {
+    if (modalValorar) modalValorar.style.display = 'none';
+}
+
+if (btnCerrarValorar) btnCerrarValorar.addEventListener('click', cerrarModalValorar);
+if (btnOmitirValorar) btnOmitirValorar.addEventListener('click', cerrarModalValorar);
+if (modalValorar) {
+    modalValorar.addEventListener('click', (e) => {
+        if (e.target === modalValorar) cerrarModalValorar();
+    });
+}
+
+// Interacción con las estrellas
+if (mvEstrellas) {
+    const estrellas = mvEstrellas.querySelectorAll('.mv-estrella');
+
+    mvEstrellas.addEventListener('mouseover', (e) => {
+        const btn = e.target.closest('.mv-estrella');
+        if (!btn) return;
+        const valor = parseInt(btn.dataset.valor);
+        estrellas.forEach((s, i) => s.classList.toggle('activa', i < valor));
+    });
+
+    mvEstrellas.addEventListener('mouseout', () => {
+        estrellas.forEach((s, i) => s.classList.toggle('activa', i < valoracionSeleccionada));
+    });
+
+    mvEstrellas.addEventListener('click', (e) => {
+        const btn = e.target.closest('.mv-estrella');
+        if (!btn) return;
+        valoracionSeleccionada = parseInt(btn.dataset.valor);
+        estrellas.forEach((s, i) => s.classList.toggle('activa', i < valoracionSeleccionada));
+        if (btnEnviarValorar) btnEnviarValorar.disabled = false;
+    });
+}
+
+if (btnEnviarValorar) {
+    btnEnviarValorar.addEventListener('click', async () => {
+        if (!valoracionSeleccionada) return;
+        btnEnviarValorar.disabled = true;
+        btnEnviarValorar.textContent = 'Enviando...';
+        try {
+            const resp = await fetch('/services/chat/valorar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    puntuacion: valoracionSeleccionada,
+                    comentario: mvComentario ? mvComentario.value.trim() : ''
+                })
+            });
+            if (resp.ok) {
+                cerrarModalValorar();
+                const accion = document.getElementById('chatValorarAccion');
+                if (accion) {
+                    const gracias = document.createElement('div');
+                    gracias.className = 'chat-valoracion-gracias';
+                    gracias.innerHTML = '<span>¡Gracias por tu valoración! 🐾</span>';
+                    accion.replaceWith(gracias);
+                }
+            } else {
+                btnEnviarValorar.disabled = false;
+                btnEnviarValorar.textContent = 'Enviar valoración';
+            }
+        } catch {
+            btnEnviarValorar.disabled = false;
+            btnEnviarValorar.textContent = 'Enviar valoración';
+        }
+    });
+}
+
+// Botón valorar (renderizado por EJS o inyectado en tiempo real)
+document.addEventListener('click', (e) => {
+    if (e.target.closest('#btnAbrirValorar')) abrirModalValorar();
+});
+

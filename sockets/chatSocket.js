@@ -349,7 +349,90 @@ module.exports = (io) => {
             });
         });
 
-        // ── Evento 6: Usuario se desconecta ─────────────────────────────────────
+        // ── Evento 6: Solicitar finalizar servicio ───────────────────────────────
+        // El cliente emite 'solicitar_finalizar' al pulsar el botón "Finalizar servicio".
+        // Se marca en BD qué usuario lo solicitó. Si ambos lo han solicitado, se archiva
+        // el chat (activo=0) y se notifica a la sala con 'chat_finalizado'.
+        // Si solo uno, se emite 'finalizacion_pendiente' a la sala.
+        socket.on('solicitar_finalizar', (datos) => {
+            const { chat_id, usuario_id, usuario_destino_id, anuncio_id } = datos;
+            console.log(`solicitar_finalizar: usuario ${usuario_id}, chat ${chat_id}`);
+            const roomName = crearNombreRoom(usuario_id, usuario_destino_id, anuncio_id);
+
+            pool.getConnection((err, connection) => {
+                if (err) {
+                    console.error('Error de conexión al finalizar servicio:', err);
+                    return;
+                }
+
+                // Determinar qué usuario es el "mínimo" (usuario1) y cuál el "máximo" (usuario2)
+                connection.query(
+                    `SELECT MIN(id_usuario) AS u_min, MAX(id_usuario) AS u_max
+                     FROM chat_usuario WHERE id_chat = ?`,
+                    [chat_id],
+                    (err, rows) => {
+                        if (err || !rows.length) {
+                            connection.release();
+                            console.error('Error al obtener participantes del chat:', err);
+                            return;
+                        }
+
+                        const { u_min, u_max } = rows[0];
+                        const columna = usuario_id === u_min ? 'finalizar_usuario1' : 'finalizar_usuario2';
+
+                        // Marcar que este usuario solicita finalizar
+                        connection.query(
+                            `UPDATE chats SET ${columna} = 1 WHERE id_chat = ? AND activo = 1`,
+                            [chat_id],
+                            (err, result) => {
+                                if (err || result.affectedRows === 0) {
+                                    connection.release();
+                                    console.error('Error al marcar finalización o chat ya inactivo:', err);
+                                    return;
+                                }
+
+                                // Comprobar si ambos han solicitado finalizar
+                                connection.query(
+                                    'SELECT finalizar_usuario1, finalizar_usuario2 FROM chats WHERE id_chat = ?',
+                                    [chat_id],
+                                    (err, chatRows) => {
+                                        if (err || !chatRows.length) {
+                                            connection.release();
+                                            return;
+                                        }
+
+                                        const { finalizar_usuario1, finalizar_usuario2 } = chatRows[0];
+
+                                        if (finalizar_usuario1 && finalizar_usuario2) {
+                                            // Ambos confirmaron → archivar el chat
+                                            connection.query(
+                                                'UPDATE chats SET activo = 0 WHERE id_chat = ?',
+                                                [chat_id],
+                                                (err) => {
+                                                    connection.release();
+                                                    if (err) {
+                                                        console.error('Error al archivar el chat:', err);
+                                                        return;
+                                                    }
+                                                    console.log(`Chat ${chat_id} archivado por acuerdo mutuo`);
+                                                    io.to(roomName).emit('chat_finalizado');
+                                                }
+                                            );
+                                        } else {
+                                            connection.release();
+                                            // Solo uno ha solicitado → notificar a la sala
+                                            io.to(roomName).emit('finalizacion_pendiente', { usuario_id });
+                                        }
+                                    }
+                                );
+                            }
+                        );
+                    }
+                );
+            });
+        });
+
+        // ── Evento 7: Usuario se desconecta ─────────────────────────────────────
         socket.on('disconnect', () => {
             const usuario = usuariosConectados[socket.id];
             if (usuario && usuario.usuario_destino_id) {
