@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sobre Nosotros — PetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <%- include('plantillas/navbar') %>
+
+  <!-- ── HERO SOBRE NOSOTROS ── -->
+  <section class="sobre-hero">
+    <div class="sobre-hero-badge">Nuestra historia 🐾</div>
+    <h1 class="sobre-hero-titulo">Creado por amantes<br><em>de las mascotas</em></h1>
+    <p class="sobre-hero-desc">
+      PetCare nació de una idea sencilla: que cuidar de tu mejor amigo no debería ser complicado.
+      Somos un equipo pequeño con un propósito enorme.
+    </p>
+    <div class="sobre-hero-emojis" aria-hidden="true">
+      <span>🐶</span><span>🐱</span><span>🐰</span><span>🦜</span><span>🐹</span>
+    </div>
+  </section>
+
+  <!-- ── VALORES ── -->
+  <section class="sobre-valores">
+    <div class="sobre-valores-inner">
+    <div class="sobre-valores-header">
+      <span class="sobre-label">Lo que nos mueve</span>
+      <h2>Nuestros <em>valores</em></h2>
+    </div>
+    <div class="sobre-valores-grid">
+      <div class="sobre-valor-card">
+        <div class="sobre-valor-icon">💛</div>
+        <h3>Empatía ante todo</h3>
+        <p>Entendemos lo mucho que quieres a tu mascota porque nosotros también hemos estado en tu lugar.
+           Cada decisión de diseño parte de esa misma emoción.</p>
+      </div>
+      <div class="sobre-valor-card">
+        <div class="sobre-valor-icon">🔒</div>
+        <h3>Privacidad de verdad</h3>
+        <p>Los datos de tu mascota son tuyos. No los vendemos, no los compartimos y los protegemos
+           con el mismo celo con el que tú cuidas a tu compañero.</p>
+      </div>
+      <div class="sobre-valor-card">
+        <div class="sobre-valor-icon">🌱</div>
+        <h3>Siempre mejorando</h3>
+        <p>Escuchamos a nuestra comunidad y lanzamos mejoras constantemente. Si tienes una idea,
+           queremos oírla.</p>
+      </div>
+      <div class="sobre-valor-card">
+        <div class="sobre-valor-icon">🤝</div>
+        <h3>Comunidad primero</h3>
+        <p>Creemos en el poder de compartir experiencias. Por eso pusimos los foros y la red de
+           cuidadores en el centro de PetCare desde el primer día.</p>
+      </div>
+    </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ── -->
+  <section class="cta-section seccion-cta-nosotros">
+    <h2>¿Quieres unirte a la comunidad?</h2>
+    <p>Miles de dueños ya cuidan mejor a sus mascotas con PetCare. Es gratis.</p>
+    <a href="/auth/register" class="btn-large">Crear cuenta gratis</a>
+  </section>
+
+  <%- include('plantillas/footer') %>
+
+</body>
+</html>

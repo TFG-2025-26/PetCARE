@@ -79,6 +79,10 @@ app.get('/servicios', (req, res) => {
     res.render('servicios');
 });
 
+app.get('/sobre-nosotros', (req, res) => {
+    res.render('sobreNosotros');
+});
+
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
 app.use('/pets', isAuthenticated, petRoutes);
