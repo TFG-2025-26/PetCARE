@@ -667,6 +667,7 @@ footer, .footer {
 .comentario-eliminar { font-size: 0.78rem; color: var(--muted); text-decoration: none; background: none; border: none; cursor: pointer; transition: color 0.2s; }
 .comentario-eliminar:hover { color: var(--danger); }
 .comentario-contenido { font-size: 0.9rem; color: var(--text); line-height: 1.6; font-weight: 300; }
+.comentario-editado { font-size: 0.75rem; color: var(--muted); font-style: italic; margin-top: 0.3rem; display: block; }
 .foro-comentario-form { display: flex; flex-direction: column; gap: 0.6rem; }
 .foro-detalle-page .foro-comentario-form { background: var(--white); border-radius: var(--radius-lg); padding: 1.8rem; box-shadow: var(--shadow-sm); }
 .foro-comentario-form label { font-size: 0.85rem; font-weight: 500; color: var(--brown); }

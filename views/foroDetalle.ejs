@@ -93,6 +93,9 @@
                 <% } %>
               </div>
               <p class="comentario-contenido"><%= c.contenido %></p>
+              <% if (c.editado) { %>
+                <span class="comentario-editado">Editado</span>
+              <% } %>
             </div>
           <% }) %>
         </div>
