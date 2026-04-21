@@ -3401,7 +3401,29 @@ footer, .footer {
 .cita-precio {
    flex: 1;
    display: flex;
-   justify-content: flex-end;
+   flex-direction: row;
+   justify-content: space-between;
+   gap: 0.5rem;
+}
+
+.btn-cancelar-cita {
+    background: none;
+    border: 1.5px solid rgba(192,57,43,0.25);
+    border-radius: var(--radius-pill);
+    color: var(--danger);
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background 0.2s, border-color 0.2s;
+    flex-shrink: 0;
+}
+.btn-cancelar-cita:hover {
+    background: var(--danger-bg);
+    border-color: var(--danger);
 }
 
 .precio-cita p {

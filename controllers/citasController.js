@@ -19,7 +19,7 @@ const getCitas = (req, res) => {
             LEFT JOIN chats c ON r.id_chat = c.id_chat
             LEFT JOIN anuncios a ON c.id_anuncio = a.id_anuncio
             LEFT JOIN usuarios u ON r.id_proveedor = u.id_usuario
-            WHERE r.id_cliente = ?
+            WHERE r.id_cliente = ? AND r.activo = 1
         `;
 
         const query_proveedor = `
@@ -29,7 +29,7 @@ const getCitas = (req, res) => {
             LEFT JOIN chats c ON r.id_chat = c.id_chat
             LEFT JOIN anuncios a ON c.id_anuncio = a.id_anuncio
             LEFT JOIN usuarios u ON r.id_cliente = u.id_usuario
-            WHERE r.id_proveedor = ?
+            WHERE r.id_proveedor = ? AND r.activo = 1
         `;
 
         const formatFechaEspaña = (fecha) => {
@@ -78,6 +78,28 @@ const getCitas = (req, res) => {
     });
 }
 
+const cancelarCita = (req, res) => {
+    const id_usuario = req.session.usuario.id;
+    const id_reserva = req.params.id;
+
+    pool.getConnection((err, connection) => {
+        if (err) return res.status(500).json({ error: "Error de conexión" });
+
+        const query = `
+            UPDATE reservas SET activo = 0
+            WHERE id_reserva = ? AND (id_cliente = ? OR id_proveedor = ?)
+        `;
+
+        connection.query(query, [id_reserva, id_usuario, id_usuario], (err, result) => {
+            connection.release();
+            if (err) return res.status(500).json({ error: "Error al cancelar la cita" });
+            if (result.affectedRows === 0) return res.status(403).json({ error: "No autorizado" });
+            return res.json({ ok: true });
+        });
+    });
+};
+
 module.exports = {
-    getCitas
+    getCitas,
+    cancelarCita
 };

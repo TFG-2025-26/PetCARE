@@ -54,6 +54,9 @@
                   <p><%= cita.precio_hora %>€</p>
                   <span>por hora</span>
                 </div>
+                <button class="btn-cancelar-cita" data-id="<%= cita.id_reserva %>" aria-label="Cancelar cita">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
               </div>
             </div>
             
@@ -99,6 +102,9 @@
                   <p><%= cita.precio_hora %>€</p>
                   <span>por hora</span>
                 </div>
+                <button class="btn-cancelar-cita" data-id="<%= cita.id_reserva %>" aria-label="Cancelar cita">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
               </div>
             </div>
           <% }); %>
@@ -109,7 +115,33 @@
     </main>
     
 
+    <!-- Modal cancelar cita -->
+    <div class="mac-overlay" id="modal-cancelar-cita" style="display:none;" aria-modal="true" role="dialog">
+      <div class="mac-box" style="border-top-color: var(--danger);">
+        <button class="mac-close" id="modal-cancelar-cita-cerrar" aria-label="Cerrar">✕</button>
+        <div class="mac-icon-wrap" style="background: rgba(192,57,43,0.1); color: var(--danger);">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="17" rx="3"/><line x1="3" y1="9" x2="21" y2="9"/>
+            <line x1="8" y1="1" x2="8" y2="5"/><line x1="16" y1="1" x2="16" y2="5"/>
+            <line x1="9" y1="14" x2="15" y2="14"/>
+          </svg>
+        </div>
+        <h2 class="mac-titulo">¿Seguro que quieres cancelar?</h2>
+        <p class="mac-desc">A veces los planes cambian, ¡lo entendemos!<br>Ten en cuenta que esta acción no se puede deshacer.</p>
+        <div class="mac-footer">
+          <button class="mac-btn-cancelar" id="modal-cancelar-cita-no">Volver</button>
+          <button class="mac-btn-confirmar" id="modal-cancelar-cita-si" style="background: var(--danger);">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+            Cancelar cita
+          </button>
+        </div>
+      </div>
+    </div>
+
+
     <%- include('plantillas/footer') %>
+
+    <script src="/js/citas.js"></script>
 
 </body>
 </html>
