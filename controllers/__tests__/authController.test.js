@@ -6,8 +6,18 @@ jest.mock('express-validator', () => ({
   validationResult: jest.fn()
 }));
 
+jest.mock('bcrypt', () => ({
+  hash: jest.fn((password, rounds) => {
+    return Promise.resolve('hashedPassword');
+  }),
+  compare: jest.fn((password, hashed) => {
+    return Promise.resolve(password === 'Password1');
+  })
+}));
+
 const pool = require('../../db');
 const { validationResult } = require('express-validator');
+const bcrypt = require('bcrypt');
 const authController = require('../authController');
 
 const buildResponse = () => {
@@ -52,7 +62,7 @@ describe('authController.postRegisterUsuario', () => {
     expect(next).not.toHaveBeenCalled();
   });
 
-  test('devuelve 500 cuando getConnection falla', () => {
+  test('devuelve 500 cuando getConnection falla', (done) => {
     validationResult.mockReturnValue({ isEmpty: () => true });
     pool.getConnection.mockImplementation((callback) => callback(new Error('DB down')));
 
@@ -71,12 +81,15 @@ describe('authController.postRegisterUsuario', () => {
 
     authController.postRegisterUsuario(req, res, next);
 
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.send).toHaveBeenCalledWith('Error al conectar a la base de datos');
-    expect(next).not.toHaveBeenCalled();
+    setTimeout(() => {
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith('Error al conectar a la base de datos');
+      expect(next).not.toHaveBeenCalled();
+      done();
+    }, 50);
   });
 
-  test('renderiza error cuando el correo ya existe', () => {
+  test('renderiza error cuando el correo ya existe', (done) => {
     validationResult.mockReturnValue({ isEmpty: () => true });
 
     const connection = buildConnection((sql, params, cb) => cb(null, [{ id_usuario: 1 }]));
@@ -97,17 +110,20 @@ describe('authController.postRegisterUsuario', () => {
 
     authController.postRegisterUsuario(req, res, next);
 
-    expect(connection.release).toHaveBeenCalled();
-    expect(res.render).toHaveBeenCalledWith('register', expect.objectContaining({
-      error: 'El correo electrónico ya está registrado.',
-      errores: [],
-      formData: req.body,
-      formType: 'usuario'
-    }));
-    expect(next).not.toHaveBeenCalled();
+    setTimeout(() => {
+      expect(connection.release).toHaveBeenCalled();
+      expect(res.render).toHaveBeenCalledWith('register', expect.objectContaining({
+        error: 'El correo electrónico ya está registrado.',
+        errores: [],
+        formData: req.body,
+        formType: 'usuario'
+      }));
+      expect(next).not.toHaveBeenCalled();
+      done();
+    }, 50);
   });
 
-  test('renderiza error cuando el teléfono ya existe', () => {
+  test('renderiza error cuando el teléfono ya existe', (done) => {
     validationResult.mockReturnValue({ isEmpty: () => true });
 
     const connection = buildConnection((sql, params, cb) => {
@@ -133,17 +149,20 @@ describe('authController.postRegisterUsuario', () => {
 
     authController.postRegisterUsuario(req, res, next);
 
-    expect(connection.release).toHaveBeenCalled();
-    expect(res.render).toHaveBeenCalledWith('register', expect.objectContaining({
-      error: 'El teléfono ya está registrado.',
-      errores: [],
-      formData: req.body,
-      formType: 'usuario'
-    }));
-    expect(next).not.toHaveBeenCalled();
+    setTimeout(() => {
+      expect(connection.release).toHaveBeenCalled();
+      expect(res.render).toHaveBeenCalledWith('register', expect.objectContaining({
+        error: 'El teléfono ya está registrado.',
+        errores: [],
+        formData: req.body,
+        formType: 'usuario'
+      }));
+      expect(next).not.toHaveBeenCalled();
+      done();
+    }, 50);
   });
 
-  test('registra usuario correctamente y redirige a /', () => {
+  test('registra usuario correctamente y redirige a /', (done) => {
     validationResult.mockReturnValue({ isEmpty: () => true });
 
     const connection = buildConnection((sql, params, cb) => {
@@ -171,16 +190,19 @@ describe('authController.postRegisterUsuario', () => {
 
     authController.postRegisterUsuario(req, res, next);
 
-    expect(connection.release).toHaveBeenCalled();
-    expect(req.session.usuario).toEqual({
-      id: 42,
-      nombre_completo: 'Ana García',
-      nombre_usuario: 'ana123',
-      tipo: 'usuario',
-      rol: 'user'
-    });
-    expect(res.redirect).toHaveBeenCalledWith('/');
-    expect(next).not.toHaveBeenCalled();
+    setTimeout(() => {
+      expect(connection.release).toHaveBeenCalled();
+      expect(req.session.usuario).toEqual({
+        id: 42,
+        nombre_completo: 'Ana García',
+        nombre_usuario: 'ana123',
+        tipo: 'usuario',
+        rol: 'user'
+      });
+      expect(res.redirect).toHaveBeenCalledWith('/');
+      expect(next).not.toHaveBeenCalled();
+      done();
+    }, 50);
   });
 });
 
@@ -211,7 +233,7 @@ describe('authController.postRegisterEmpresa', () => {
     expect(next).not.toHaveBeenCalled();
   });
 
-  test('devuelve 500 cuando getConnection falla', () => {
+  test('devuelve 500 cuando getConnection falla', (done) => {
     validationResult.mockReturnValue({ isEmpty: () => true });
     pool.getConnection.mockImplementation((callback) => callback(new Error('DB down')));
 
@@ -230,12 +252,15 @@ describe('authController.postRegisterEmpresa', () => {
 
     authController.postRegisterEmpresa(req, res, next);
 
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.send).toHaveBeenCalledWith('Error al conectar a la base de datos');
-    expect(next).not.toHaveBeenCalled();
+    setTimeout(() => {
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith('Error al conectar a la base de datos');
+      expect(next).not.toHaveBeenCalled();
+      done();
+    }, 50);
   });
 
-  test('renderiza error cuando el correo ya existe', () => {
+  test('renderiza error cuando el correo ya existe', (done) => {
     validationResult.mockReturnValue({ isEmpty: () => true });
 
     const connection = buildConnection((sql, params, cb) => {
@@ -261,17 +286,20 @@ describe('authController.postRegisterEmpresa', () => {
 
     authController.postRegisterEmpresa(req, res, next);
 
-    expect(connection.release).toHaveBeenCalled();
-    expect(res.render).toHaveBeenCalledWith('register', expect.objectContaining({
-      error: 'El correo electrónico ya está registrado.',
-      errores: [],
-      formData: req.body,
-      formType: 'empresa'
-    }));
-    expect(next).not.toHaveBeenCalled();
+    setTimeout(() => {
+      expect(connection.release).toHaveBeenCalled();
+      expect(res.render).toHaveBeenCalledWith('register', expect.objectContaining({
+        error: 'El correo electrónico ya está registrado.',
+        errores: [],
+        formData: req.body,
+        formType: 'empresa'
+      }));
+      expect(next).not.toHaveBeenCalled();
+      done();
+    }, 50);
   });
 
-  test('renderiza error cuando el CIF ya existe', () => {
+  test('renderiza error cuando el CIF ya existe', (done) => {
     validationResult.mockReturnValue({ isEmpty: () => true });
 
     const connection = buildConnection((sql, params, cb) => {
@@ -297,17 +325,20 @@ describe('authController.postRegisterEmpresa', () => {
 
     authController.postRegisterEmpresa(req, res, next);
 
-    expect(connection.release).toHaveBeenCalled();
-    expect(res.render).toHaveBeenCalledWith('register', expect.objectContaining({
-      error: 'El CIF ya está registrado.',
-      errores: [],
-      formData: req.body,
-      formType: 'empresa'
-    }));
-    expect(next).not.toHaveBeenCalled();
+    setTimeout(() => {
+      expect(connection.release).toHaveBeenCalled();
+      expect(res.render).toHaveBeenCalledWith('register', expect.objectContaining({
+        error: 'El CIF ya está registrado.',
+        errores: [],
+        formData: req.body,
+        formType: 'empresa'
+      }));
+      expect(next).not.toHaveBeenCalled();
+      done();
+    }, 50);
   });
 
-  test('renderiza error cuando el teléfono ya existe', () => {
+  test('renderiza error cuando el teléfono ya existe', (done) => {
     validationResult.mockReturnValue({ isEmpty: () => true });
 
     const connection = buildConnection((sql, params, cb) => {
@@ -334,17 +365,20 @@ describe('authController.postRegisterEmpresa', () => {
 
     authController.postRegisterEmpresa(req, res, next);
 
-    expect(connection.release).toHaveBeenCalled();
-    expect(res.render).toHaveBeenCalledWith('register', expect.objectContaining({
-      error: 'El teléfono ya está registrado.',
-      errores: [],
-      formData: req.body,
-      formType: 'empresa'
-    }));
-    expect(next).not.toHaveBeenCalled();
+    setTimeout(() => {
+      expect(connection.release).toHaveBeenCalled();
+      expect(res.render).toHaveBeenCalledWith('register', expect.objectContaining({
+        error: 'El teléfono ya está registrado.',
+        errores: [],
+        formData: req.body,
+        formType: 'empresa'
+      }));
+      expect(next).not.toHaveBeenCalled();
+      done();
+    }, 50);
   });
 
-  test('registra empresa correctamente y redirige a /', () => {
+  test('registra empresa correctamente y redirige a /', (done) => {
     validationResult.mockReturnValue({ isEmpty: () => true });
 
     const connection = buildConnection((sql, params, cb) => {
@@ -374,14 +408,17 @@ describe('authController.postRegisterEmpresa', () => {
 
     authController.postRegisterEmpresa(req, res, next);
 
-    expect(connection.release).toHaveBeenCalled();
-    expect(req.session.usuario).toEqual({
-      id: 43,
-      nombre: 'Empresa ABC',
-      tipo: 'empresa'
-    });
-    expect(res.redirect).toHaveBeenCalledWith('/');
-    expect(next).not.toHaveBeenCalled();
+    setTimeout(() => {
+      expect(connection.release).toHaveBeenCalled();
+      expect(req.session.usuario).toEqual({
+        id: 43,
+        nombre: 'Empresa ABC',
+        tipo: 'empresa'
+      });
+      expect(res.redirect).toHaveBeenCalledWith('/');
+      expect(next).not.toHaveBeenCalled();
+      done();
+    }, 50);
   });
 });
 
@@ -480,28 +517,33 @@ describe('authController.postLoginUsuario', () => {
     expect(next).not.toHaveBeenCalled();
   });
 
-  test('renderiza login con error cuando la contraseña es incorrecta', () => {
-    const connection = buildConnection((sql, params, cb) => cb(null, [{ id_usuario: 1, ban: 0, suspendido: 0, activo: 1, contraseña: 'Password1' }]));
+  test('renderiza login con error cuando la contraseña es incorrecta', (done) => {
+    bcrypt.compare.mockResolvedValueOnce(false);
+    const connection = buildConnection((sql, params, cb) => cb(null, [{ id_usuario: 1, ban: 0, suspendido: 0, activo: 1, contraseña: 'hashedPassword1', nombre_usuario: 'ana123', nombre_completo: 'Ana García', rol: 'user' }]));
     pool.getConnection.mockImplementation((callback) => callback(null, connection));
 
-    const req = { body: { usuario_input: 'ana@example.com', password: 'WrongPassword' } };
+    const req = { body: { usuario_input: 'ana@example.com', password: 'WrongPassword' }, session: {} };
     const res = buildResponse();
     const next = jest.fn();
 
     authController.postLoginUsuario(req, res, next);
 
-    expect(connection.release).toHaveBeenCalled();
-    expect(res.render).toHaveBeenCalledWith('login', expect.objectContaining({
-      error: 'Datos del formulario incorrectos',
-      errores: [],
-      formData: req.body,
-      formType: 'usuario'
-    }));
-    expect(next).not.toHaveBeenCalled();
+    setTimeout(() => {
+      expect(connection.release).toHaveBeenCalled();
+      expect(res.render).toHaveBeenCalledWith('login', expect.objectContaining({
+        error: 'Datos del formulario incorrectos',
+        errores: [],
+        formData: req.body,
+        formType: 'usuario'
+      }));
+      expect(next).not.toHaveBeenCalled();
+      done();
+    }, 50);
   });
 
-  test('loguea usuario correctamente y redirige a /', () => {
-    const connection = buildConnection((sql, params, cb) => cb(null, [{ id_usuario: 1, ban: 0, suspendido: 0, activo: 1, contraseña: 'Password1', nombre_usuario: 'ana123', nombre_completo: 'Ana García', rol: 'user' }]));
+  test('loguea usuario correctamente y redirige a /', (done) => {
+    bcrypt.compare.mockResolvedValueOnce(true);
+    const connection = buildConnection((sql, params, cb) => cb(null, [{ id_usuario: 1, ban: 0, suspendido: 0, activo: 1, contraseña: 'hashedPassword1', nombre_usuario: 'ana123', nombre_completo: 'Ana García', rol: 'user' }]));
     pool.getConnection.mockImplementation((callback) => callback(null, connection));
 
     const req = { body: { usuario_input: 'ana@example.com', password: 'Password1' }, session: {} };
@@ -510,16 +552,19 @@ describe('authController.postLoginUsuario', () => {
 
     authController.postLoginUsuario(req, res, next);
 
-    expect(connection.release).toHaveBeenCalled();
-    expect(req.session.usuario).toEqual({
-      id: 1,
-      nombre_usuario: 'ana123',
-      nombre_completo: 'Ana García',
-      tipo: 'usuario',
-      rol: 'user'
-    });
-    expect(res.redirect).toHaveBeenCalledWith('/');
-    expect(next).not.toHaveBeenCalled();
+    setTimeout(() => {
+      expect(connection.release).toHaveBeenCalled();
+      expect(req.session.usuario).toEqual({
+        id: 1,
+        nombre_usuario: 'ana123',
+        nombre_completo: 'Ana García',
+        tipo: 'usuario',
+        rol: 'user'
+      });
+      expect(res.redirect).toHaveBeenCalledWith('/');
+      expect(next).not.toHaveBeenCalled();
+      done();
+    }, 50);
   });
 });
 
@@ -576,26 +621,31 @@ describe('authController.postLoginEmpresa', () => {
     }));
   });
 
-  test('renderiza login con error cuando la contraseña es incorrecta', () => {
-    const connection = buildConnection((sql, params, cb) => cb(null, [{ id_empresa: 1, activo: 1, contraseña: 'Password1' }]));
+  test('renderiza login con error cuando la contraseña es incorrecta', (done) => {
+    bcrypt.compare.mockResolvedValueOnce(false);
+    const connection = buildConnection((sql, params, cb) => cb(null, [{ id_empresa: 1, activo: 1, contraseña: 'hashedPassword1' }]));
     pool.getConnection.mockImplementation((callback) => callback(null, connection));
 
-    const req = { body: { correo: 'empresa@example.com', password: 'WrongPassword' } };
+    const req = { body: { correo: 'empresa@example.com', password: 'WrongPassword' }, session: {} };
     const res = buildResponse();
 
     authController.postLoginEmpresa(req, res);
 
-    expect(connection.release).toHaveBeenCalled();
-    expect(res.render).toHaveBeenCalledWith('login', expect.objectContaining({
-      error: 'Datos del formulario incorrectos',
-      errores: [],
-      formData: req.body,
-      formType: 'empresa'
-    }));
+    setTimeout(() => {
+      expect(connection.release).toHaveBeenCalled();
+      expect(res.render).toHaveBeenCalledWith('login', expect.objectContaining({
+        error: 'Datos del formulario incorrectos',
+        errores: [],
+        formData: req.body,
+        formType: 'empresa'
+      }));
+      done();
+    }, 50);
   });
 
-  test('loguea empresa correctamente y redirige a /', () => {
-    const connection = buildConnection((sql, params, cb) => cb(null, [{ id_empresa: 1, activo: 1, contraseña: 'Password1', nombre: 'Empresa ABC' }]));
+  test('loguea empresa correctamente y redirige a /', (done) => {
+    bcrypt.compare.mockResolvedValueOnce(true);
+    const connection = buildConnection((sql, params, cb) => cb(null, [{ id_empresa: 1, activo: 1, contraseña: 'hashedPassword1', nombre: 'Empresa ABC' }]));
     pool.getConnection.mockImplementation((callback) => callback(null, connection));
 
     const req = { body: { correo: 'empresa@example.com', password: 'Password1' }, session: {} };
@@ -603,12 +653,15 @@ describe('authController.postLoginEmpresa', () => {
 
     authController.postLoginEmpresa(req, res);
 
-    expect(connection.release).toHaveBeenCalled();
-    expect(req.session.usuario).toEqual({
-      id: 1,
-      nombre: 'Empresa ABC',
-      tipo: 'empresa'
-    });
-    expect(res.redirect).toHaveBeenCalledWith('/');
+    setTimeout(() => {
+      expect(connection.release).toHaveBeenCalled();
+      expect(req.session.usuario).toEqual({
+        id: 1,
+        nombre: 'Empresa ABC',
+        tipo: 'empresa'
+      });
+      expect(res.redirect).toHaveBeenCalledWith('/');
+      done();
+    }, 50);
   });
 });
