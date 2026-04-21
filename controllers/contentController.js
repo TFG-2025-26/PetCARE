@@ -56,7 +56,7 @@ const renderFormularioEditarComentario = (req, res, {
 
 const getArticulos = (req, res) => {
     const pagina = parseInt(req.query.pagina, 10) || 1;
-    const limite = 12;
+    const limite = 20;
     const offset = (pagina - 1) * limite;
     const keyword = (req.query.keyword || '').trim();
     const usuario = req.session.usuario || null;

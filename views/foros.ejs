@@ -91,7 +91,7 @@
                 <% const puedeGestionarForo = !!(usuario && (usuario.id === foro.id_usuario || esAdmin)); %>
                 <% if (puedeGestionarForo) { %>
                   <a href="#" data-foro-id="<%= foro.id_foro %>" data-user-id="<%= foro.id_usuario %>" onclick="editarForoDesdeEnlace(event, this)">✏️ Editar</a>
-                  <a href="#" class="foro-dropdown-danger" data-foro-id="<%= foro.id_foro %>" data-user-id="<%= foro.id_usuario %>" onclick="eliminarForoDesdeEnlace(event, this)">🗑️ Eliminar</a>
+                  <a href="#" class="foro-dropdown-danger" data-foro-id="<%= foro.id_foro %>" data-user-id="<%= foro.id_usuario %>" data-num-comentarios="<%= foro.num_respuestas || 0 %>" onclick="eliminarForoDesdeEnlace(event, this)">🗑️ Eliminar</a>
                 <% } else if (!esAdmin) { %>
                   <a href="#" data-foro-id="<%= foro.id_foro %>" data-user-id="<%= foro.id_usuario %>" onclick="generarReporteDesdeEnlace(event, this)">⚑ Reportar</a>
                 <% } %>
@@ -171,7 +171,7 @@
           <button class="modal-close" type="button" onclick="cerrarModalEliminarForo()">✕</button>
         </div>
         <ul class="modal-list">
-          <li>
+          <li id="mensajeEliminarForo">
             Esta acción ocultará el foro y no aparecerá en la lista de foros activos.
           </li>
         </ul>
@@ -303,6 +303,15 @@
     function eliminarForoDesdeEnlace(event, enlace) {
       const foroId = enlace.getAttribute('data-foro-id');
       const usuarioId = enlace.getAttribute('data-user-id');
+      const numComentarios = parseInt(enlace.getAttribute('data-num-comentarios'), 10) || 0;
+
+      const mensajeElement = document.getElementById('mensajeEliminarForo');
+      if (numComentarios > 0) {
+        mensajeElement.textContent = `Esta acción ocultará el foro y no aparecerá en la lista de foros activos. Ten en cuenta que este foro tiene ${numComentarios} comentario(s), por lo que otros usuarios que estén buscando la ayuda que proporciona el foro ya no podrán encontrarla.`;
+      } else {
+        mensajeElement.textContent = 'Esta acción ocultará el foro y no aparecerá en la lista de foros activos.';
+      }
+
       abrirModalEliminarForo(event, foroId, usuarioId);
     }
 

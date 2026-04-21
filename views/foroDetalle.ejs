@@ -93,6 +93,9 @@
                 <% } %>
               </div>
               <p class="comentario-contenido"><%= c.contenido %></p>
+              <% if (c.editado) { %>
+                <span class="comentario-editado">Editado</span>
+              <% } %>
             </div>
           <% }) %>
         </div>
@@ -123,7 +126,7 @@
 
   <%- include('plantillas/footer') %>
   <%- include('plantillas/modalConfirmarEliminarComentario') %>
-  <%- include('plantillas/modalConfirmarEliminarForo', { foro: foro, usuario: usuario }) %>
+  <%- include('plantillas/modalConfirmarEliminarForo', { foro: foro, usuario: usuario, numComentarios: comentarios.length }) %>
   <%- include('plantillas/modalErrores', { error: typeof error !== 'undefined' ? error : null, errores: typeof errores !== 'undefined' ? errores : [] }) %>
 
   <script src="/js/validacionCrearForo.js"></script>
@@ -190,6 +193,74 @@
 
         document.getElementById('modalEditarComentario-contenido').innerHTML = html;
         document.getElementById('modalEditarComentario').style.display = 'flex';
+
+        // Inicializar el formulario de editar comentario
+        const form = document.getElementById('editarComentarioForm');
+        if (form) {
+          const textarea = document.getElementById('editar-contenido-comentario');
+          const errorNode = document.getElementById('error-contenido-comentario');
+
+          function validarContenido() {
+            const value = textarea.value.trim();
+
+            if (!value) {
+              errorNode.textContent = 'El comentario no puede estar vacío.';
+              return false;
+            }
+
+            if (value.length > 2000) {
+              errorNode.textContent = 'El comentario no puede superar los 2000 caracteres.';
+              return false;
+            }
+
+            errorNode.textContent = '';
+            return true;
+          }
+
+          textarea.addEventListener('input', validarContenido);
+
+          form.addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            if (!validarContenido()) {
+              return;
+            }
+
+            try {
+              const formData = new FormData(form);
+              const body = new URLSearchParams(formData);
+              const response = await fetch(form.action, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                  'X-Requested-With': 'XMLHttpRequest'
+                },
+                body
+              });
+
+              const contentType = response.headers.get('content-type') || '';
+              if (contentType.includes('application/json')) {
+                const data = await response.json();
+                if (data.success) {
+                  document.getElementById('modalEditarComentario').style.display = 'none';
+                  window.location.reload();
+                  return;
+                }
+              }
+
+              const html = await response.text();
+              if (!response.ok || /<!doctype\s+html|<html[\s>]/i.test(html || '')) {
+                window.location.href = form.action;
+                return;
+              }
+
+              document.getElementById('modalEditarComentario-contenido').innerHTML = html;
+              document.getElementById('modalEditarComentario').style.display = 'flex';
+            } catch (error) {
+              window.location.href = form.action;
+            }
+          });
+        }
       } catch (error) {
         window.location.href = url;
       }
