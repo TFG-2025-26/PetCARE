@@ -126,7 +126,7 @@
 
   <%- include('plantillas/footer') %>
   <%- include('plantillas/modalConfirmarEliminarComentario') %>
-  <%- include('plantillas/modalConfirmarEliminarForo', { foro: foro, usuario: usuario }) %>
+  <%- include('plantillas/modalConfirmarEliminarForo', { foro: foro, usuario: usuario, numComentarios: comentarios.length }) %>
   <%- include('plantillas/modalErrores', { error: typeof error !== 'undefined' ? error : null, errores: typeof errores !== 'undefined' ? errores : [] }) %>
 
   <script src="/js/validacionCrearForo.js"></script>

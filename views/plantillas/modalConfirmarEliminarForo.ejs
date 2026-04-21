@@ -6,7 +6,11 @@
 		</div>
 		<ul class="modal-list">
 			<li>
-				Esta acción ocultará el foro y no aparecerá en la lista de foros activos.
+				<% if (typeof numComentarios !== 'undefined' && numComentarios > 0) { %>
+					Esta acción ocultará el foro y no aparecerá en la lista de foros activos. Ten en cuenta que este foro tiene <%= numComentarios %> comentario(s), por lo que otros usuarios que estén buscando la ayuda que proporciona el foro ya no podrán encontrarla.
+				<% } else { %>
+					Esta acción ocultará el foro y no aparecerá en la lista de foros activos.
+				<% } %>
 			</li>
 		</ul>
 		<div class="modal-footer" style="gap: 0.8rem;">
