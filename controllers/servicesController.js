@@ -266,7 +266,7 @@ const postPublicarAnuncio = (req, res) => {
                             return res.status(500).send("Error al insertar la disponibilidad");
                         }
                         else{
-                            res.redirect('/services/anuncios');
+                            res.redirect('/services/mis-anuncios');
                         }
                     });
                 }
