@@ -1,0 +1,46 @@
+<div class="modal-overlay" id="modalAceptarReporteValoracion" style="display:none;">
+  <div class="modal-box modal-reporte-confirmacion">
+    <div class="modal-header">
+      <div class="modal-titulo-icono">
+        <svg class="modal-icono-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 20h20L12 2z"></path>
+        </svg>
+        <h3>Eliminar Valoración</h3>
+      </div>
+      <button class="modal-close" type="button" onclick="cerrarModalAceptarReporteValoracion()">✕</button>
+    </div>
+    
+    <div class="modal-contenido-reporte">
+      <p class="modal-descripcion">Se eliminará definitivamente la valoración reportada de la base de datos.</p>
+      <div class="modal-detalles">
+        <div class="modal-detalle-item">
+          <span class="modal-etiqueta">Acción:</span>
+          <span class="modal-valor modal-valor-peligro">Eliminación permanente</span>
+        </div>
+        <div class="modal-detalle-item">
+          <span class="modal-etiqueta">Resultado:</span>
+          <span class="modal-valor">La valoración no será recuperable</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer modal-footer-reporte">
+      <button class="btn-outline-large" type="button" onclick="cerrarModalAceptarReporteValoracion()">Cancelar</button>
+      <form id="formAceptarReporteValoracion" method="POST" style="display:inline;">
+        <button type="submit" class="btn-submit-danger">Confirmar eliminación</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function abrirModalAceptarReporteValoracion(idReporte) {
+    const form = document.getElementById('formAceptarReporteValoracion');
+    form.action = `/admin/adminPanel/gestionReportes/${idReporte}/acciones/aceptar-valoracion`;
+    document.getElementById('modalAceptarReporteValoracion').style.display = 'flex';
+  }
+
+  function cerrarModalAceptarReporteValoracion() {
+    document.getElementById('modalAceptarReporteValoracion').style.display = 'none';
+  }
+</script>

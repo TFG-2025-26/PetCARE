@@ -1,0 +1,80 @@
+<div class="modal-overlay" id="modalAceptarReporteUsuario" style="display:none;">
+  <div class="modal-box modal-reporte-confirmacion">
+    <div class="modal-header">
+      <div class="modal-titulo-icono">
+        <svg class="modal-icono-pregunta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        <h3>¿Qué acción tomar?</h3>
+      </div>
+      <button class="modal-close" type="button" onclick="cerrarModalAceptarReporteUsuario()">✕</button>
+    </div>
+    
+    <div class="modal-contenido-reporte">
+      <p class="modal-descripcion">Selecciona la acción disciplinaria para este usuario.</p>
+      <div class="modal-opciones">
+        <div class="modal-opcion">
+          <svg class="modal-icono-opcion modal-icono-gris" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"></path>
+          </svg>
+          <div>
+            <strong>Sin acción</strong>
+            <p>No tomar medidas contra el usuario</p>
+          </div>
+        </div>
+        <div class="modal-opcion">
+          <svg class="modal-icono-opcion modal-icono-advertencia" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <div>
+            <strong>Suspender</strong>
+            <p>Suspensión temporal de la cuenta</p>
+          </div>
+        </div>
+        <div class="modal-opcion">
+          <svg class="modal-icono-opcion modal-icono-peligro" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 10.26 24 10.26 17.55 16.52 19.64 24.78 12 19.52 4.36 24.78 6.45 16.52 0 10.26 8.91 10.26 12 2"></polygon>
+          </svg>
+          <div>
+            <strong>Banear</strong>
+            <p>Prohibición permanente de la plataforma</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer modal-footer-reporte modal-footer-tres-columnas">
+      <button class="btn-outline-large" type="button" onclick="cerrarModalAceptarReporteUsuario()">Cancelar</button>
+      <form id="formNoAccionReporteUsuario" method="POST" style="display:inline;">
+        <button type="submit" class="btn-outline-large btn-gris">Sin acción</button>
+      </form>
+      <form id="formSuspenderReporteUsuario" method="POST" style="display:inline;">
+        <button type="submit" class="btn-outline-large btn-naranja">Suspender</button>
+      </form>
+      <form id="formBanearReporteUsuario" method="POST" style="display:inline;">
+        <button type="submit" class="btn-submit-danger">Banear</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function abrirModalAceptarReporteUsuario(idReporte) {
+    const formNoAccion = document.getElementById('formNoAccionReporteUsuario');
+    const formSuspender = document.getElementById('formSuspenderReporteUsuario');
+    const formBanear = document.getElementById('formBanearReporteUsuario');
+    
+    formNoAccion.action = `/admin/adminPanel/gestionReportes/${idReporte}/acciones/aceptar-usuario-sin-accion`;
+    formSuspender.action = `/admin/adminPanel/gestionReportes/${idReporte}/acciones/aceptar-usuario-suspender`;
+    formBanear.action = `/admin/adminPanel/gestionReportes/${idReporte}/acciones/aceptar-usuario-banear`;
+    
+    document.getElementById('modalAceptarReporteUsuario').style.display = 'flex';
+  }
+
+  function cerrarModalAceptarReporteUsuario() {
+    document.getElementById('modalAceptarReporteUsuario').style.display = 'none';
+  }
+</script>

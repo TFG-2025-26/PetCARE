@@ -1,6 +1,7 @@
 "use strict"; 
 
 const { validationResult } = require('express-validator');
+const bcrypt = require('bcrypt');
 const pool = require('../db');
 
 const getAdminPanel= (req, res) => {
@@ -244,79 +245,87 @@ const postAdminRegistroUsuario = (req, res) => {
 
     const { nombre_completo, correo, nombre_usuario, telefono, password, fecha_nacimiento } = req.body;
 
-    pool.getConnection((err, connection) => {
-        if (err) {
-            console.error('Error al conectar a la base de datos:', err);
-            return res.status(500).send('Error al conectar a la base de datos');
+    // Hashear la contraseña
+    bcrypt.hash(password, 10, (hashErr, hashedPassword) => {
+        if (hashErr) {
+            console.error('Error al hashear la contraseña:', hashErr);
+            return res.status(500).send('Error al procesar la contraseña');
         }
 
-        connection.query('SELECT id_usuario FROM usuarios WHERE correo = ?', [correo], (errorCorreo, resultadosCorreo) => {
-            if (errorCorreo) {
-                connection.release();
-                console.error('Error al verificar el correo:', errorCorreo);
-                return res.status(500).send('Error al verificar el correo');
+        pool.getConnection((err, connection) => {
+            if (err) {
+                console.error('Error al conectar a la base de datos:', err);
+                return res.status(500).send('Error al conectar a la base de datos');
             }
 
-            if (resultadosCorreo.length > 0) {
-                connection.release();
-                return renderAdminRegistroView(res, {
-                    formType: 'usuario',
-                    formData,
-                    error: 'El correo electrónico ya está registrado.',
-                    errores: [],
-                    modo: 'crear',
-                    entidadId: null
-                });
-            }
-
-            connection.query('SELECT id_usuario FROM usuarios WHERE nombre_usuario = ?', [nombre_usuario], (errorUsuario, resultadosUsuario) => {
-                if (errorUsuario) {
+            connection.query('SELECT id_usuario FROM usuarios WHERE correo = ?', [correo], (errorCorreo, resultadosCorreo) => {
+                if (errorCorreo) {
                     connection.release();
-                    console.error('Error al verificar el nombre de usuario:', errorUsuario);
-                    return res.status(500).send('Error al verificar el nombre de usuario');
+                    console.error('Error al verificar el correo:', errorCorreo);
+                    return res.status(500).send('Error al verificar el correo');
                 }
 
-                if (resultadosUsuario.length > 0) {
+                if (resultadosCorreo.length > 0) {
                     connection.release();
                     return renderAdminRegistroView(res, {
                         formType: 'usuario',
                         formData,
-                        error: 'El nombre de usuario ya está en uso.',
+                        error: 'El correo electrónico ya está registrado.',
                         errores: [],
                         modo: 'crear',
                         entidadId: null
                     });
                 }
 
-                connection.query('SELECT id_usuario FROM usuarios WHERE telefono = ?', [telefono], (errorTelefono, resultadosTelefono) => {
-                    if (errorTelefono) {
+                connection.query('SELECT id_usuario FROM usuarios WHERE nombre_usuario = ?', [nombre_usuario], (errorUsuario, resultadosUsuario) => {
+                    if (errorUsuario) {
                         connection.release();
-                        console.error('Error al verificar el teléfono:', errorTelefono);
-                        return res.status(500).send('Error al verificar el teléfono');
+                        console.error('Error al verificar el nombre de usuario:', errorUsuario);
+                        return res.status(500).send('Error al verificar el nombre de usuario');
                     }
 
-                    if (resultadosTelefono.length > 0) {
+                    if (resultadosUsuario.length > 0) {
                         connection.release();
                         return renderAdminRegistroView(res, {
                             formType: 'usuario',
                             formData,
-                            error: 'El teléfono ya está registrado.',
+                            error: 'El nombre de usuario ya está en uso.',
                             errores: [],
                             modo: 'crear',
                             entidadId: null
                         });
                     }
 
-                    const insertQuery = 'INSERT INTO usuarios (nombre_usuario, nombre_completo, fecha_nacimiento, telefono, correo, contraseña, rol) VALUES (?, ?, ?, ?, ?, ?, ?)';
-                    connection.query(insertQuery, [nombre_usuario, nombre_completo, fecha_nacimiento, telefono, correo, password, rolSeleccionado], (errorInsert) => {
-                        connection.release();
-
-                        if (errorInsert) {
-                            console.error('Error al registrar el usuario desde administración:', errorInsert);
-                            return res.status(500).send('Error al registrar el usuario');
+                    connection.query('SELECT id_usuario FROM usuarios WHERE telefono = ?', [telefono], (errorTelefono, resultadosTelefono) => {
+                        if (errorTelefono) {
+                            connection.release();
+                            console.error('Error al verificar el teléfono:', errorTelefono);
+                            return res.status(500).send('Error al verificar el teléfono');
                         }
 
-                        return res.redirect('/admin/adminPanel/gestionUsuarios/filtrar?tab=usuarios');
+                        if (resultadosTelefono.length > 0) {
+                            connection.release();
+                            return renderAdminRegistroView(res, {
+                                formType: 'usuario',
+                                formData,
+                                error: 'El teléfono ya está registrado.',
+                                errores: [],
+                                modo: 'crear',
+                                entidadId: null
+                            });
+                        }
+
+                        const insertQuery = 'INSERT INTO usuarios (nombre_usuario, nombre_completo, fecha_nacimiento, telefono, correo, contraseña, rol) VALUES (?, ?, ?, ?, ?, ?, ?)';
+                        connection.query(insertQuery, [nombre_usuario, nombre_completo, fecha_nacimiento, telefono, correo, hashedPassword, rolSeleccionado], (errorInsert) => {
+                            connection.release();
+
+                            if (errorInsert) {
+                                console.error('Error al registrar el usuario desde administración:', errorInsert);
+                                return res.status(500).send('Error al registrar el usuario');
+                            }
+
+                            return res.redirect('/admin/adminPanel/gestionUsuarios/filtrar?tab=usuarios');
+                        });
                     });
                 });
             });
@@ -344,79 +353,87 @@ const postAdminRegistroEmpresa = (req, res) => {
 
     const { nombre, correo, telefono_contacto, password } = req.body;
 
-    pool.getConnection((err, connection) => {
-        if (err) {
-            console.error('Error al conectar a la base de datos:', err);
-            return res.status(500).send('Error al conectar a la base de datos');
+    // Hashear la contraseña
+    bcrypt.hash(password, 10, (hashErr, hashedPassword) => {
+        if (hashErr) {
+            console.error('Error al hashear la contraseña:', hashErr);
+            return res.status(500).send('Error al procesar la contraseña');
         }
 
-        connection.query('SELECT id_empresa FROM empresas WHERE correo = ?', [correo], (errorCorreo, resultadosCorreo) => {
-            if (errorCorreo) {
-                connection.release();
-                console.error('Error al verificar el correo:', errorCorreo);
-                return res.status(500).send('Error al verificar el correo');
+        pool.getConnection((err, connection) => {
+            if (err) {
+                console.error('Error al conectar a la base de datos:', err);
+                return res.status(500).send('Error al conectar a la base de datos');
             }
 
-            if (resultadosCorreo.length > 0) {
-                connection.release();
-                return renderAdminRegistroView(res, {
-                    formType: 'empresa',
-                    formData,
-                    error: 'El correo electrónico ya está registrado.',
-                    errores: [],
-                    modo: 'crear',
-                    entidadId: null
-                });
-            }
-
-            connection.query('SELECT id_empresa FROM empresas WHERE CIF = ?', [cifNormalizado], (errorCif, resultadosCif) => {
-                if (errorCif) {
+            connection.query('SELECT id_empresa FROM empresas WHERE correo = ?', [correo], (errorCorreo, resultadosCorreo) => {
+                if (errorCorreo) {
                     connection.release();
-                    console.error('Error al verificar el CIF:', errorCif);
-                    return res.status(500).send('Error al verificar el CIF');
+                    console.error('Error al verificar el correo:', errorCorreo);
+                    return res.status(500).send('Error al verificar el correo');
                 }
 
-                if (resultadosCif.length > 0) {
+                if (resultadosCorreo.length > 0) {
                     connection.release();
                     return renderAdminRegistroView(res, {
                         formType: 'empresa',
                         formData,
-                        error: 'El CIF ya está registrado.',
+                        error: 'El correo electrónico ya está registrado.',
                         errores: [],
                         modo: 'crear',
                         entidadId: null
                     });
                 }
 
-                connection.query('SELECT id_empresa FROM empresas WHERE telefono_contacto = ?', [telefono_contacto], (errorTelefono, resultadosTelefono) => {
-                    if (errorTelefono) {
+                connection.query('SELECT id_empresa FROM empresas WHERE CIF = ?', [cifNormalizado], (errorCif, resultadosCif) => {
+                    if (errorCif) {
                         connection.release();
-                        console.error('Error al verificar el teléfono:', errorTelefono);
-                        return res.status(500).send('Error al verificar el teléfono');
+                        console.error('Error al verificar el CIF:', errorCif);
+                        return res.status(500).send('Error al verificar el CIF');
                     }
 
-                    if (resultadosTelefono.length > 0) {
+                    if (resultadosCif.length > 0) {
                         connection.release();
                         return renderAdminRegistroView(res, {
                             formType: 'empresa',
                             formData,
-                            error: 'El teléfono ya está registrado.',
+                            error: 'El CIF ya está registrado.',
                             errores: [],
                             modo: 'crear',
                             entidadId: null
                         });
                     }
 
-                    const insertQuery = 'INSERT INTO empresas (nombre, correo, contraseña, CIF, telefono_contacto, tipo, tipo_otro) VALUES (?, ?, ?, ?, ?, ?, ?)';
-                    connection.query(insertQuery, [nombre, correo, password, cifNormalizado, telefono_contacto, tipoSeleccionado, tipoOtroGuardado], (errorInsert) => {
-                        connection.release();
-
-                        if (errorInsert) {
-                            console.error('Error al registrar la empresa desde administración:', errorInsert);
-                            return res.status(500).send('Error al registrar la empresa');
+                    connection.query('SELECT id_empresa FROM empresas WHERE telefono_contacto = ?', [telefono_contacto], (errorTelefono, resultadosTelefono) => {
+                        if (errorTelefono) {
+                            connection.release();
+                            console.error('Error al verificar el teléfono:', errorTelefono);
+                            return res.status(500).send('Error al verificar el teléfono');
                         }
 
-                        return res.redirect('/admin/adminPanel/gestionUsuarios/filtrar?tab=empresas');
+                        if (resultadosTelefono.length > 0) {
+                            connection.release();
+                            return renderAdminRegistroView(res, {
+                                formType: 'empresa',
+                                formData,
+                                error: 'El teléfono ya está registrado.',
+                                errores: [],
+                                modo: 'crear',
+                                entidadId: null
+                            });
+                        }
+
+                        const insertQuery = 'INSERT INTO empresas (nombre, correo, contraseña, CIF, telefono_contacto, tipo, tipo_otro) VALUES (?, ?, ?, ?, ?, ?, ?)';
+                        connection.query(insertQuery, [nombre, correo, hashedPassword, cifNormalizado, telefono_contacto, tipoSeleccionado, tipoOtroGuardado], (errorInsert) => {
+                            connection.release();
+
+                            if (errorInsert) {
+                                console.error('Error al registrar la empresa desde administración:', errorInsert);
+                                return res.status(500).send('Error al registrar la empresa');
+                            }
+
+                            return res.redirect('/admin/adminPanel/gestionUsuarios/filtrar?tab=empresas');
+                        });
                     });
                 });
             });
@@ -522,21 +539,42 @@ const postAdminEditarUsuario = (req, res) => {
                             });
                         }
 
-                        const passwordFinal = password && password.trim()
-                            ? password
-                            : resultadosActuales[0].contraseña;
+                        // Manejar contraseña con bcrypt
+                        if (password && password.trim()) {
+                            bcrypt.hash(password, 10, (hashErr, hashedPassword) => {
+                                if (hashErr) {
+                                    connection.release();
+                                    console.error('Error al hashear la contraseña:', hashErr);
+                                    return res.status(500).send('Error al procesar la contraseña');
+                                }
 
-                        const updateQuery = 'UPDATE usuarios SET nombre_usuario = ?, nombre_completo = ?, fecha_nacimiento = ?, telefono = ?, correo = ?, contraseña = ?, rol = ?, activo = ?, ban = ?, suspendido = ? WHERE id_usuario = ?';
-                        connection.query(updateQuery, [nombre_usuario, nombre_completo, fecha_nacimiento, telefono, correo, passwordFinal, rolSeleccionado, activo, ban, suspendido, usuarioId], (errorUpdate) => {
-                            connection.release();
+                                const updateQuery = 'UPDATE usuarios SET nombre_usuario = ?, nombre_completo = ?, fecha_nacimiento = ?, telefono = ?, correo = ?, contraseña = ?, rol = ?, activo = ?, ban = ?, suspendido = ? WHERE id_usuario = ?';
+                                connection.query(updateQuery, [nombre_usuario, nombre_completo, fecha_nacimiento, telefono, correo, hashedPassword, rolSeleccionado, activo, ban, suspendido, usuarioId], (errorUpdate) => {
+                                    connection.release();
 
-                            if (errorUpdate) {
-                                console.error('Error al actualizar el usuario desde administración:', errorUpdate);
-                                return res.status(500).send('Error al actualizar el usuario');
-                            }
+                                    if (errorUpdate) {
+                                        console.error('Error al actualizar el usuario desde administración:', errorUpdate);
+                                        return res.status(500).send('Error al actualizar el usuario');
+                                    }
 
-                            return res.redirect('/admin/adminPanel/gestionUsuarios/filtrar?tab=usuarios');
-                        });
+                                    return res.redirect('/admin/adminPanel/gestionUsuarios/filtrar?tab=usuarios');
+                                });
+                            });
+                        } else {
+                            // No cambiar la contraseña, mantener la actual
+                            const passwordFinal = resultadosActuales[0].contraseña;
+                            const updateQuery = 'UPDATE usuarios SET nombre_usuario = ?, nombre_completo = ?, fecha_nacimiento = ?, telefono = ?, correo = ?, contraseña = ?, rol = ?, activo = ?, ban = ?, suspendido = ? WHERE id_usuario = ?';
+                            connection.query(updateQuery, [nombre_usuario, nombre_completo, fecha_nacimiento, telefono, correo, passwordFinal, rolSeleccionado, activo, ban, suspendido, usuarioId], (errorUpdate) => {
+                                connection.release();
+
+                                if (errorUpdate) {
+                                    console.error('Error al actualizar el usuario desde administración:', errorUpdate);
+                                    return res.status(500).send('Error al actualizar el usuario');
+                                }
+
+                                return res.redirect('/admin/adminPanel/gestionUsuarios/filtrar?tab=usuarios');
+                            });
+                        }
                     });
                 });
             });
@@ -642,21 +680,42 @@ const postAdminEditarEmpresa = (req, res) => {
                             });
                         }
 
-                        const passwordFinal = password && password.trim()
-                            ? password
-                            : resultadosActuales[0].contraseña;
+                        // Manejar contraseña con bcrypt
+                        if (password && password.trim()) {
+                            bcrypt.hash(password, 10, (hashErr, hashedPassword) => {
+                                if (hashErr) {
+                                    connection.release();
+                                    console.error('Error al hashear la contraseña:', hashErr);
+                                    return res.status(500).send('Error al procesar la contraseña');
+                                }
 
-                        const updateQuery = 'UPDATE empresas SET nombre = ?, correo = ?, contraseña = ?, CIF = ?, telefono_contacto = ?, tipo = ?, tipo_otro = ?, activo = ? WHERE id_empresa = ?';
-                        connection.query(updateQuery, [nombre, correo, passwordFinal, cifNormalizado, telefono_contacto, tipoSeleccionado, tipoOtroGuardado, activo, empresaId], (errorUpdate) => {
-                            connection.release();
+                                const updateQuery = 'UPDATE empresas SET nombre = ?, correo = ?, contraseña = ?, CIF = ?, telefono_contacto = ?, tipo = ?, tipo_otro = ?, activo = ? WHERE id_empresa = ?';
+                                connection.query(updateQuery, [nombre, correo, hashedPassword, cifNormalizado, telefono_contacto, tipoSeleccionado, tipoOtroGuardado, activo, empresaId], (errorUpdate) => {
+                                    connection.release();
 
-                            if (errorUpdate) {
-                                console.error('Error al actualizar la empresa desde administración:', errorUpdate);
-                                return res.status(500).send('Error al actualizar la empresa');
-                            }
+                                    if (errorUpdate) {
+                                        console.error('Error al actualizar la empresa desde administración:', errorUpdate);
+                                        return res.status(500).send('Error al actualizar la empresa');
+                                    }
 
-                            return res.redirect('/admin/adminPanel/gestionUsuarios/filtrar?tab=empresas');
-                        });
+                                    return res.redirect('/admin/adminPanel/gestionUsuarios/filtrar?tab=empresas');
+                                });
+                            });
+                        } else {
+                            // No cambiar la contraseña, mantener la actual
+                            const passwordFinal = resultadosActuales[0].contraseña;
+                            const updateQuery = 'UPDATE empresas SET nombre = ?, correo = ?, contraseña = ?, CIF = ?, telefono_contacto = ?, tipo = ?, tipo_otro = ?, activo = ? WHERE id_empresa = ?';
+                            connection.query(updateQuery, [nombre, correo, passwordFinal, cifNormalizado, telefono_contacto, tipoSeleccionado, tipoOtroGuardado, activo, empresaId], (errorUpdate) => {
+                                connection.release();
+
+                                if (errorUpdate) {
+                                    console.error('Error al actualizar la empresa desde administración:', errorUpdate);
+                                    return res.status(500).send('Error al actualizar la empresa');
+                                }
+
+                                return res.redirect('/admin/adminPanel/gestionUsuarios/filtrar?tab=empresas');
+                            });
+                        }
                     });
                 });
             });
@@ -876,6 +935,291 @@ const aplicarAccionReporte = (req, res) => {
     });
 }
 
+const aceptarReporteValoracion = (req, res) => {
+    const { id_reporte } = req.params;
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al conectar a la base de datos: ', err);
+            return res.status(500).send('Error al conectar a la base de datos');
+        }
+
+        // Obtener el id_valoracion del reporte
+        connection.query('SELECT id_valoracion FROM reportes WHERE id_reporte = ?', [id_reporte], (err, reportes) => {
+            if (err) {
+                connection.release();
+                console.error('Error al obtener el reporte: ', err);
+                return res.status(500).send('Error al obtener el reporte');
+            }
+
+            if (reportes.length === 0) {
+                connection.release();
+                return res.status(404).send('Reporte no encontrado');
+            }
+
+            const idValoracion = reportes[0].id_valoracion;
+
+            // Eliminar la valoración
+            connection.query('DELETE FROM valoraciones WHERE id_valoracion = ?', [idValoracion], (err) => {
+                if (err) {
+                    connection.release();
+                    console.error('Error al eliminar la valoración: ', err);
+                    return res.status(500).send('Error al eliminar la valoración');
+                }
+
+                // Actualizar el estado del reporte a aceptado
+                connection.query('UPDATE reportes SET estado = ? WHERE id_reporte = ?', ['aceptado', id_reporte], (err) => {
+                    connection.release();
+                    if (err) {
+                        console.error('Error al actualizar el reporte: ', err);
+                        return res.status(500).send('Error al actualizar el reporte');
+                    }
+                    res.redirect('/admin/adminPanel/gestionReportes');
+                });
+            });
+        });
+    });
+};
+
+const aceptarReporteComentarioEliminar = (req, res) => {
+    const { id_reporte } = req.params;
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al conectar a la base de datos: ', err);
+            return res.status(500).send('Error al conectar a la base de datos');
+        }
+
+        // Obtener el id_comentario del reporte
+        connection.query('SELECT id_comentario FROM reportes WHERE id_reporte = ?', [id_reporte], (err, reportes) => {
+            if (err) {
+                connection.release();
+                console.error('Error al obtener el reporte: ', err);
+                return res.status(500).send('Error al obtener el reporte');
+            }
+
+            if (reportes.length === 0) {
+                connection.release();
+                return res.status(404).send('Reporte no encontrado');
+            }
+
+            const idComentario = reportes[0].id_comentario;
+
+            // Eliminar el comentario
+            connection.query('DELETE FROM comentarios WHERE id_comentario = ?', [idComentario], (err) => {
+                if (err) {
+                    connection.release();
+                    console.error('Error al eliminar el comentario: ', err);
+                    return res.status(500).send('Error al eliminar el comentario');
+                }
+
+                // Actualizar el estado del reporte a aceptado
+                connection.query('UPDATE reportes SET estado = ? WHERE id_reporte = ?', ['aceptado', id_reporte], (err) => {
+                    connection.release();
+                    if (err) {
+                        console.error('Error al actualizar el reporte: ', err);
+                        return res.status(500).send('Error al actualizar el reporte');
+                    }
+                    res.redirect('/admin/adminPanel/gestionReportes');
+                });
+            });
+        });
+    });
+};
+
+const aceptarReporteComentarioModificar = (req, res) => {
+    const { id_reporte } = req.params;
+    const { idComentario } = req.body;
+
+    // Obtener la información del comentario
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al conectar a la base de datos: ', err);
+            return res.status(500).send('Error al conectar a la base de datos');
+        }
+
+        connection.query('SELECT id_foro FROM comentarios WHERE id_comentario = ?', [idComentario], (err, comentarios) => {
+            if (err || comentarios.length === 0) {
+                connection.release();
+                console.error('Error al obtener el comentario: ', err);
+                return res.status(500).send('Error al obtener el comentario');
+            }
+
+            const idForo = comentarios[0].id_foro;
+
+            // Actualizar el estado del reporte a aceptado
+            connection.query('UPDATE reportes SET estado = ? WHERE id_reporte = ?', ['aceptado', id_reporte], (err) => {
+                connection.release();
+                if (err) {
+                    console.error('Error al actualizar el reporte: ', err);
+                    return res.status(500).send('Error al actualizar el reporte');
+                }
+                // Redirigir al foro con parámetro para abrir el modal de edición
+                res.redirect(`/content/foros/${idForo}?editarComentario=${idComentario}`);
+            });
+        });
+    });
+};
+
+const aceptarReporteForo = (req, res) => {
+    const { id_reporte } = req.params;
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al conectar a la base de datos: ', err);
+            return res.status(500).send('Error al conectar a la base de datos');
+        }
+
+        // Obtener el id_foro del reporte
+        connection.query('SELECT id_foro FROM reportes WHERE id_reporte = ?', [id_reporte], (err, reportes) => {
+            if (err) {
+                connection.release();
+                console.error('Error al obtener el reporte: ', err);
+                return res.status(500).send('Error al obtener el reporte');
+            }
+
+            if (reportes.length === 0) {
+                connection.release();
+                return res.status(404).send('Reporte no encontrado');
+            }
+
+            const idForo = reportes[0].id_foro;
+
+            // Eliminar el foro completamente
+            connection.query('DELETE FROM foros WHERE id_foro = ?', [idForo], (err) => {
+                if (err) {
+                    connection.release();
+                    console.error('Error al eliminar el foro: ', err);
+                    return res.status(500).send('Error al eliminar el foro');
+                }
+
+                // Actualizar el estado del reporte a aceptado
+                connection.query('UPDATE reportes SET estado = ? WHERE id_reporte = ?', ['aceptado', id_reporte], (err) => {
+                    connection.release();
+                    if (err) {
+                        console.error('Error al actualizar el reporte: ', err);
+                        return res.status(500).send('Error al actualizar el reporte');
+                    }
+                    res.redirect('/admin/adminPanel/gestionReportes');
+                });
+            });
+        });
+    });
+};
+
+const aceptarReporteUsuarioSinAccion = (req, res) => {
+    const { id_reporte } = req.params;
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al conectar a la base de datos: ', err);
+            return res.status(500).send('Error al conectar a la base de datos');
+        }
+
+        // Solo actualizar el estado del reporte a aceptado sin hacer nada al usuario
+        connection.query('UPDATE reportes SET estado = ? WHERE id_reporte = ?', ['aceptado', id_reporte], (err) => {
+            connection.release();
+            if (err) {
+                console.error('Error al actualizar el reporte: ', err);
+                return res.status(500).send('Error al actualizar el reporte');
+            }
+            res.redirect('/admin/adminPanel/gestionReportes');
+        });
+    });
+};
+
+const aceptarReporteUsuarioSuspender = (req, res) => {
+    const { id_reporte } = req.params;
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al conectar a la base de datos: ', err);
+            return res.status(500).send('Error al conectar a la base de datos');
+        }
+
+        // Obtener el id_usuario_reportado del reporte
+        connection.query('SELECT id_usuario_reportado FROM reportes WHERE id_reporte = ?', [id_reporte], (err, reportes) => {
+            if (err) {
+                connection.release();
+                console.error('Error al obtener el reporte: ', err);
+                return res.status(500).send('Error al obtener el reporte');
+            }
+
+            if (reportes.length === 0) {
+                connection.release();
+                return res.status(404).send('Reporte no encontrado');
+            }
+
+            const idUsuario = reportes[0].id_usuario_reportado;
+
+            // Suspender el usuario
+            connection.query('UPDATE usuarios SET suspendido = 1 WHERE id_usuario = ?', [idUsuario], (err) => {
+                if (err) {
+                    connection.release();
+                    console.error('Error al suspender el usuario: ', err);
+                    return res.status(500).send('Error al suspender el usuario');
+                }
+
+                // Actualizar el estado del reporte a aceptado
+                connection.query('UPDATE reportes SET estado = ? WHERE id_reporte = ?', ['aceptado', id_reporte], (err) => {
+                    connection.release();
+                    if (err) {
+                        console.error('Error al actualizar el reporte: ', err);
+                        return res.status(500).send('Error al actualizar el reporte');
+                    }
+                    res.redirect('/admin/adminPanel/gestionReportes');
+                });
+            });
+        });
+    });
+};
+
+const aceptarReporteUsuarioBanear = (req, res) => {
+    const { id_reporte } = req.params;
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al conectar a la base de datos: ', err);
+            return res.status(500).send('Error al conectar a la base de datos');
+        }
+
+        // Obtener el id_usuario_reportado del reporte
+        connection.query('SELECT id_usuario_reportado FROM reportes WHERE id_reporte = ?', [id_reporte], (err, reportes) => {
+            if (err) {
+                connection.release();
+                console.error('Error al obtener el reporte: ', err);
+                return res.status(500).send('Error al obtener el reporte');
+            }
+
+            if (reportes.length === 0) {
+                connection.release();
+                return res.status(404).send('Reporte no encontrado');
+            }
+
+            const idUsuario = reportes[0].id_usuario_reportado;
+
+            // Banear el usuario
+            connection.query('UPDATE usuarios SET ban = 1 WHERE id_usuario = ?', [idUsuario], (err) => {
+                if (err) {
+                    connection.release();
+                    console.error('Error al banear el usuario: ', err);
+                    return res.status(500).send('Error al banear el usuario');
+                }
+
+                // Actualizar el estado del reporte a aceptado
+                connection.query('UPDATE reportes SET estado = ? WHERE id_reporte = ?', ['aceptado', id_reporte], (err) => {
+                    connection.release();
+                    if (err) {
+                        console.error('Error al actualizar el reporte: ', err);
+                        return res.status(500).send('Error al actualizar el reporte');
+                    }
+                    res.redirect('/admin/adminPanel/gestionReportes');
+                });
+            });
+        });
+    });
+};
+
 const eliminarUsuarioGestion = (req, res) => {
     const tipo = req.params.tipo;
     const id = parseInt(req.params.id, 10);
@@ -932,6 +1276,13 @@ module.exports = {
     filtrarUsuarios,
     getDetalleReporte,
     aplicarAccionReporte,
+    aceptarReporteValoracion,
+    aceptarReporteComentarioEliminar,
+    aceptarReporteComentarioModificar,
+    aceptarReporteForo,
+    aceptarReporteUsuarioSinAccion,
+    aceptarReporteUsuarioSuspender,
+    aceptarReporteUsuarioBanear,
     eliminarUsuarioGestion,
     editarAccionReporte
 }; 

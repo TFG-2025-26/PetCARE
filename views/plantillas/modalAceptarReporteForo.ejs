@@ -1,0 +1,46 @@
+<div class="modal-overlay" id="modalAceptarReporteForom" style="display:none;">
+  <div class="modal-box modal-reporte-confirmacion">
+    <div class="modal-header">
+      <div class="modal-titulo-icono">
+        <svg class="modal-icono-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 20h20L12 2z"></path>
+        </svg>
+        <h3>Eliminar Foro</h3>
+      </div>
+      <button class="modal-close" type="button" onclick="cerrarModalAceptarReporteForo()">✕</button>
+    </div>
+    
+    <div class="modal-contenido-reporte">
+      <p class="modal-descripcion">Esta acción eliminará el foro reportado completamente de la base de datos.</p>
+      <div class="modal-detalles">
+        <div class="modal-detalle-item">
+          <span class="modal-etiqueta">Consecuencias:</span>
+          <ul class="modal-lista-consecuencias">
+            <li>El foro desaparecerá para todos los usuarios</li>
+            <li>Se eliminarán todos los comentarios asociados</li>
+            <li>No podrá ser recuperado</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer modal-footer-reporte">
+      <button class="btn-outline-large" type="button" onclick="cerrarModalAceptarReporteForo()">Cancelar</button>
+      <form id="formAceptarReporteForo" method="POST" style="display:inline;">
+        <button type="submit" class="btn-submit-danger">Confirmar eliminación</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function abrirModalAceptarReporteForo(idReporte) {
+    const form = document.getElementById('formAceptarReporteForo');
+    form.action = `/admin/adminPanel/gestionReportes/${idReporte}/acciones/aceptar-foro`;
+    document.getElementById('modalAceptarReporteForom').style.display = 'flex';
+  }
+
+  function cerrarModalAceptarReporteForo() {
+    document.getElementById('modalAceptarReporteForom').style.display = 'none';
+  }
+</script>

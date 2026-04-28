@@ -278,6 +278,59 @@ textarea { resize: vertical; min-height: 80px; }
 .botones-modal button { color: var(--white); background: var(--amber); border-radius: 24px; padding: 0.6rem; border: none; font-family: 'DM Sans', sans-serif; font-size: 1rem; cursor: pointer; }
 #cancelar-eliminar-mascota, #cancelar-eliminar-registro { background: #c8b0a2; }
 
+/* ── Modal Confirmación de Reportes ── */
+.modal-reporte-confirmacion { max-width: 600px; }
+
+.modal-titulo-icono { display: flex; align-items: center; gap: 1rem; }
+.modal-titulo-icono h3 { margin: 0; }
+
+.modal-icono-warning, .modal-icono-pregunta { width: 32px; height: 32px; color: #dc2626; flex-shrink: 0; }
+.modal-icono-pregunta { color: #f59e0b; }
+
+.modal-contenido-reporte { margin: 1.5rem 0; }
+.modal-descripcion { color: var(--muted); margin-bottom: 1.5rem; line-height: 1.5; }
+
+.modal-detalles { background: var(--warm); padding: 1rem; border-radius: 12px; }
+.modal-detalle-item { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 0.8rem; }
+.modal-detalle-item:last-child { margin-bottom: 0; }
+
+.modal-etiqueta { font-weight: 600; color: var(--brown); min-width: 100px; }
+.modal-valor { color: var(--muted); }
+.modal-valor-peligro { color: #dc2626; font-weight: 500; }
+
+.modal-lista-consecuencias { list-style: none; margin: 1rem 0 0 0; padding: 0 0 0 1.5rem; }
+.modal-lista-consecuencias li { color: var(--muted); margin-bottom: 0.5rem; position: relative; }
+.modal-lista-consecuencias li:before { content: "•"; position: absolute; left: -1rem; color: #dc2626; font-weight: bold; }
+
+.modal-opciones { display: flex; flex-direction: column; gap: 1rem; margin: 1.5rem 0; }
+.modal-opcion { display: flex; gap: 1rem; padding: 1.2rem; background: var(--warm); border-radius: 12px; border-left: 4px solid var(--amber); }
+.modal-opcion strong { color: var(--brown); display: block; margin-bottom: 0.3rem; }
+.modal-opcion p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+
+.modal-icono-opcion { width: 28px; height: 28px; flex-shrink: 0; }
+.modal-icono-opcion.modal-icono-gris { color: #6b7280; }
+.modal-icono-opcion.modal-icono-advertencia { color: #f59e0b; }
+.modal-icono-opcion.modal-icono-peligro { color: #dc2626; }
+
+.modal-footer-reporte { gap: 1rem; flex-wrap: wrap; margin-top: 2rem; }
+.modal-footer-dos-columnas { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+.modal-footer-tres-columnas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+
+.btn-submit-danger { width: 100%; padding: 0.9rem; background: #dc2626; color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 500; border: none; border-radius: var(--radius-pill); cursor: pointer; transition: background 0.2s, transform 0.15s, box-shadow 0.2s; box-shadow: 0 4px 20px rgba(220,38,38,0.3); }
+.btn-submit-danger:hover { background: #b91c1c; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(220,38,38,0.4); }
+
+.btn-gris { color: var(--white); background: #6b7280; border-color: #6b7280; }
+.btn-gris:hover { background: #4b5563; border-color: #4b5563; }
+
+.btn-naranja { color: var(--white); background: #f59e0b; border-color: #f59e0b; }
+.btn-naranja:hover { background: #d97706; border-color: #d97706; }
+
+@media (max-width: 600px) {
+  .modal-reporte-confirmacion { max-width: 95vw; }
+  .modal-footer-dos-columnas, .modal-footer-tres-columnas { grid-template-columns: 1fr; }
+  .modal-opcion { flex-direction: column; align-items: flex-start; }
+}
+
 /* ── Modal foro ── */
 #modalForo, #modalArticulo { position: fixed; inset: 0; background: rgba(61,43,31,0.45); backdrop-filter: blur(4px); z-index: 200; display: flex; align-items: flex-start; justify-content: center; padding: 4.5rem 1.5rem 2rem; overflow-y: auto; animation: fadeIn 0.2s ease both; }
 #modalForo-contenido, #modalArticulo-contenido { background: var(--white); border-radius: 24px; box-shadow: var(--shadow-lg); width: 100%; max-width: 700px; padding: 2rem; animation: fadeUp 0.3s ease both; }
