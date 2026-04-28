@@ -321,9 +321,12 @@ const postEditarPerfilUsuario = (req, res) => {
                                 });
                             }
                         });
+                    }); 
+                }); 
+            });
         }); 
     });
-};
+}; 
 
 const postEditarPerfilEmpresa = (req, res) => {
     const errors = validationResult(req);
