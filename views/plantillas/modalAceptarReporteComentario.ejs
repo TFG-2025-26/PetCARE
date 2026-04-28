@@ -1,0 +1,83 @@
+<div class="modal-overlay" id="modalAceptarReporteComentario" style="display:none;">
+  <div class="modal-box modal-reporte-confirmacion">
+    <div class="modal-header">
+      <div class="modal-titulo-icono">
+        <svg class="modal-icono-pregunta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M12 16v-4M12 8h.01"></path>
+        </svg>
+        <h3>¿Qué hacer con este comentario?</h3>
+      </div>
+      <button class="modal-close" type="button" onclick="cerrarModalAceptarReporteComentario()">✕</button>
+    </div>
+    
+    <div class="modal-contenido-reporte">
+      <p class="modal-descripcion">Selecciona la acción que deseas tomar con el comentario reportado.</p>
+      <div class="modal-opciones">
+        <div class="modal-opcion">
+          <svg class="modal-icono-opcion" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 4 21 4 23 6 23 20a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V6"></polyline>
+          </svg>
+          <div>
+            <strong>Eliminar definitivamente</strong>
+            <p>Borra el comentario completamente de la base de datos</p>
+          </div>
+        </div>
+        <div class="modal-opcion">
+          <svg class="modal-icono-opcion" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L21 6.5z"></path>
+          </svg>
+          <div>
+            <strong>Modificar contenido</strong>
+            <p>Edita el comentario para remover partes inapropiadas</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer modal-footer-reporte modal-footer-dos-columnas">
+      <button class="btn-outline-large" type="button" onclick="cerrarModalAceptarReporteComentario()">Cancelar</button>
+      <button class="btn-outline-large btn-naranja" type="button" onclick="irAModificarComentario()">Modificar</button>
+      <form id="formEliminarReporteComentario" method="POST" style="display:inline;">
+        <button type="submit" class="btn-submit-danger">Eliminar</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  let idReporteComentarioActual = null;
+  let idComentarioActual = null;
+  
+  function abrirModalAceptarReporteComentario(idReporte, idComentario) {
+    idReporteComentarioActual = idReporte;
+    idComentarioActual = idComentario;
+    const form = document.getElementById('formEliminarReporteComentario');
+    form.action = `/admin/adminPanel/gestionReportes/${idReporte}/acciones/aceptar-comentario-eliminar`;
+    document.getElementById('modalAceptarReporteComentario').style.display = 'flex';
+  }
+
+  function cerrarModalAceptarReporteComentario() {
+    document.getElementById('modalAceptarReporteComentario').style.display = 'none';
+    idReporteComentarioActual = null;
+    idComentarioActual = null;
+  }
+
+  function irAModificarComentario() {
+    if (idComentarioActual && idReporteComentarioActual) {
+      // Usar POST en lugar de GET
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = `/admin/adminPanel/gestionReportes/${idReporteComentarioActual}/acciones/aceptar-comentario-modificar`;
+      
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'idComentario';
+      input.value = idComentarioActual;
+      form.appendChild(input);
+      
+      document.body.appendChild(form);
+      form.submit();
+    }
+  }
+</script>

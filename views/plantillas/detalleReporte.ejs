@@ -76,7 +76,24 @@
   <form method="POST" action="/admin/adminPanel/gestionReportes/<%= reporte.id_reporte %>/acciones/denegar" style="display:inline;">
     <button type="submit" class="btn-accion-reporte btn-denegar" <%= reporte.estado === 'rechazado' ? 'disabled' : '' %>>Denegar</button>
   </form>
-  <form method="POST" action="/admin/adminPanel/gestionReportes/<%= reporte.id_reporte %>/acciones/aceptar" style="display:inline;">
-    <button type="submit" class="btn-accion-reporte btn-aceptar" <%= reporte.estado === 'aceptado' ? 'disabled' : '' %>>Aceptar</button>
-  </form>
+  <button type="button" class="btn-accion-reporte btn-aceptar" <%= reporte.estado === 'aceptado' ? 'disabled' : '' %> onclick="abrirModalAccionReporte(<%= reporte.id_reporte %>, <%= reporte.id_comentario || 'null' %>, <%= reporte.id_foro || 'null' %>, <%= reporte.id_valoracion || 'null' %>, <%= reporte.id_usuario_reportado || 'null' %>)">Aceptar</button>
 </div>
+
+<script>
+  function abrirModalAccionReporte(idReporte, idComentario, idForo, idValoracion, idUsuario) {
+    if (idValoracion) {
+      abrirModalAceptarReporteValoracion(idReporte);
+    } else if (idComentario) {
+      abrirModalAceptarReporteComentario(idReporte, idComentario);
+    } else if (idForo) {
+      abrirModalAceptarReporteForo(idReporte);
+    } else if (idUsuario) {
+      abrirModalAceptarReporteUsuario(idReporte);
+    }
+  }
+</script>
+
+<%- include('modalAceptarReporteValoracion') %>
+<%- include('modalAceptarReporteComentario') %>
+<%- include('modalAceptarReporteUsuario') %>
+<%- include('modalAceptarReporteForo') %>

@@ -215,6 +215,15 @@ router.post('/adminPanel/gestionUsuarios/:tipo/:id/eliminar', adminController.el
 router.get('/adminPanel/gestionReportes', adminController.getGestionReportes);
 router.get('/adminPanel/gestionReportes/filtrar', adminController.filtrarReportes);
 router.get('/adminPanel/gestionReportes/:id_reporte', adminController.getDetalleReporte);
+// Rutas específicas ANTES de la ruta genérica
+router.post('/adminPanel/gestionReportes/:id_reporte/acciones/aceptar-valoracion', adminController.aceptarReporteValoracion);
+router.post('/adminPanel/gestionReportes/:id_reporte/acciones/aceptar-comentario-eliminar', adminController.aceptarReporteComentarioEliminar);
+router.post('/adminPanel/gestionReportes/:id_reporte/acciones/aceptar-comentario-modificar', adminController.aceptarReporteComentarioModificar);
+router.post('/adminPanel/gestionReportes/:id_reporte/acciones/aceptar-foro', adminController.aceptarReporteForo);
+router.post('/adminPanel/gestionReportes/:id_reporte/acciones/aceptar-usuario-sin-accion', adminController.aceptarReporteUsuarioSinAccion);
+router.post('/adminPanel/gestionReportes/:id_reporte/acciones/aceptar-usuario-suspender', adminController.aceptarReporteUsuarioSuspender);
+router.post('/adminPanel/gestionReportes/:id_reporte/acciones/aceptar-usuario-banear', adminController.aceptarReporteUsuarioBanear);
+// Ruta genérica al final
 router.post('/adminPanel/gestionReportes/:id_reporte/acciones/:accion', adminController.aplicarAccionReporte);
 router.get('/adminPanel/gestionReportes/:id_reporte/editarAccion', adminController.editarAccionReporte);
 

@@ -254,9 +254,10 @@
                 return;
               }
 
+              // Si hay errores, mostrarlos pero no recargar el modal repetidamente
               document.getElementById('modalEditarComentario-contenido').innerHTML = html;
-              document.getElementById('modalEditarComentario').style.display = 'flex';
             } catch (error) {
+              console.error('Error al editar comentario:', error);
               window.location.href = form.action;
             }
           });
@@ -356,6 +357,24 @@
     document.getElementById('modalEliminarForo').addEventListener('click', function (event) {
       if (event.target === this) {
         cerrarModalEliminarForo();
+      }
+    });
+
+    // Abrir automáticamente el modal de editar comentario si viene desde la aceptación de un reporte
+    document.addEventListener('DOMContentLoaded', function() {
+      const params = new URLSearchParams(window.location.search);
+      const comentarioIdAEditar = params.get('editarComentario');
+      
+      if (comentarioIdAEditar) {
+        // Buscar el botón "Editar" del comentario
+        const botonEditar = document.querySelector(`[onclick*="editarComentario"][onclick*="'${comentarioIdAEditar}'"]`);
+        
+        if (botonEditar) {
+          // Simular clic en el botón para abrir el modal
+          setTimeout(() => {
+            botonEditar.click();
+          }, 100);
+        }
       }
     });
   </script>

@@ -1,6 +1,7 @@
 "use strict";
 
 const { validationResult } = require('express-validator');
+const bcrypt = require('bcrypt');
 const pool = require('../db'); 
 
 const getPerfilUsuario = (req, res) => {
@@ -236,55 +237,90 @@ const postEditarPerfilUsuario = (req, res) => {
                         }
 
                         // 4. Recuperar contraseña y foto actual
-                        connection.query('SELECT contraseña, foto FROM usuarios WHERE id_usuario = ?', [usuarioId], (err, results) => {
+                        connection.query('SELECT contraseña, foto FROM usuarios WHERE id_usuario = ?', [usuarioId], async (err, results) => {
                             if (err) {
                                 connection.release();
                                 return res.status(500).send('Error al obtener los datos del usuario');
                             }
 
-                            if (password_nueva && results[0].contraseña !== password_actual) {
-                                connection.release();
-                                return res.status(400).render('editarPerfilUsuario', {
-                                    perfil: usuarioActual,
-                                    error: 'La contraseña actual no es correcta',
-                                    errores: []
+                            // Si se proporciona una contraseña nueva, validar la actual
+                            if (password_nueva && password_nueva.trim()) {
+                                try {
+                                    const isPasswordCorrect = await bcrypt.compare(password_actual, results[0].contraseña);
+                                    
+                                    if (!isPasswordCorrect) {
+                                        connection.release();
+                                        return res.status(400).render('editarPerfilUsuario', {
+                                            perfil: usuarioActual,
+                                            error: 'La contraseña actual no es correcta',
+                                            errores: []
+                                        });
+                                    }
+
+                                    // Hashear la nueva contraseña
+                                    const hashedPassword = await bcrypt.hash(password_nueva, 10);
+                                    const fotoFinal = fotoNueva || results[0].foto;
+
+                                    const sql_update = `UPDATE usuarios SET 
+                                        nombre_completo = ?, 
+                                        nombre_usuario = ?,
+                                        correo = ?,
+                                        fecha_nacimiento = ?,
+                                        telefono = ?,
+                                        ciudad = ?,
+                                        pais = ?,
+                                        codigo_postal = ?,
+                                        genero = ?,
+                                        trabajo = ?,
+                                        bio = ?, 
+                                        contraseña = ?,
+                                        foto = ?
+                                    WHERE id_usuario = ?`;
+                                    
+                                    connection.query(sql_update, [nombre_completo, nombre_usuario, correo, fecha_nacimiento, telefono, ciudad, pais, codigo_postal, genero, trabajo, bio, hashedPassword, fotoFinal, usuarioId], (err) => {
+                                        connection.release();
+                                        if (err) {
+                                            console.error('Error al ejecutar la consulta:', err);
+                                            return res.status(500).send('Error al actualizar los datos del usuario');
+                                        }
+                                        res.redirect('/user/perfilUsuario/' + usuarioId);
+                                    });
+                                } catch (error) {
+                                    connection.release();
+                                    console.error('Error al procesar la contraseña:', error);
+                                    return res.status(500).send('Error al procesar la contraseña');
+                                }
+                            } else {
+                                // No cambiar la contraseña, mantener la actual
+                                const contrasenhaFinal = results[0].contraseña;
+                                const fotoFinal = fotoNueva || results[0].foto;
+
+                                const sql_update = `UPDATE usuarios SET 
+                                    nombre_completo = ?, 
+                                    nombre_usuario = ?,
+                                    correo = ?,
+                                    fecha_nacimiento = ?,
+                                    telefono = ?,
+                                    ciudad = ?,
+                                    pais = ?,
+                                    codigo_postal = ?,
+                                    genero = ?,
+                                    trabajo = ?,
+                                    bio = ?, 
+                                    contraseña = ?,
+                                    foto = ?
+                                WHERE id_usuario = ?`;
+                                
+                                connection.query(sql_update, [nombre_completo, nombre_usuario, correo, fecha_nacimiento, telefono, ciudad, pais, codigo_postal, genero, trabajo, bio, contrasenhaFinal, fotoFinal, usuarioId], (err) => {
+                                    connection.release();
+                                    if (err) {
+                                        console.error('Error al ejecutar la consulta:', err);
+                                        return res.status(500).send('Error al actualizar los datos del usuario');
+                                    }
+                                    res.redirect('/user/perfilUsuario/' + usuarioId);
                                 });
                             }
-
-                            const contrasenhaFinal = password_nueva || results[0].contraseña;
-                            const fotoFinal = fotoNueva || results[0].foto;
-
-                            ejecutarUpdate(connection, [nombre_completo, nombre_usuario, correo, fecha_nacimiento, telefono, ciudad, pais, codigo_postal, genero, trabajo, bio, contrasenhaFinal, fotoFinal, usuarioId], res, usuarioId);
                         });
-                    });
-                });
-            });
-
-            function ejecutarUpdate(connection, params, res, usuarioId) {
-                const sql_update = `UPDATE usuarios SET 
-                    nombre_completo = ?, 
-                    nombre_usuario = ?,
-                    correo = ?,
-                    fecha_nacimiento = ?,
-                    telefono = ?,
-                    ciudad = ?,
-                    pais = ?,
-                    codigo_postal = ?,
-                    genero = ?,
-                    trabajo = ?,
-                    bio = ?, 
-                    contraseña = ?,
-                    foto = ?
-                WHERE id_usuario = ?`;
-                connection.query(sql_update, params, (err) => {
-                    connection.release();
-                    if (err) {
-                        console.error('Error al ejecutar la consulta:', err);
-                        return res.status(500).send('Error al actualizar los datos del usuario');
-                    }
-                    res.redirect('/user/perfilUsuario/' + usuarioId);
-                });
-            }
         }); 
     });
 };
@@ -376,56 +412,86 @@ const postEditarPerfilEmpresa = (req, res) => {
                     }
 
                     // 3. Recuperar contraseña y foto actual
-                    connection.query('SELECT contraseña, foto FROM empresas WHERE id_empresa = ?', [empresaId], (err, results) => {
+                    connection.query('SELECT contraseña, foto FROM empresas WHERE id_empresa = ?', [empresaId], async (err, results) => {
                         if (err) {
                             connection.release();
                             return res.status(500).send('Error al obtener los datos de la empresa');
                         }
 
-                        const contrasenhaFinal = password_nueva
-                            ? (results[0].contraseña !== password_actual
-                                ? null  // contraseña incorrecta, se gestiona abajo
-                                : password_nueva)
-                            : results[0].contraseña;
+                        // Si se proporciona una contraseña nueva, validar la actual
+                        if (password_nueva && password_nueva.trim()) {
+                            try {
+                                const isPasswordCorrect = await bcrypt.compare(password_actual, results[0].contraseña);
+                                
+                                if (!isPasswordCorrect) {
+                                    connection.release();
+                                    return res.status(400).render('editarPerfilEmpresa', {
+                                        empresa: empresaActual,
+                                        error: 'La contraseña actual no es correcta',
+                                        errores: []
+                                    });
+                                }
 
-                        if (password_nueva && results[0].contraseña !== password_actual) {
-                            connection.release();
-                            return res.status(400).render('editarPerfilEmpresa', {
-                                empresa: empresaActual,
-                                error: 'La contraseña actual no es correcta',
-                                errores: []
+                                // Hashear la nueva contraseña
+                                const hashedPassword = await bcrypt.hash(password_nueva, 10);
+                                const fotoFinal = fotoNueva || results[0].foto;
+
+                                const sql_update = `UPDATE empresas SET
+                                    nombre = ?,
+                                    correo = ?,
+                                    telefono_contacto = ?,
+                                    CIF = ?,
+                                    tipo = ?,
+                                    tipo_otro = ?,
+                                    ubicacion = ?,
+                                    descripcion = ?,
+                                    contraseña = ?,
+                                    foto = ?
+                                WHERE id_empresa = ?`;
+                                
+                                connection.query(sql_update, [nombre, correo, telefono_contacto, cifNormalizado, tipoSeleccionado, tipoOtroGuardado, ubicacion, descripcion, hashedPassword, fotoFinal, empresaId], (err) => {
+                                    connection.release();
+                                    if (err) {
+                                        console.error('Error al ejecutar la consulta:', err);
+                                        return res.status(500).send('Error al actualizar los datos de la empresa');
+                                    }
+                                    res.redirect('/user/perfilEmpresa/' + empresaId);
+                                });
+                            } catch (error) {
+                                connection.release();
+                                console.error('Error al procesar la contraseña:', error);
+                                return res.status(500).send('Error al procesar la contraseña');
+                            }
+                        } else {
+                            // No cambiar la contraseña, mantener la actual
+                            const contrasenhaFinal = results[0].contraseña;
+                            const fotoFinal = fotoNueva || results[0].foto;
+
+                            const sql_update = `UPDATE empresas SET
+                                nombre = ?,
+                                correo = ?,
+                                telefono_contacto = ?,
+                                CIF = ?,
+                                tipo = ?,
+                                tipo_otro = ?,
+                                ubicacion = ?,
+                                descripcion = ?,
+                                contraseña = ?,
+                                foto = ?
+                            WHERE id_empresa = ?`;
+                            
+                            connection.query(sql_update, [nombre, correo, telefono_contacto, cifNormalizado, tipoSeleccionado, tipoOtroGuardado, ubicacion, descripcion, contrasenhaFinal, fotoFinal, empresaId], (err) => {
+                                connection.release();
+                                if (err) {
+                                    console.error('Error al ejecutar la consulta:', err);
+                                    return res.status(500).send('Error al actualizar los datos de la empresa');
+                                }
+                                res.redirect('/user/perfilEmpresa/' + empresaId);
                             });
                         }
-
-                        const fotoFinal = fotoNueva || results[0].foto;
-
-                        ejecutarUpdate(connection, [nombre, correo, telefono_contacto, cifNormalizado, tipoSeleccionado, tipoOtroGuardado, ubicacion, descripcion, contrasenhaFinal, fotoFinal, empresaId], res, empresaId);
                     });
                 });
             });
-
-            function ejecutarUpdate(connection, params, res, empresaId) {
-                const sql_update = `UPDATE empresas SET
-                    nombre = ?,
-                    correo = ?,
-                    telefono_contacto = ?,
-                    CIF = ?,
-                    tipo = ?,
-                    tipo_otro = ?,
-                    ubicacion = ?,
-                    descripcion = ?,
-                    contraseña = ?,
-                    foto = ?
-                WHERE id_empresa = ?`;
-                connection.query(sql_update, params, (err) => {
-                    connection.release();
-                    if (err) {
-                        console.error('Error al ejecutar la consulta:', err);
-                        return res.status(500).send('Error al actualizar los datos de la empresa');
-                    }
-                    res.redirect('/user/perfilEmpresa/' + empresaId);
-                });
-            }
         }); 
     });
 };
