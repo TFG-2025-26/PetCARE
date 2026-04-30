@@ -24,14 +24,24 @@
             <% if (usuario.rol === 'admin') { %>
             <a href="/admin/adminPanel" class="btn-ghost">Admin</a>
             <% } %>
-          <a href="/user/perfilUsuario/<%= usuario.id %>" class="btn-ghost">Perfil</a>
-            <% } else { %>
-          <a href="/user/perfilEmpresa/<%= usuario.id %>" class="btn-ghost">Perfil</a>
             <% } %>
             <a href="/auth/logout" class="btn-primary">Cerrar sesión</a>
         <% } else { %>
             <a href="/auth/login" class="btn-ghost">Iniciar sesión</a>
             <a href="/auth/register" class="btn-primary">Registrarse</a>
+        <% } %>
+
+        <% if(usuario) { %>
+          <% const urlPerfil = usuario.tipo === 'usuario' ? `/user/perfilUsuario/${usuario.id}` : `/user/perfilEmpresa/${usuario.id}`; %>
+          <a href="<%= urlPerfil %>" class="nav-avatar-link">
+            <div class="nav-avatar">
+              <% if(usuario.foto) { %>
+                <img src="<%= usuario.foto %>" alt="<%= usuario.nombre_usuario || usuario.nombre %>" class="nav-avatar-img">
+              <% } else { %>
+                <span class="nav-avatar-initials"><%= (usuario.nombre_usuario || usuario.nombre || 'U')[0].toUpperCase() %></span>
+              <% } %>
+            </div>
+          </a>
         <% } %>
       </div>
 

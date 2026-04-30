@@ -243,7 +243,8 @@
                 const data = await response.json();
                 if (data.success) {
                   document.getElementById('modalEditarComentario').style.display = 'none';
-                  window.location.reload();
+                  // Redirigir sin el parámetro editarComentario para evitar loop infinito
+                  window.location.href = `/content/foros/${foroId}`;
                   return;
                 }
               }
