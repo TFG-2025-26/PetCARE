@@ -134,7 +134,7 @@ function renderizarEmpresas(listaEmpresas) {
                     <div class="empresa-valoracion">${estrellas} <span>(${valoracionNum})</span></div>
                     <p class="empresa-descripcion">${empresa.descripcion}</p>
                 </div>
-                <a href="/services/empresa/${empresa.id_empresa}" class="btn-ver-empresa">Ver perfil</a>
+                <a href="/user/empresa/${empresa.id_empresa}" class="btn-ver-empresa">Ver perfil</a>
             </div>
         `;
         contenedor.append(card);
