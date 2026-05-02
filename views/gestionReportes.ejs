@@ -75,6 +75,7 @@
               <th>ID</th>
               <th>Tipo</th>
               <th>Motivo</th>
+              <th>Descripción</th>
               <th>Autor del reporte</th>
               <th>Usuario reportado</th>
               <th>Evidencia</th>
@@ -86,12 +87,16 @@
           <tbody>
             <% if (!reportes || reportes.length === 0) { %>
               <tr>
-                <td colspan="9" class="reportes-empty">No hay reportes registrados actualmente.</td>
+                <td colspan="10" class="reportes-empty">No hay reportes registrados actualmente.</td>
               </tr>
             <% } %>
 
             <% (reportes || []).forEach(reporte => {
               const evidencia = reporte.contenido || reporte.titulo || reporte.comentario_valoracion || 'Sin evidencia disponible';
+              const descripcionTexto = reporte.descripcion || 'Sin descripción';
+              const descripcionTruncada = descripcionTexto.length > 30 
+                ? descripcionTexto.substring(0, 27) + '...' 
+                : descripcionTexto;
               const estadoClase = `estado-${(reporte.estado || '').toLowerCase()}`;
               let tipoReporte = 'usuario';
               let tipoClase = 'tipo-usuario';
@@ -117,6 +122,7 @@
                 <td class="reportes-clickable-cell">#<%= reporte.id_reporte %></td>
                 <td class="reportes-clickable-cell"><span class="estado-chip <%= tipoClase %>"><%= tipoReporte %></span></td>
                 <td class="reportes-clickable-cell"><span class="chip-motivo"><%= reporte.motivo %></span></td>
+                <td class="reportes-clickable-cell" title="<%= descripcionTexto %>"><%= descripcionTruncada %></td>
                 <td class="reportes-clickable-cell"><%= reporte.nombre_usuario_autor || 'N/D' %></td>
                 <td class="reportes-clickable-cell"><%= reporte.nombre_usuario_reportado || 'N/D' %></td>
                 <td class="evidencia-cell reportes-clickable-cell"><%= evidencia %></td>

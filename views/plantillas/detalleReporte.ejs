@@ -26,6 +26,12 @@
     <strong>Motivo:</strong>
     <span class="chip-motivo"><%= reporte.motivo %></span>
   </li>
+  <% if (reporte.descripcion) { %>
+  <li>
+    <strong>Descripción:</strong>
+    <span><%= reporte.descripcion %></span>
+  </li>
+  <% } %>
   <li>
     <strong>Estado:</strong>
     <span class="estado-chip estado-<%= reporte.estado %>"><%= reporte.estado %></span>
