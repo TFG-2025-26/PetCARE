@@ -51,5 +51,36 @@ document.addEventListener('DOMContentLoaded', function() {
 			// form.submit();
 		}
 	});
+
+	// Validación en tiempo real del motivo
+	document.addEventListener('change', function(event) {
+		if (event.target.id === 'reportar-motivo') {
+			const selectMotivo = event.target;
+			const errorMotivo = selectMotivo.closest('form').querySelector('#error-motivo');
+
+			if (selectMotivo.value === null || selectMotivo.value === '') {
+				errorMotivo.textContent = 'Debes seleccionar un motivo válido';
+			} else {
+				errorMotivo.textContent = '';
+			}
+		}
+	});
+
+	// Validación en tiempo real de la descripción
+	document.addEventListener('input', function(event) {
+		if (event.target.id === 'reportar-descripcion') {
+			const textareaDescripcion = event.target;
+			const errorDescripcion = textareaDescripcion.closest('form').querySelector('#error-descripcion');
+			const descripcion = textareaDescripcion.value.trim();
+
+			if (descripcion === '') {
+				errorDescripcion.textContent = 'La descripción es obligatoria';
+			} else if (descripcion.length > 255) {
+				errorDescripcion.textContent = 'La descripción no puede superar 255 caracteres';
+			} else {
+				errorDescripcion.textContent = '';
+			}
+		}
+	});
 });
 
