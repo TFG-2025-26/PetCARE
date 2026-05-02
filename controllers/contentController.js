@@ -1040,7 +1040,7 @@ const postReportarForo = (req, res) => {
     const id_autor = usuario ? usuario.id : null;
     const id_foro = parseInt(req.params.id, 10);
     const id_usuario_reportado = parseInt(req.params.id_usuario, 10);
-    const { motivo, fecha } = req.body;
+    const { motivo, fecha, descripcion } = req.body;
     const estado = 'pendiente';
     const motivosPermitidos = ['spam', 'lenguaje_ofensivo', 'contenido_inapropiado', 'informacion_falsa'];
 
@@ -1056,6 +1056,15 @@ const postReportarForo = (req, res) => {
         return res.status(400).send('Motivo de reporte invalido');
     }
 
+    // Validar descripción (obligatoria)
+    const descripcionLimpia = (descripcion || '').trim();
+    if (descripcionLimpia === '') {
+        return res.status(400).send('La descripción es obligatoria');
+    }
+    if (descripcionLimpia.length > 255) {
+        return res.status(400).send('La descripción no puede superar 255 caracteres');
+    }
+
     const fechaReporte = fecha && fecha.trim() ? fecha : new Date().toISOString().slice(0, 19).replace('T', ' ');
 
     pool.getConnection((err, connection) => {
@@ -1066,14 +1075,14 @@ const postReportarForo = (req, res) => {
 
         const sqlInsertReporte = `
             INSERT INTO reportes
-                (motivo, estado, fecha, id_autor, id_usuario_reportado, id_foro, id_comentario, id_valoracion)
+                (motivo, estado, fecha, id_autor, id_usuario_reportado, id_foro, id_comentario, id_valoracion, descripcion)
             VALUES
-                (?, ?, ?, ?, ?, ?, NULL, NULL)
+                (?, ?, ?, ?, ?, ?, NULL, NULL, ?)
         `;
 
         connection.query(
             sqlInsertReporte,
-            [motivo, estado, fechaReporte, id_autor, id_usuario_reportado, id_foro],
+            [motivo, estado, fechaReporte, id_autor, id_usuario_reportado, id_foro, descripcionLimpia],
             (insertErr) => {
                 connection.release();
 
@@ -1082,7 +1091,7 @@ const postReportarForo = (req, res) => {
                     return res.status(500).send('Error al crear el reporte');
                 }
 
-                return res.redirect(`/content/foros/${id_foro}?reporte=ok&tipo=foro`);
+                return res.redirect(`/content/foros/${id_foro}`);
             }
         );
     });
@@ -1116,7 +1125,7 @@ const postReportarComentario = (req, res) => {
     const id_foro = parseInt(req.params.id, 10);
     const id_usuario_reportado = parseInt(req.params.id_usuario, 10);
     const id_comentario = parseInt(req.params.id_comentario, 10);
-    const { motivo, fecha } = req.body;
+    const { motivo, fecha, descripcion } = req.body;
     const estado = 'pendiente';
     const motivosPermitidos = ['spam', 'lenguaje_ofensivo', 'contenido_inapropiado', 'informacion_falsa'];
 
@@ -1132,6 +1141,15 @@ const postReportarComentario = (req, res) => {
         return res.status(400).send('Motivo de reporte invalido');
     }
 
+    // Validar descripción (obligatoria)
+    const descripcionLimpia = (descripcion || '').trim();
+    if (descripcionLimpia === '') {
+        return res.status(400).send('La descripción es obligatoria');
+    }
+    if (descripcionLimpia.length > 255) {
+        return res.status(400).send('La descripción no puede superar 255 caracteres');
+    }
+
     const fechaReporte = fecha && fecha.trim() ? fecha : new Date().toISOString().slice(0, 19).replace('T', ' ');
 
     pool.getConnection((err, connection) => {
@@ -1142,14 +1160,14 @@ const postReportarComentario = (req, res) => {
 
         const sqlInsertReporte = `
             INSERT INTO reportes
-                (motivo, estado, fecha, id_autor, id_usuario_reportado, id_foro, id_comentario, id_valoracion)
+                (motivo, estado, fecha, id_autor, id_usuario_reportado, id_foro, id_comentario, id_valoracion, descripcion)
             VALUES
-                (?, ?, ?, ?, ?, NULL, ?, NULL)
+                (?, ?, ?, ?, ?, NULL, ?, NULL, ?)
         `;
 
         connection.query(
             sqlInsertReporte,
-            [motivo, estado, fechaReporte, id_autor, id_usuario_reportado, id_comentario],
+            [motivo, estado, fechaReporte, id_autor, id_usuario_reportado, id_comentario, descripcionLimpia],
             (insertErr) => {
                 connection.release();
 

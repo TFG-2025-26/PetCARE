@@ -29,53 +29,15 @@
 		<span id="error-motivo" class="error"></span>
 	</div>
 
+	<div class="form-group">
+		<label for="reportar-descripcion">Descripción</label>
+		<textarea id="reportar-descripcion" name="descripcion" placeholder="Proporciona detalles sobre este reporte (máximo 255 caracteres)"><%= reporte.descripcion || '' %></textarea>
+		<span id="error-descripcion" class="error"></span>
+	</div>
+
 	<div class="foro-comentario-actions" style="margin-top: 1rem;">
 		<button type="submit" class="btn-submit" style="width:auto; padding: 0.6rem 1.5rem;">
 			Enviar reporte
 		</button>
 	</div>
 </form>
-
-<script>
-	function cerrarModalReportar() {
-		const modal = document.getElementById('modalReportar');
-		if (modal) {
-			modal.style.display = 'none';
-			return;
-		}
-
-		if (window.history.length > 1) {
-			window.history.back();
-		}
-	}
-
-	// Validación del motivo del reporte
-	document.addEventListener('DOMContentLoaded', function() {
-		const form = document.getElementById('reportarForm');
-		const selectMotivo = document.getElementById('reportar-motivo');
-		const errorMotivo = document.getElementById('error-motivo');
-
-		if (form && selectMotivo) {
-			selectMotivo.addEventListener('change', function() {
-				if (this.value === '' || this.value.trim() === '') {
-					errorMotivo.textContent = 'Elige un motivo válido';
-					errorMotivo.style.display = 'block';
-				} else {
-					errorMotivo.textContent = '';
-					errorMotivo.style.display = 'none';
-				}
-			});
-
-			form.addEventListener('submit', function(event) {
-				const motivoSeleccionado = selectMotivo.value;
-
-				if (motivoSeleccionado === '' || motivoSeleccionado.trim() === '') {
-					event.preventDefault();
-					errorMotivo.textContent = 'Elige un motivo válido';
-					errorMotivo.style.display = 'block';
-					return false;
-				}
-			});
-		}
-	});
-</script>

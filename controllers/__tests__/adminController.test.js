@@ -41,13 +41,15 @@ describe('adminController.filtrarReportes', () => {
         id_reporte: 1,
         tipo: 'usuarios',
         estado: 'pendiente',
-        nombre_usuario_reportado: 'usuario1'
+        nombre_usuario_reportado: 'usuario1',
+        descripcion: 'Descripción del reporte 1'
       },
       {
         id_reporte: 2,
         tipo: 'foros',
         estado: 'aceptado',
-        nombre_usuario_reportado: 'usuario2'
+        nombre_usuario_reportado: 'usuario2',
+        descripcion: null
       }
     ];
 
@@ -79,7 +81,8 @@ describe('adminController.filtrarReportes', () => {
       {
         id_reporte: 1,
         tipo: 'usuarios',
-        estado: 'pendiente'
+        estado: 'pendiente',
+        descripcion: 'Usuario sospechoso'
       }
     ];
 
@@ -110,7 +113,8 @@ describe('adminController.filtrarReportes', () => {
       {
         id_reporte: 2,
         tipo: 'foros',
-        estado: 'pendiente'
+        estado: 'pendiente',
+        descripcion: 'Contenido inapropiado en el foro'
       }
     ];
 
@@ -141,7 +145,8 @@ describe('adminController.filtrarReportes', () => {
       {
         id_reporte: 3,
         tipo: 'comentarios',
-        estado: 'pendiente'
+        estado: 'pendiente',
+        descripcion: 'Comentario ofensivo'
       }
     ];
 
@@ -172,7 +177,8 @@ describe('adminController.filtrarReportes', () => {
       {
         id_reporte: 4,
         tipo: 'valoraciones',
-        estado: 'pendiente'
+        estado: 'pendiente',
+        descripcion: 'Valoración fraudulenta'
       }
     ];
 
