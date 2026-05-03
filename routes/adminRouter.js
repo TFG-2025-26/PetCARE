@@ -217,6 +217,8 @@ router.get('/adminPanel/gestionReportes/filtrar', adminController.filtrarReporte
 router.get('/adminPanel/gestionReportes/:id_reporte', adminController.getDetalleReporte);
 // Rutas específicas ANTES de la ruta genérica
 router.post('/adminPanel/gestionReportes/:id_reporte/acciones/aceptar-valoracion', adminController.aceptarReporteValoracion);
+router.post('/adminPanel/gestionReportes/:id_reporte/acciones/aceptar-valoracion-sin-accion', adminController.aceptarReporteValoracionSinAccion);
+router.post('/adminPanel/gestionReportes/:id_reporte/acciones/aceptar-comentario-sin-accion', adminController.aceptarReporteComentarioSinAccion);
 router.post('/adminPanel/gestionReportes/:id_reporte/acciones/aceptar-comentario-eliminar', adminController.aceptarReporteComentarioEliminar);
 router.post('/adminPanel/gestionReportes/:id_reporte/acciones/aceptar-comentario-modificar', adminController.aceptarReporteComentarioModificar);
 router.post('/adminPanel/gestionReportes/:id_reporte/acciones/aceptar-foro', adminController.aceptarReporteForo);

@@ -1,4 +1,4 @@
-<div class="modal-overlay" id="modalAceptarReporteForom" style="display:none;">
+<div class="modal-overlay" id="modalAceptarReporteForo" style="display:none;">
   <div class="modal-box modal-reporte-confirmacion">
     <div class="modal-header">
       <div class="modal-titulo-icono">
@@ -37,10 +37,10 @@
   function abrirModalAceptarReporteForo(idReporte) {
     const form = document.getElementById('formAceptarReporteForo');
     form.action = `/admin/adminPanel/gestionReportes/${idReporte}/acciones/aceptar-foro`;
-    document.getElementById('modalAceptarReporteForom').style.display = 'flex';
+    document.getElementById('modalAceptarReporteForo').style.display = 'flex';
   }
 
   function cerrarModalAceptarReporteForo() {
-    document.getElementById('modalAceptarReporteForom').style.display = 'none';
+    document.getElementById('modalAceptarReporteForo').style.display = 'none';
   }
 </script>

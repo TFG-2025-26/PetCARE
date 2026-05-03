@@ -2,32 +2,47 @@
   <div class="modal-box modal-reporte-confirmacion">
     <div class="modal-header">
       <div class="modal-titulo-icono">
-        <svg class="modal-icono-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 2L2 20h20L12 2z"></path>
+        <svg class="modal-icono-pregunta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="12 2 15.09 10.26 24 10.26 17.55 16.52 19.64 24.78 12 19.52 4.36 24.78 6.45 16.52 0 10.26 8.91 10.26 12 2"></polygon>
         </svg>
-        <h3>Eliminar Valoración</h3>
+        <h3>¿Qué acción tomar?</h3>
       </div>
       <button class="modal-close" type="button" onclick="cerrarModalAceptarReporteValoracion()">✕</button>
     </div>
-    
+
     <div class="modal-contenido-reporte">
-      <p class="modal-descripcion">Se eliminará definitivamente la valoración reportada de la base de datos.</p>
-      <div class="modal-detalles">
-        <div class="modal-detalle-item">
-          <span class="modal-etiqueta">Acción:</span>
-          <span class="modal-valor modal-valor-peligro">Eliminación permanente</span>
+      <p class="modal-descripcion">Selecciona la acción a tomar sobre la valoración reportada.</p>
+      <div class="modal-opciones">
+        <div class="modal-opcion">
+          <svg class="modal-icono-opcion modal-icono-gris" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"></path>
+          </svg>
+          <div>
+            <strong>Sin acción</strong>
+            <p>Aceptar el reporte sin eliminar la valoración</p>
+          </div>
         </div>
-        <div class="modal-detalle-item">
-          <span class="modal-etiqueta">Resultado:</span>
-          <span class="modal-valor">La valoración no será recuperable</span>
+        <div class="modal-opcion">
+          <svg class="modal-icono-opcion modal-icono-peligro" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 20h20L12 2z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          <div>
+            <strong>Eliminar valoración</strong>
+            <p>La valoración será eliminada permanentemente</p>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="modal-footer modal-footer-reporte">
       <button class="btn-outline-large" type="button" onclick="cerrarModalAceptarReporteValoracion()">Cancelar</button>
+      <form id="formAceptarReporteValoracionSinAccion" method="POST" style="display:inline; margin-left:auto;">
+        <button type="submit" class="btn-outline-large btn-gris">Sin acción</button>
+      </form>
       <form id="formAceptarReporteValoracion" method="POST" style="display:inline;">
-        <button type="submit" class="btn-submit-danger">Confirmar eliminación</button>
+        <button type="submit" class="btn-submit-danger">Eliminar</button>
       </form>
     </div>
   </div>
@@ -35,8 +50,10 @@
 
 <script>
   function abrirModalAceptarReporteValoracion(idReporte) {
-    const form = document.getElementById('formAceptarReporteValoracion');
-    form.action = `/admin/adminPanel/gestionReportes/${idReporte}/acciones/aceptar-valoracion`;
+    document.getElementById('formAceptarReporteValoracion').action =
+      `/admin/adminPanel/gestionReportes/${idReporte}/acciones/aceptar-valoracion`;
+    document.getElementById('formAceptarReporteValoracionSinAccion').action =
+      `/admin/adminPanel/gestionReportes/${idReporte}/acciones/aceptar-valoracion-sin-accion`;
     document.getElementById('modalAceptarReporteValoracion').style.display = 'flex';
   }
 

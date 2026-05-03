@@ -35,9 +35,12 @@
       </div>
     </div>
 
-    <div class="modal-footer modal-footer-reporte modal-footer-dos-columnas">
+    <div class="modal-footer modal-footer-reporte">
       <button class="btn-outline-large" type="button" onclick="cerrarModalAceptarReporteComentario()">Cancelar</button>
-      <button class="btn-outline-large btn-naranja" type="button" onclick="irAModificarComentario()">Modificar</button>
+      <form id="formAceptarReporteComentarioSinAccion" method="POST" style="display:inline; margin-left:auto;">
+        <button type="submit" class="btn-outline-large btn-gris">Sin acción</button>
+      </form>
+      <button class="btn-outline-large btn-naranja" type="button" style="display:inline;" onclick="irAModificarComentario()">Modificar</button>
       <form id="formEliminarReporteComentario" method="POST" style="display:inline;">
         <button type="submit" class="btn-submit-danger">Eliminar</button>
       </form>
@@ -54,6 +57,8 @@
     idComentarioActual = idComentario;
     const form = document.getElementById('formEliminarReporteComentario');
     form.action = `/admin/adminPanel/gestionReportes/${idReporte}/acciones/aceptar-comentario-eliminar`;
+    document.getElementById('formAceptarReporteComentarioSinAccion').action =
+      `/admin/adminPanel/gestionReportes/${idReporte}/acciones/aceptar-comentario-sin-accion`;
     document.getElementById('modalAceptarReporteComentario').style.display = 'flex';
   }
 
