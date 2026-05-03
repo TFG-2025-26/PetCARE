@@ -213,6 +213,7 @@
             </div>
             <textarea class="mv-comentario" id="mvComentario" placeholder="Escribe un comentario opcional..." rows="3" maxlength="500"></textarea>
             <input type="hidden" id="empresa_id" value="<%= empresa.id_empresa %>">
+            <p class="mv-error" id="mvError" style="display:none;"></p>
             <div class="mv-footer">
                 <button class="mv-btn-omitir" type="button" id="btnOmitirValorar">Ahora no</button>
                 <button class="mv-btn-enviar" type="button" id="btnEnviarValorar" disabled>Enviar valoración</button>
@@ -242,6 +243,14 @@
     const mvEstrellas       = document.getElementById('mvEstrellas');
     const mvComentario      = document.getElementById('mvComentario');
     const empresaId           = document.getElementById('empresa_id').value;
+    const mvError             = document.getElementById('mvError');
+
+    function mostrarErrorValorar(msg) {
+        if (mvError) { mvError.textContent = msg; mvError.style.display = 'block'; }
+    }
+    function ocultarErrorValorar() {
+        if (mvError) { mvError.textContent = ''; mvError.style.display = 'none'; }
+    }
 
     // Modal valorar
     function abrirModalValorar() {
@@ -299,6 +308,7 @@
     if (btnEnviarValorar) {
           btnEnviarValorar.addEventListener('click', async () => {
               if (!valoracionSeleccionada) return;
+              ocultarErrorValorar();
               btnEnviarValorar.disabled = true;
               btnEnviarValorar.textContent = 'Enviando...';
               try {
@@ -313,13 +323,18 @@
                   });
                   if (resp.ok) {
                       cerrarModalValorar();
-                      // Recargar la página para mostrar la nueva valoración
                       location.reload();
                   } else {
+                      const data = await resp.json().catch(() => ({}));
+                      const msg = resp.status === 409
+                          ? 'Ya has valorado esta empresa anteriormente.'
+                          : (data.error || 'No se pudo enviar la valoración. Inténtalo de nuevo.');
+                      mostrarErrorValorar(msg);
                       btnEnviarValorar.disabled = false;
                       btnEnviarValorar.textContent = 'Enviar valoración';
                   }
               } catch {
+                  mostrarErrorValorar('Error de conexión. Comprueba tu red e inténtalo de nuevo.');
                   btnEnviarValorar.disabled = false;
                   btnEnviarValorar.textContent = 'Enviar valoración';
               }
