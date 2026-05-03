@@ -24,6 +24,15 @@ function isAdminAuthenticated(req, res, next) {
     return next();
 }
 
+
+function esEmpresa(req, res, next) {
+    if(req.session && req.session.usuario && req.session.usuario.tipo !== 'empresa') {
+        return next();
+    }
+    return denyAccess(next);
+
+}
+
 function esAdmin(usuarioSesion) {
     return !!(usuarioSesion && usuarioSesion.rol === 'admin');
 }
@@ -127,6 +136,7 @@ function isOwnCompanyProfile(req, res, next) {
 module.exports = {
     isAuthenticated,
     isAdminAuthenticated,
+    esEmpresa,
     canViewUserProfile,
     canViewCompanyProfile,
     canEditUserProfile,

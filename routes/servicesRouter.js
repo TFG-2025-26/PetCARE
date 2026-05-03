@@ -6,7 +6,7 @@ const { body } = require('express-validator');
 const servicesController = require('../controllers/servicesController.js');
 const chatController = require('../controllers/chatController.js');
 const citasController = require('../controllers/citasController.js');
-const { isAuthenticated } = require('../middlewares/authMiddleware');
+const { isAuthenticated, esEmpresa } = require('../middlewares/authMiddleware');
 
 const anuncioValidationRules = [
     body('tipo_servicio')
@@ -63,24 +63,24 @@ const anuncioValidationRules = [
 ];
 
 router.get('/', servicesController.getServicios);
-router.get('/anuncios', servicesController.anuncios);
-router.get('/get-anuncios', servicesController.getAnuncios);
-router.get('/mis-anuncios', isAuthenticated, servicesController.misAnuncios);
-router.get('/get-mis-anuncios', isAuthenticated, servicesController.getMisAnuncios);
-router.put('/anuncios/:id/eliminar', isAuthenticated, servicesController.eliminarAnuncio);
-router.put('/anuncios/:id/reactivar', isAuthenticated, servicesController.reactivarAnuncio);
-router.get('/publicar-anuncio', isAuthenticated, servicesController.getPublicarAnuncio);
-router.post('/publicar-anuncio', isAuthenticated, anuncioValidationRules, servicesController.postPublicarAnuncio);
+router.get('/anuncios', esEmpresa, servicesController.anuncios);
+router.get('/get-anuncios', esEmpresa, servicesController.getAnuncios);
+router.get('/mis-anuncios', isAuthenticated, esEmpresa, servicesController.misAnuncios);
+router.get('/get-mis-anuncios', isAuthenticated, esEmpresa, servicesController.getMisAnuncios);
+router.put('/anuncios/:id/eliminar', isAuthenticated, esEmpresa, servicesController.eliminarAnuncio);
+router.put('/anuncios/:id/reactivar', isAuthenticated, esEmpresa, servicesController.reactivarAnuncio);
+router.get('/publicar-anuncio', isAuthenticated, esEmpresa, servicesController.getPublicarAnuncio);
+router.post('/publicar-anuncio', isAuthenticated, esEmpresa, anuncioValidationRules, servicesController.postPublicarAnuncio);
 router.get('/empresas', servicesController.empresas);
 router.get('/get-empresas', servicesController.getEmpresas);
-router.get('/chat', isAuthenticated, chatController.getChatPage);
-router.get('/chat/historial', isAuthenticated, chatController.getHistorial);
-router.get('/chat/archivado', isAuthenticated, chatController.getChatArchivadoPage);
-router.post('/chat/valorar', isAuthenticated, chatController.postValorar);
-router.get('/mis-chats', isAuthenticated, chatController.getMisChats);
-router.get('/mis-chats/data', isAuthenticated, chatController.getMisChatsData);
-router.put('/mis-chats/:id/eliminar', isAuthenticated, chatController.eliminarChat);
-router.get('/citas', isAuthenticated, citasController.getCitas);
-router.put('/citas/:id/cancelar', isAuthenticated, citasController.cancelarCita);
+router.get('/chat', isAuthenticated, esEmpresa, chatController.getChatPage);
+router.get('/chat/historial', isAuthenticated, esEmpresa, chatController.getHistorial);
+router.get('/chat/archivado', isAuthenticated, esEmpresa, chatController.getChatArchivadoPage);
+router.post('/chat/valorar', isAuthenticated, esEmpresa, chatController.postValorar);
+router.get('/mis-chats', isAuthenticated, esEmpresa, chatController.getMisChats);
+router.get('/mis-chats/data', isAuthenticated, esEmpresa, chatController.getMisChatsData);
+router.put('/mis-chats/:id/eliminar', isAuthenticated, esEmpresa, chatController.eliminarChat);
+router.get('/citas', isAuthenticated, esEmpresa, citasController.getCitas);
+router.put('/citas/:id/cancelar', isAuthenticated, esEmpresa, citasController.cancelarCita);
 
 module.exports = router;

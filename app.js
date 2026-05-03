@@ -5,7 +5,7 @@ const session = require('express-session');
 const path = require('path');
 require('dotenv').config();
 const morgan = require('morgan');
-const { isAuthenticated } = require('./middlewares/authMiddleware');
+const { isAuthenticated, esEmpresa } = require('./middlewares/authMiddleware');
 const { createHttpError, getDefaultErrorMessage, getErrorView } = require('./handlers/httpErrors');
 const http = require('http');
 const socketIO = require('socket.io');
@@ -85,8 +85,8 @@ app.get('/sobre-nosotros', (req, res) => {
 
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
-app.use('/pets', isAuthenticated, petRoutes);
-app.use('/content', isAuthenticated, contentRoutes);
+app.use('/pets', isAuthenticated, esEmpresa, petRoutes);
+app.use('/content', isAuthenticated, esEmpresa, contentRoutes);
 app.use('/services', servicesRoutes);
 
 app.use('/admin', isAuthenticated, adminRoutes);
