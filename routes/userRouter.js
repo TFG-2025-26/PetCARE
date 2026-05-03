@@ -176,7 +176,7 @@ const validarEdicionEmpresa = [
 
 router.get('/perfilUsuario/:id', isAuthenticated, canViewUserProfile, userController.getPerfilUsuario);
 router.get('/perfilEmpresa/:id', isAuthenticated, canViewCompanyProfile, userController.getPerfilEmpresa);
-router.get('/empresa/:id', userController.getPerfilEmpresa);
+router.get('/empresa/:id', isAuthenticated, userController.getPerfilEmpresa);
 router.get('/perfilUsuario/:id/editar', isAuthenticated, isOwnUserProfile, userController.getEditarPerfilUsuario);
 router.get('/perfilEmpresa/:id/editar', isAuthenticated, isOwnCompanyProfile, userController.getEditarPerfilEmpresa);
 router.post('/perfilUsuario/:id/editar', isAuthenticated, isOwnUserProfile, upload.single('foto'), validarEdicionUsuario, userController.postEditarPerfilUsuario); 

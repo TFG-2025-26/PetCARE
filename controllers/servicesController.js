@@ -447,6 +447,46 @@ const reactivarAnuncio = (req, res) => {
     });
 };
 
+
+const postValorarEmpresa = (req, res) => {
+    const empresaId = parseInt(req.body.empresa_id);
+    const puntuacion = parseInt(req.body.puntuacion);
+    const comentario = (req.body.comentario || '').trim().substring(0, 500);
+    const id_autor = req.session.usuario.id;
+
+    if (!empresaId || isNaN(puntuacion) || puntuacion < 1 || puntuacion > 5) {
+        return res.status(400).json({ error: 'Datos inválidos' });
+    }
+
+    pool.getConnection((err, connection) => {
+        if (err) return res.status(500).json({ error: 'Error de conexión' });
+        // Comprobar que no haya valoración previa (un autor solo puede valorar una vez a cada destinatario)
+            connection.query(
+                'SELECT id_valoracion FROM valoraciones WHERE id_autor = ? AND id_empresa = ? LIMIT 1',
+                   [id_autor, empresaId],
+                   (err, existing) => {
+                       if (err) { connection.release(); return res.status(500).json({ error: 'Error al verificar' }); }
+                       if (existing.length) {
+                           connection.release();
+                           return res.status(409).json({ error: 'Ya has valorado esta empresa' });
+                       }
+                        connection.query(
+                           'INSERT INTO valoraciones (puntuacion, comentario, id_autor, id_empresa) VALUES (?, ?, ?, ?)',
+                           [puntuacion, comentario || null, id_autor, empresaId],
+                           (err) => {
+                               connection.release();
+                               if (err) return res.status(500).json({ error: 'Error al guardar la valoración' });
+                               res.json({ ok: true });
+                           }
+                       );
+                     }
+            );
+    });
+}
+
+
+
+
 module.exports = {
     anuncios,
     misAnuncios,
@@ -459,5 +499,6 @@ module.exports = {
     postPublicarAnuncio,
     getServicios,
     empresas,
-    getEmpresas
+    getEmpresas,
+    postValorarEmpresa
 };

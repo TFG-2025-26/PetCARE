@@ -137,7 +137,7 @@
         <div class="perfil-section-header">
           <h2>Valoraciones</h2>
           <% if (!esPropia) { %>
-            <a href="#" class="btn-section-add">+ Dejar reseña</a>
+            <button class="btn-section-add" onclick="abrirModalValorar()">+ Dejar reseña</button>
           <% } %>
         </div>
 
@@ -194,6 +194,32 @@
 
     </section>
 
+
+    <!-- Modal valorar servicio -->
+    <div class="mv-overlay" id="modalValorar" style="display:none;">
+        <div class="mv-box">
+            <div class="mv-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </div>
+            <button class="mv-close" type="button" id="btnCerrarModalValorar" aria-label="Omitir">✕</button>
+            <h3 class="mv-titulo">Deja tu valoración 🐾</h3>
+            <p class="mv-desc">Ayuda a la comunidad PetCare compartiendo tu experiencia con esta empresa.</p>
+            <div class="mv-estrellas" id="mvEstrellas">
+                <button class="mv-estrella" type="button" data-valor="1" aria-label="1 estrella">★</button>
+                <button class="mv-estrella" type="button" data-valor="2" aria-label="2 estrellas">★</button>
+                <button class="mv-estrella" type="button" data-valor="3" aria-label="3 estrellas">★</button>
+                <button class="mv-estrella" type="button" data-valor="4" aria-label="4 estrellas">★</button>
+                <button class="mv-estrella" type="button" data-valor="5" aria-label="5 estrellas">★</button>
+            </div>
+            <textarea class="mv-comentario" id="mvComentario" placeholder="Escribe un comentario opcional..." rows="3" maxlength="500"></textarea>
+            <input type="hidden" id="empresa_id" value="<%= empresa.id_empresa %>">
+            <div class="mv-footer">
+                <button class="mv-btn-omitir" type="button" id="btnOmitirValorar">Ahora no</button>
+                <button class="mv-btn-enviar" type="button" id="btnEnviarValorar" disabled>Enviar valoración</button>
+            </div>
+        </div>
+    </div>
+
   </main>
 
   <%- include('plantillas/modalEliminarCuenta', { usuario: empresa, tipo: 'empresa' }) %>
@@ -207,6 +233,98 @@
     function cerrarModalEliminar() {
         document.getElementById('modalEliminar').style.display = 'none';
     }
+
+
+    const modalValorar      = document.getElementById('modalValorar');
+    const btnCerrarValorar  = document.getElementById('btnCerrarModalValorar');
+    const btnOmitirValorar  = document.getElementById('btnOmitirValorar');
+    const btnEnviarValorar  = document.getElementById('btnEnviarValorar');
+    const mvEstrellas       = document.getElementById('mvEstrellas');
+    const mvComentario      = document.getElementById('mvComentario');
+    const empresaId           = document.getElementById('empresa_id').value;
+
+    // Modal valorar
+    function abrirModalValorar() {
+        document.getElementById('modalValorar').style.display = 'flex';
+    }
+
+    function cerrarModalValorar() {
+        document.getElementById('modalValorar').style.display = 'none';
+        valoracionSeleccionada = 0;
+        if (btnEnviarValorar) btnEnviarValorar.disabled = true;
+        if (mvComentario) mvComentario.value = '';
+        if (mvEstrellas) {
+            const estrellas = mvEstrellas.querySelectorAll('.mv-estrella');
+            estrellas.forEach(s => s.classList.remove('activa'));
+        }
+    }
+
+    // Interacción con las estrellas
+    if (mvEstrellas) {
+        const estrellas = mvEstrellas.querySelectorAll('.mv-estrella');
+
+        mvEstrellas.addEventListener('mouseover', (e) => {
+            const btn = e.target.closest('.mv-estrella');
+            if (!btn) return;
+            const valor = parseInt(btn.dataset.valor);
+            estrellas.forEach((s, i) => s.classList.toggle('activa', i < valor));
+        });
+
+        mvEstrellas.addEventListener('mouseout', () => {
+            estrellas.forEach((s, i) => s.classList.toggle('activa', i < valoracionSeleccionada));
+        });
+
+        mvEstrellas.addEventListener('click', (e) => {
+            const btn = e.target.closest('.mv-estrella');
+            if (!btn) return;
+            valoracionSeleccionada = parseInt(btn.dataset.valor);
+            estrellas.forEach((s, i) => s.classList.toggle('activa', i < valoracionSeleccionada));
+            if (btnEnviarValorar) btnEnviarValorar.disabled = false;
+        });
+    }
+
+    // Cerrar modal valorar
+    if (btnCerrarModalValorar) {
+        btnCerrarModalValorar.addEventListener('click', () => {
+            document.getElementById('modalValorar').style.display = 'none';
+        });
+    }
+    if (btnOmitirValorar) {
+        btnOmitirValorar.addEventListener('click', () => {
+            document.getElementById('modalValorar').style.display = 'none';
+        });
+    }
+
+
+    if (btnEnviarValorar) {
+          btnEnviarValorar.addEventListener('click', async () => {
+              if (!valoracionSeleccionada) return;
+              btnEnviarValorar.disabled = true;
+              btnEnviarValorar.textContent = 'Enviando...';
+              try {
+                  const resp = await fetch('/services/empresa/valorar', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                          empresa_id: empresaId,
+                          puntuacion: valoracionSeleccionada,
+                          comentario: mvComentario ? mvComentario.value.trim() : ''
+                      })
+                  });
+                  if (resp.ok) {
+                      cerrarModalValorar();
+                      // Recargar la página para mostrar la nueva valoración
+                      location.reload();
+                  } else {
+                      btnEnviarValorar.disabled = false;
+                      btnEnviarValorar.textContent = 'Enviar valoración';
+                  }
+              } catch {
+                  btnEnviarValorar.disabled = false;
+                  btnEnviarValorar.textContent = 'Enviar valoración';
+              }
+          });
+      }
   </script>
 
 </body>
