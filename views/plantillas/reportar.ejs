@@ -1,6 +1,6 @@
 <div class="foro-detalle-header">
 	<div class="foro-detalle-top">
-		<h2 class="foro-detalle-titulo">Reportar <%= tipo === 'foro' ? 'foro' : 'comentario' %></h2>
+		<h2 class="foro-detalle-titulo">Reportar <%= tipo === 'foro' ? 'foro' : tipo === 'comentario' ? 'comentario' : 'valoración' %></h2>
 		<button class="foro-detalle-cerrar" type="button" onclick="cerrarModalReportar()">✕</button>
 	</div>
 </div>
@@ -15,6 +15,10 @@
 
 	<% if (tipo === 'comentario') { %>
 		<input type="hidden" name="id_comentario" value="<%= reporte.id_comentario %>">
+	<% } %>
+
+	<% if (tipo === 'valoracion') { %>
+		<input type="hidden" name="id_valoracion" value="<%= reporte.id_valoracion %>">
 	<% } %>
 
 	<div class="form-group">

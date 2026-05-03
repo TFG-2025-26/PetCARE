@@ -6,50 +6,73 @@ const pool = require('../db');
 
 const getPerfilUsuario = (req, res) => {
     pool.getConnection((err, connection) => {
-        // Comprobar errores de conexión
         if (err) {
-            console.error('Error al obtener la conexión a la base de datos:', err); 
-            return res.status(500).send('Error al obtener la conexión a la base de datos'); 
+            console.error('Error al obtener la conexión a la base de datos:', err);
+            return res.status(500).send('Error al obtener la conexión a la base de datos');
         }
 
-        const usuarioId = parseInt(req.params.id, 10); 
-        connection.query('SELECT * FROM usuarios WHERE id_usuario = ?', [usuarioId], (err, results) => {
-            
+        const usuarioId = parseInt(req.params.id, 10);
 
-            if (err) { // Comprobar errores de consulta
-                connection.release(); 
-                console.error('Error al ejecutar la consulta:', err); 
-                return res.status(500).send('Error al recuperar los datos del usuario'); 
+        connection.query('SELECT * FROM usuarios WHERE id_usuario = ?', [usuarioId], (err, results) => {
+            if (err) {
+                connection.release();
+                console.error('Error al ejecutar la consulta:', err);
+                return res.status(500).send('Error al recuperar los datos del usuario');
             }
 
-            if (results.length === 0) { // Comprobar si el usuario existe
-                connection.release(); 
-                return res.status(404).send('Usuario no encontrado'); 
-            } else if (results[0].activo === 0) { // Comprobar si el usuario está activo
-                connection.release(); 
+            if (results.length === 0) {
+                connection.release();
+                return res.status(404).send('Usuario no encontrado');
+            } else if (results[0].activo === 0) {
+                connection.release();
                 return res.status(403).send('Cuenta de usuario inactiva');
             }
 
             connection.query('SELECT * FROM mascotas WHERE id_usuario = ?', [usuarioId], (err, mascotas) => {
-                connection.release(); 
                 if (err) {
+                    connection.release();
                     console.error('Error al recuperar las mascotas del usuario:', err);
                     return res.status(500).send('Error al recuperar las mascotas del usuario');
                 }
 
-                const usuarioSesion = req.session && req.session.usuario ? req.session.usuario : null;
-                const esPropia = !!(usuarioSesion && usuarioSesion.tipo === 'usuario' && Number(usuarioSesion.id) === usuarioId);
-                const puedeEditar = esPropia;
+                // Valoraciones recibidas por este usuario, con el nombre del autor
+                const queryValoraciones = `
+                    SELECT v.id_valoracion, v.puntuacion, v.comentario, v.id_autor,
+                           u.nombre_usuario AS autor_nombre, u.nombre_completo AS autor_nombre_completo
+                    FROM valoraciones v
+                    LEFT JOIN usuarios u ON v.id_autor = u.id_usuario
+                    WHERE v.id_destinatario = ?
+                    ORDER BY v.id_valoracion DESC
+                `;
 
-                res.render('perfilUsuario', {
-                    perfil: results[0],
-                    mascotas: mascotas,
-                    esPropia,
-                    puedeEditar
+                connection.query(queryValoraciones, [usuarioId], (err, valoraciones) => {
+                    connection.release();
+                    if (err) {
+                        console.error('Error al recuperar las valoraciones del usuario:', err);
+                        return res.status(500).send('Error al recuperar las valoraciones del usuario');
+                    }
+
+                    const mediaValoraciones = valoraciones.length > 0
+                        ? Math.round((valoraciones.reduce((sum, v) => sum + v.puntuacion, 0) / valoraciones.length) * 10) / 10
+                        : null;
+
+                    const usuarioSesion = req.session && req.session.usuario ? req.session.usuario : null;
+                    const esPropia = !!(usuarioSesion && usuarioSesion.tipo === 'usuario' && Number(usuarioSesion.id) === usuarioId);
+                    const puedeEditar = esPropia;
+
+                    res.render('perfilUsuario', {
+                        perfil: results[0],
+                        mascotas,
+                        valoraciones,
+                        mediaValoraciones,
+                        esPropia,
+                        puedeEditar,
+                        usuarioSesion
+                    });
                 });
-            }); 
-        })
-    })
+            });
+        });
+    });
 };
 
 const getPerfilEmpresa = (req, res) => {
@@ -537,6 +560,85 @@ const postEliminarCuentaEmpresa = (req, res) => {
     });
 }
 
+const getReportarValoracion = (req, res) => {
+    const esAjax = req.xhr || req.get('X-Requested-With') === 'XMLHttpRequest';
+    if (!esAjax) {
+        return res.redirect(`/user/perfilUsuario/${req.params.id_perfil}`);
+    }
+
+    res.render('plantillas/reportar', {
+        usuario: req.session.usuario || null,
+        tipo: 'valoracion',
+        action: `/user/perfilUsuario/${req.params.id_perfil}/valoracion/${req.params.id_valoracion}/usuario/${req.params.id_autor}/reportar`,
+        error: null,
+        errores: [],
+        reporte: {
+            motivo: '',
+            fecha: new Date().toISOString().slice(0, 19).replace('T', ' '),
+            id_usuario_reportado: req.params.id_autor,
+            id_foro: null,
+            id_comentario: null,
+            id_valoracion: req.params.id_valoracion
+        }
+    });
+};
+
+const postReportarValoracion = (req, res) => {
+    const usuario = req.session.usuario;
+    const id_autor = usuario ? usuario.id : null;
+    const id_perfil = parseInt(req.params.id_perfil, 10);
+    const id_valoracion = parseInt(req.params.id_valoracion, 10);
+    const id_usuario_reportado = parseInt(req.params.id_autor, 10);
+    const { motivo, fecha, descripcion } = req.body;
+    const estado = 'pendiente';
+    const motivosPermitidos = ['spam', 'lenguaje_ofensivo', 'contenido_inapropiado', 'informacion_falsa'];
+
+    if (!id_autor) {
+        return res.status(401).send('Debes iniciar sesion para reportar contenido');
+    }
+
+    if (Number.isNaN(id_valoracion) || Number.isNaN(id_usuario_reportado)) {
+        return res.status(400).send('Parametros invalidos');
+    }
+
+    if (!motivo || !motivosPermitidos.includes(motivo)) {
+        return res.status(400).send('Motivo de reporte invalido');
+    }
+
+    const descripcionLimpia = (descripcion || '').trim();
+    if (descripcionLimpia === '') {
+        return res.status(400).send('La descripción es obligatoria');
+    }
+    if (descripcionLimpia.length > 255) {
+        return res.status(400).send('La descripción no puede superar 255 caracteres');
+    }
+
+    const fechaReporte = fecha && fecha.trim() ? fecha : new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al conectar a la base de datos:', err);
+            return res.status(500).send('Error al conectar a la base de datos');
+        }
+
+        const sql = `
+            INSERT INTO reportes
+                (motivo, estado, fecha, id_autor, id_usuario_reportado, id_foro, id_comentario, id_valoracion, descripcion)
+            VALUES
+                (?, ?, ?, ?, ?, NULL, NULL, ?, ?)
+        `;
+
+        connection.query(sql, [motivo, estado, fechaReporte, id_autor, id_usuario_reportado, id_valoracion, descripcionLimpia], (insertErr) => {
+            connection.release();
+            if (insertErr) {
+                console.error('Error al crear el reporte de la valoracion:', insertErr);
+                return res.status(500).send('Error al crear el reporte');
+            }
+            return res.redirect(`/user/perfilUsuario/${id_perfil}?reporte=ok&tipo=valoracion`);
+        });
+    });
+};
+
 module.exports = {
     getPerfilUsuario,
     getPerfilEmpresa, 
@@ -545,5 +647,7 @@ module.exports = {
     postEditarPerfilUsuario, 
     postEditarPerfilEmpresa, 
     postEliminarCuentaUsuario,
-    postEliminarCuentaEmpresa
+    postEliminarCuentaEmpresa, 
+    getReportarValoracion,
+    postReportarValoracion
 };

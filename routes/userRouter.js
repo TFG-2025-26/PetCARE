@@ -182,5 +182,7 @@ router.post('/perfilUsuario/:id/editar', isAuthenticated, isOwnUserProfile, uplo
 router.post('/perfilEmpresa/:id/editar', isAuthenticated, isOwnCompanyProfile, upload.single('foto'), validarEdicionEmpresa, userController.postEditarPerfilEmpresa);
 router.get('/eliminarCuentaUsuario/:id', isAuthenticated, isOwnUserProfile, userController.postEliminarCuentaUsuario);
 router.get('/eliminarCuentaEmpresa/:id', isAuthenticated, isOwnCompanyProfile, userController.postEliminarCuentaEmpresa);
+router.get('/perfilUsuario/:id_perfil/valoracion/:id_valoracion/usuario/:id_autor/reportar', userController.getReportarValoracion);
+router.post('/perfilUsuario/:id_perfil/valoracion/:id_valoracion/usuario/:id_autor/reportar', userController.postReportarValoracion);
 
 module.exports = router; 

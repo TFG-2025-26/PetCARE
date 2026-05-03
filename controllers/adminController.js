@@ -981,6 +981,46 @@ const aceptarReporteValoracion = (req, res) => {
     });
 };
 
+const aceptarReporteValoracionSinAccion = (req, res) => {
+    const { id_reporte } = req.params;
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al conectar a la base de datos: ', err);
+            return res.status(500).send('Error al conectar a la base de datos');
+        }
+
+        connection.query('UPDATE reportes SET estado = ? WHERE id_reporte = ?', ['aceptado', id_reporte], (err) => {
+            connection.release();
+            if (err) {
+                console.error('Error al actualizar el reporte: ', err);
+                return res.status(500).send('Error al actualizar el reporte');
+            }
+            res.redirect('/admin/adminPanel/gestionReportes');
+        });
+    });
+};
+
+const aceptarReporteComentarioSinAccion = (req, res) => {
+    const { id_reporte } = req.params;
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error al conectar a la base de datos: ', err);
+            return res.status(500).send('Error al conectar a la base de datos');
+        }
+
+        connection.query('UPDATE reportes SET estado = ? WHERE id_reporte = ?', ['aceptado', id_reporte], (err) => {
+            connection.release();
+            if (err) {
+                console.error('Error al actualizar el reporte: ', err);
+                return res.status(500).send('Error al actualizar el reporte');
+            }
+            res.redirect('/admin/adminPanel/gestionReportes');
+        });
+    });
+};
+
 const aceptarReporteComentarioEliminar = (req, res) => {
     const { id_reporte } = req.params;
 
@@ -1277,6 +1317,8 @@ module.exports = {
     getDetalleReporte,
     aplicarAccionReporte,
     aceptarReporteValoracion,
+    aceptarReporteValoracionSinAccion,
+    aceptarReporteComentarioSinAccion, 
     aceptarReporteComentarioEliminar,
     aceptarReporteComentarioModificar,
     aceptarReporteForo,

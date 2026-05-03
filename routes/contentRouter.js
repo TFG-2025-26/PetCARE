@@ -37,5 +37,4 @@ router.post('/foros/:id/usuario/:id_usuario/reportar', isAuthenticated, contentC
 router.get('/foros/:id/usuario/:id_usuario/comentario/:id_comentario/reportar', isAuthenticated, contentController.getReportarComentario);
 router.post('/foros/:id/usuario/:id_usuario/comentario/:id_comentario/reportar', isAuthenticated, contentController.postReportarComentario);
 
-
 module.exports = router;
