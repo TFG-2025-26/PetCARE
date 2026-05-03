@@ -26,10 +26,10 @@ function isAdminAuthenticated(req, res, next) {
 
 
 function esEmpresa(req, res, next) {
-    if(req.session && req.session.usuario && req.session.usuario.tipo !== 'empresa') {
-        return next();
+    if(req.session && req.session.usuario && req.session.usuario.tipo === 'empresa') {
+        return denyAccess(next);
     }
-    return denyAccess(next);
+    return next();
 
 }
 

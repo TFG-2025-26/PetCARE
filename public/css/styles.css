@@ -174,7 +174,7 @@ nav { position: sticky; top: 0; left: 0; right: 0; z-index: 100; display: flex; 
 .btn-perfil-danger, .btn-danger { font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; color: var(--danger); background: none; border: 1.5px solid rgba(192,57,43,0.3); cursor: pointer; text-decoration: none; padding: 0.7rem 1rem; border-radius: var(--radius-pill); text-align: center; transition: background 0.2s, border-color 0.2s; }
 .btn-perfil-danger:hover, .btn-danger:hover { background: var(--danger-bg); border-color: var(--danger); }
 
-.btn-section-add { font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 500; color: var(--amber); text-decoration: none; background: rgba(200,135,58,0.1); padding: 0.3rem 0.9rem; border-radius: var(--radius-pill); transition: background 0.2s; }
+.btn-section-add { font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 500; color: var(--amber); text-decoration: none; background: rgba(200,135,58,0.1); padding: 0.3rem 0.9rem; border-radius: var(--radius-pill); transition: background 0.2s; border: none; cursor: pointer; }
 .btn-section-add:hover { background: rgba(200,135,58,0.2); }
 
 .btn-filtro { font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; color: var(--white); background: var(--brown); border: none; cursor: pointer; padding: 0.65rem 1.4rem; border-radius: var(--radius-pill); transition: background 0.2s; white-space: nowrap; }
