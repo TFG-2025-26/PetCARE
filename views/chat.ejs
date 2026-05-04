@@ -28,6 +28,11 @@
                     <h2><%= usuarioDestino.nombre %></h2>
                     <span class="estado" id="estado">Conectando...</span>
                 </div>
+                <!-- Botón para reportar al usuario -->
+                <button id="btnReportarUsuario" class="btn-reportar-usuario" type="button" title="Reportar a <%= usuarioDestino.nombre %>">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/></svg>
+                    Reportar
+                </button>
             </div>
             <% if (chatActivo) { %>
             <button id="btnFinalizarServicio"
@@ -242,6 +247,53 @@
             <div class="mv-footer">
                 <button class="mv-btn-omitir" type="button" id="btnOmitirValorar">Ahora no</button>
                 <button class="mv-btn-enviar" type="button" id="btnEnviarValorar" disabled>Enviar valoración</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal reportar usuario -->
+    <div class="mr-overlay" id="modalReportarUsuario" style="display:none;">
+        <div class="mr-box">
+            <div class="mr-header">
+                <h2 class="mr-titulo">Reportar a <%= usuarioDestino.nombre %></h2>
+                <button class="mr-close" type="button" id="btnCerrarModalReportar" aria-label="Cerrar">✕</button>
+            </div>
+            <form id="formReportarUsuario" novalidate>
+                <div class="mr-field">
+                    <label class="mr-label" for="mr-motivo">Motivo</label>
+                    <select class="mr-select" id="mr-motivo" name="motivo">
+                        <option value="" disabled selected>Selecciona un motivo</option>
+                        <option value="spam">Spam</option>
+                        <option value="lenguaje_ofensivo">Lenguaje ofensivo</option>
+                        <option value="contenido_inapropiado">Contenido inapropiado</option>
+                        <option value="informacion_falsa">Información falsa</option>
+                    </select>
+                    <span class="mr-error" id="mr-error-motivo"></span>
+                </div>
+                <div class="mr-field">
+                    <label class="mr-label" for="mr-descripcion">Descripción <span class="mr-opcional">(opcional)</span></label>
+                    <textarea class="mr-textarea" id="mr-descripcion" name="descripcion" rows="3" maxlength="255" placeholder="Proporciona detalles adicionales sobre el comportamiento..."></textarea>
+                    <span class="mr-error" id="mr-error-descripcion"></span>
+                </div>
+                <div class="mr-footer">
+                    <button class="mr-btn-cancelar" type="button" id="btnCancelarReportar">Cancelar</button>
+                    <button class="mr-btn-enviar" type="submit" id="btnEnviarReporte">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/></svg>
+                        Enviar reporte
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal feedback reporte (éxito / error) -->
+    <div class="mrf-overlay" id="modalFeedbackReporte" style="display:none;">
+        <div class="mrf-box">
+            <div class="mrf-icon-wrap" id="mrf-icon"></div>
+            <h3 class="mrf-titulo" id="mrf-titulo"></h3>
+            <p class="mrf-desc" id="mrf-desc"></p>
+            <div class="mrf-footer">
+                <button class="mrf-btn-cerrar" type="button" id="btnCerrarFeedbackReporte">Entendido</button>
             </div>
         </div>
     </div>

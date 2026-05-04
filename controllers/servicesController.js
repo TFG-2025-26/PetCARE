@@ -487,6 +487,53 @@ const postValorarEmpresa = (req, res) => {
 
 
 
+const postReportarUsuario = (req, res) => {
+    const id_usuario_reportado = parseInt(req.body.id_usuario_reportado);
+    const motivo = req.body.motivo;
+    const descripcion = (req.body.descripcion || '').trim().substring(0, 255) || null;
+    const id_autor = req.session.usuario.id;
+
+    const motivosValidos = ['spam', 'lenguaje_ofensivo', 'contenido_inapropiado', 'informacion_falsa'];
+
+    if (!id_usuario_reportado || isNaN(id_usuario_reportado)) {
+        return res.status(400).json({ error: 'Usuario reportado no válido' });
+    }
+    if (id_autor === id_usuario_reportado) {
+        return res.status(400).json({ error: 'No puedes reportarte a ti mismo' });
+    }
+    if (!motivo || !motivosValidos.includes(motivo)) {
+        return res.status(400).json({ error: 'Debes seleccionar un motivo válido' });
+    }
+
+    pool.getConnection((err, connection) => {
+        if (err) return res.status(500).json({ error: 'Error de conexión' });
+
+        connection.query(
+            'SELECT id_reporte FROM reportes WHERE id_autor = ? AND id_usuario_reportado = ? AND id_foro IS NULL AND id_comentario IS NULL AND id_valoracion IS NULL LIMIT 1',
+            [id_autor, id_usuario_reportado],
+            (err, existing) => {
+                if (err) { connection.release(); return res.status(500).json({ error: 'Error al verificar el reporte' }); }
+                if (existing.length) {
+                    connection.release();
+                    return res.status(409).json({ error: 'Ya has reportado a este usuario anteriormente' });
+                }
+
+                const fecha = new Date();
+                connection.query(
+                    'INSERT INTO reportes (motivo, descripcion, estado, fecha, id_autor, id_usuario_reportado, id_foro, id_comentario, id_valoracion) VALUES (?, ?, ?, ?, ?, ?, NULL, NULL, NULL)',
+                    [motivo, descripcion, 'pendiente', fecha, id_autor, id_usuario_reportado],
+                    (err) => {
+                        connection.release();
+                        console.log(err);
+                        if (err) return res.status(500).json({ error: 'Error al guardar el reporte' });
+                        res.json({ ok: true });
+                    }
+                );
+            }
+        );
+    });
+};
+
 module.exports = {
     anuncios,
     misAnuncios,
@@ -500,5 +547,6 @@ module.exports = {
     getServicios,
     empresas,
     getEmpresas,
-    postValorarEmpresa
+    postValorarEmpresa,
+    postReportarUsuario
 };
