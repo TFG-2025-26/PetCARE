@@ -767,7 +767,7 @@ ALTER TABLE `valoraciones`
 --
 ALTER TABLE `reportes`
   ADD CONSTRAINT `chk_un_solo_objetivo`
-  CHECK ((`id_foro` IS NOT NULL) + (`id_comentario` IS NOT NULL) + (`id_valoracion` IS NOT NULL) = 1);
+  CHECK ((`id_foro` IS NOT NULL) + (`id_comentario` IS NOT NULL) + (`id_valoracion` IS NOT NULL) <= 1);
 
 --
 -- CHECK constraint para la tabla `valoraciones`

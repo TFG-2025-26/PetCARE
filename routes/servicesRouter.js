@@ -83,5 +83,6 @@ router.put('/mis-chats/:id/eliminar', isAuthenticated, esEmpresa, chatController
 router.get('/citas', isAuthenticated, esEmpresa, citasController.getCitas);
 router.put('/citas/:id/cancelar', isAuthenticated, esEmpresa, citasController.cancelarCita);
 router.post('/empresa/valorar', isAuthenticated, esEmpresa, servicesController.postValorarEmpresa);
+router.post('/usuario/reportar', isAuthenticated, esEmpresa, servicesController.postReportarUsuario);
 
 module.exports = router;

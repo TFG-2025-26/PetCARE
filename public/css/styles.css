@@ -4472,6 +4472,280 @@ footer, .footer {
 .btn-abrir-valorar:hover { opacity: 0.85; }
 
 /* ══════════════════════════════════════════
+   REPORTAR USUARIO (chat)
+   (mr-* = modal-reportar)
+══════════════════════════════════════════ */
+
+/* ── Botón reportar en header del chat ── */
+.btn-reportar-usuario {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--muted);
+    background: none;
+    border: 1.5px solid rgba(122,101,88,0.2);
+    border-radius: var(--radius-pill);
+    padding: 0.35rem 0.85rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+.btn-reportar-usuario:hover {
+    color: var(--danger);
+    border-color: rgba(192,57,43,0.35);
+    background: var(--danger-bg);
+}
+
+/* ── Overlay ── */
+.mr-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    animation: fadeIn 0.2s ease both;
+}
+
+/* ── Caja del modal ── */
+.mr-box {
+    position: relative;
+    background: var(--white);
+    border-radius: 24px;
+    box-shadow: var(--shadow-lg);
+    padding: 2rem;
+    width: 90%;
+    max-width: 600px;
+    text-align: left;
+    animation: fadeUp 0.3s ease both;
+}
+
+/* ── Cabecera (título + cerrar) ── */
+.mr-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.2rem;
+}
+
+/* ── Botón cerrar ── */
+.mr-close {
+    background: var(--warm);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s;
+    flex-shrink: 0;
+}
+.mr-close:hover { background: var(--amber); color: var(--white); }
+
+/* ── Título ── */
+.mr-titulo {
+    font-family: 'Fraunces', serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--brown);
+    letter-spacing: -0.02em;
+    margin: 0;
+    line-height: 1.2;
+}
+
+/* ── Campos del formulario ── */
+.mr-field {
+    text-align: left;
+    margin-bottom: 1rem;
+}
+
+.mr-label {
+    display: block;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--brown);
+    margin-bottom: 0.35rem;
+}
+
+.mr-required { color: var(--danger); margin-left: 2px; }
+.mr-opcional { font-weight: 400; color: var(--muted); font-size: 0.8rem; }
+
+.mr-select {
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--brown);
+    background: var(--warm);
+    border: 1.5px solid transparent;
+    border-radius: 12px;
+    padding: 0.65rem 1rem;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    appearance: auto;
+}
+.mr-select:focus { border-color: var(--amber); }
+
+.mr-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--brown);
+    background: var(--warm);
+    border: 1.5px solid transparent;
+    border-radius: 12px;
+    padding: 0.65rem 1rem;
+    resize: vertical;
+    min-height: 80px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.mr-textarea:focus { border-color: var(--amber); }
+.mr-textarea::placeholder { color: var(--muted); opacity: 0.7; }
+
+.mr-error {
+    display: block;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    color: var(--danger);
+    margin-top: 0.3rem;
+    min-height: 1rem;
+}
+
+/* ── Footer del modal ── */
+.mr-footer {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-top: 1.4rem;
+}
+
+.mr-btn-cancelar {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--muted);
+    background: var(--warm);
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: 0.7rem 1.5rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.mr-btn-cancelar:hover { background: #e8ddd4; color: var(--brown); }
+
+.mr-btn-enviar {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--white);
+    background: var(--amber);
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: 0.7rem 1.5rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: background 0.2s, opacity 0.2s;
+    box-shadow: 0 4px 20px rgba(200,135,58,0.3);
+}
+.mr-btn-enviar:hover:not(:disabled) { background: var(--amber-light); }
+.mr-btn-enviar:disabled { opacity: 0.45; cursor: default; }
+
+/* ══════════════════════════════════════════
+   FEEDBACK REPORTE (éxito / error)
+   (mrf-* = modal-reporte-feedback)
+══════════════════════════════════════════ */
+.mrf-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(30, 18, 10, 0.52);
+    z-index: 1300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    animation: fadeIn 0.18s ease both;
+}
+
+.mrf-box {
+    position: relative;
+    background: var(--white);
+    border-radius: 20px;
+    box-shadow: 0 12px 40px rgba(61,43,31,0.18), 0 2px 8px rgba(61,43,31,0.08);
+    padding: 2.2rem 2rem 1.8rem;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    animation: fadeUp 0.25s ease both;
+    border-top: 3px solid var(--amber);
+}
+
+.mrf-icon-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+}
+.mrf-icon-ok {
+    background: rgba(39,174,96,0.1);
+    color: #27ae60;
+}
+.mrf-icon-err {
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+
+.mrf-titulo {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--brown);
+    margin: 0 0 0.55rem;
+}
+
+.mrf-desc {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.55;
+    margin: 0 0 1.6rem;
+}
+
+.mrf-footer { display: flex; justify-content: center; }
+
+.mrf-btn-cerrar {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--white);
+    background: var(--amber);
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: 0.7rem 2rem;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+.mrf-btn-cerrar:hover { opacity: 0.88; }
+
+/* ══════════════════════════════════════════
    MIS ANUNCIOS — botón eliminar + modal
    (mea-* = modal-eliminar-anuncio)
 ══════════════════════════════════════════ */

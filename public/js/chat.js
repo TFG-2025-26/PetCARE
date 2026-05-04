@@ -816,3 +816,127 @@ document.addEventListener('click', (e) => {
     if (e.target.closest('#btnAbrirValorar')) abrirModalValorar();
 });
 
+// ─── REPORTAR USUARIO ─────────────────────────────────────────────────────────
+
+const btnReportarUsuario      = document.getElementById('btnReportarUsuario');
+const modalReportarUsuario    = document.getElementById('modalReportarUsuario');
+const btnCerrarModalReportar  = document.getElementById('btnCerrarModalReportar');
+const btnCancelarReportar     = document.getElementById('btnCancelarReportar');
+const formReportarUsuario     = document.getElementById('formReportarUsuario');
+const mrMotivo                = document.getElementById('mr-motivo');
+const mrDescripcion           = document.getElementById('mr-descripcion');
+const mrErrorMotivo           = document.getElementById('mr-error-motivo');
+const mrErrorDescripcion      = document.getElementById('mr-error-descripcion');
+
+const modalFeedbackReporte    = document.getElementById('modalFeedbackReporte');
+const mfrIcono                = document.getElementById('mrf-icon');
+const mfrTitulo               = document.getElementById('mrf-titulo');
+const mfrDesc                 = document.getElementById('mrf-desc');
+const btnCerrarFeedback       = document.getElementById('btnCerrarFeedbackReporte');
+
+function abrirModalReportar() {
+    if (modalReportarUsuario) {
+        formReportarUsuario.reset();
+        if (mrErrorMotivo)     mrErrorMotivo.textContent = '';
+        if (mrErrorDescripcion) mrErrorDescripcion.textContent = '';
+        modalReportarUsuario.style.display = 'flex';
+    }
+}
+
+function cerrarModalReportar() {
+    if (modalReportarUsuario) modalReportarUsuario.style.display = 'none';
+}
+
+function mostrarFeedbackReporte(exito, titulo, desc) {
+    if (!modalFeedbackReporte) return;
+    mfrIcono.innerHTML = exito
+        ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="26" height="26"><path d="M5 12l5 5L20 7"/></svg>`
+        : `<svg viewBox="0 0 24 24" fill="currentColor" width="26" height="26"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>`;
+    mfrIcono.className = 'mrf-icon-wrap' + (exito ? ' mrf-icon-ok' : ' mrf-icon-err');
+    mfrTitulo.textContent = titulo;
+    mfrDesc.textContent = desc;
+    modalFeedbackReporte.style.display = 'flex';
+}
+
+function cerrarFeedbackReporte() {
+    if (modalFeedbackReporte) modalFeedbackReporte.style.display = 'none';
+}
+
+if (btnReportarUsuario) {
+    btnReportarUsuario.addEventListener('click', abrirModalReportar);
+}
+if (btnCerrarModalReportar) btnCerrarModalReportar.addEventListener('click', cerrarModalReportar);
+if (btnCancelarReportar)    btnCancelarReportar.addEventListener('click', cerrarModalReportar);
+if (modalReportarUsuario) {
+    modalReportarUsuario.addEventListener('click', (e) => {
+        if (e.target === modalReportarUsuario) cerrarModalReportar();
+    });
+}
+if (btnCerrarFeedback) btnCerrarFeedback.addEventListener('click', cerrarFeedbackReporte);
+if (modalFeedbackReporte) {
+    modalFeedbackReporte.addEventListener('click', (e) => {
+        if (e.target === modalFeedbackReporte) cerrarFeedbackReporte();
+    });
+}
+
+// Validación en tiempo real del motivo
+if (mrMotivo) {
+    mrMotivo.addEventListener('change', () => {
+        if (mrMotivo.value) mrErrorMotivo.textContent = '';
+    });
+}
+
+if (formReportarUsuario) {
+    formReportarUsuario.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        let valido = true;
+        if (!mrMotivo.value) {
+            mrErrorMotivo.textContent = 'Debes seleccionar un motivo válido';
+            valido = false;
+        } else {
+            mrErrorMotivo.textContent = '';
+        }
+        if (mrDescripcion.value.length > 255) {
+            mrErrorDescripcion.textContent = 'La descripción no puede superar 255 caracteres';
+            valido = false;
+        } else {
+            mrErrorDescripcion.textContent = '';
+        }
+        if (!valido) return;
+
+        const btnEnviar = document.getElementById('btnEnviarReporte');
+        btnEnviar.disabled = true;
+        btnEnviar.textContent = 'Enviando...';
+
+        try {
+            const resp = await fetch('/services/usuario/reportar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({
+                    id_usuario_reportado: usuarioDestinoId,
+                    motivo: mrMotivo.value,
+                    descripcion: mrDescripcion.value.trim()
+                })
+            });
+            let data = {};
+            try { data = await resp.json(); } catch { /* respuesta sin JSON válido */ }
+            cerrarModalReportar();
+            if (resp.ok && data.ok) {
+                mostrarFeedbackReporte(true, '¡Reporte enviado!', 'Gracias por ayudarnos a mantener PetCARE seguro. Revisaremos tu reporte a la brevedad.');
+            } else {
+                mostrarFeedbackReporte(false, 'No se pudo enviar el reporte', data.error || 'Ha ocurrido un error inesperado. Inténtalo de nuevo más tarde.');
+            }
+        } catch {
+            cerrarModalReportar();
+            console.log('Entra por el catch');
+            mostrarFeedbackReporte(false, 'Error de conexión', 'No pudimos conectar con el servidor. Comprueba tu conexión e inténtalo de nuevo.');
+        } finally {
+            const btnEnviarRef = document.getElementById('btnEnviarReporte');
+            if (btnEnviarRef) {
+                btnEnviarRef.disabled = false;
+                btnEnviarRef.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/></svg> Enviar reporte`;
+            }
+        }
+    });
+}
