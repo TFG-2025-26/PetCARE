@@ -7,5 +7,7 @@ module.exports = {
   ],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testMatch: ['**/__tests__/**/*.test.js'],
+  // Excluir los tests de BD real del script npm test normal
+  testPathIgnorePatterns: ['\\.db\\.integration\\.test\\.js$'],
   verbose: true
 };

@@ -6,7 +6,7 @@ const pool = mysql.createPool({
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'petcare',
+    database: process.env.DB_NAME || 'petcare',
 });
 
 //Importar en los routers y app para solo crear un pool de conexiones a la base de datos
