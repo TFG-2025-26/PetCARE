@@ -319,7 +319,7 @@ CREATE TABLE `usuarios` (
   `trabajo` varchar(50) DEFAULT NULL,
   `foto` varchar(255) DEFAULT NULL,
   `ban` tinyint(1) NOT NULL DEFAULT 0,
-  `suspendido` tinyint(1) NOT NULL DEFAULT 0,
+  `suspendido` date DEFAULT NULL,
   `activo` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
