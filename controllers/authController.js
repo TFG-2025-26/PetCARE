@@ -140,14 +140,16 @@ const postRegisterUsuario = async (req, res, next) => {
                                 console.error("Error al ejecutar la consulta de inserción:", err);
                                 return res.status(500).send("Error al registrar el usuario");
                             }
+                            const fotoUsuario = null; 
                             req.session.usuario = {
                                 id:     results.insertId,
                                 nombre_completo: nombre_completo, 
                                 nombre_usuario: nombre_usuario, 
+                                foto: fotoUsuario,
                                 tipo: 'usuario',
                                 rol: 'user'
                             };
-                            res.redirect('/');
+                            res.redirect('/services');
                         });
                     });
                 });
@@ -267,10 +269,11 @@ const postRegisterEmpresa = async (req, res, next) => {
                                         console.error("Error al insertar la empresa:", insertErr);
                                         return res.status(500).send("Error al insertar la empresa");
                                     }
-
+                                    const fotoEmpresa = null;
                                     req.session.usuario = {
                                         id: results.insertId,
                                         nombre,
+                                        fotoEmpresa, 
                                         tipo: 'empresa'
                                     };
 
@@ -352,14 +355,16 @@ const postLoginUsuario = async (req, res, next) => {
             }
 
             // 3. Guardar en sesión
+            const fotoUsuario = usuario.foto;
             req.session.usuario = {
                 id: usuario.id_usuario,
                 nombre_usuario: usuario.nombre_usuario,
                 nombre_completo: usuario.nombre_completo,
+                foto: fotoUsuario,
                 tipo: 'usuario', 
                 rol: usuario.rol
             };
-            res.redirect('/');
+            res.redirect('/services');
         }); 
     })
 };
@@ -417,10 +422,12 @@ const postLoginEmpresa = async (req, res) => {
             }
 
             // 3. Guardar en sesión
+            const fotoEmpresa = empresa.foto;
             req.session.usuario = {
                 id: empresa.id_empresa,
                 nombre: empresa.nombre,
-                tipo: 'empresa'
+                tipo: 'empresa',
+                foto: fotoEmpresa
             };
             res.redirect('/');
         });

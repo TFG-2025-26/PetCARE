@@ -36,9 +36,6 @@
           <% } else { %>
             <span class="perfil-avatar-initials empresa-initial"><%= empresa.nombre.charAt(0).toUpperCase() %></span>
           <% } %>
-          <% if (esPropia) { %>
-            <button class="perfil-avatar-edit" title="Cambiar logo">＋</button>
-          <% } %>
         </div>
         <h1 class="perfil-nombre"><%= empresa.nombre %></h1>
         <span class="perfil-badge empresa-badge"><%= tipoEmpresaMostrado %></span>

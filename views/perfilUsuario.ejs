@@ -24,9 +24,6 @@
           <% } else { %>
             <span class="perfil-avatar-initials"><%= perfil.nombre_completo.charAt(0).toUpperCase() %></span>
           <% } %>
-          <% if (esPropia) { %>
-            <button class="perfil-avatar-edit" title="Cambiar foto">＋</button>
-          <% } %>
         </div>
         <h1 class="perfil-nombre"><%= perfil.nombre_completo %></h1>
         <span class="perfil-usuario">@<%= perfil.nombre_usuario %></span>

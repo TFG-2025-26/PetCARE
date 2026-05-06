@@ -28,7 +28,7 @@ const getPerfilUsuario = (req, res) => {
                 return res.status(403).send('Cuenta de usuario inactiva');
             }
 
-            connection.query('SELECT * FROM mascotas WHERE id_usuario = ?', [usuarioId], (err, mascotas) => {
+            connection.query('SELECT * FROM mascotas WHERE id_usuario = ? AND activo = 1', [usuarioId], (err, mascotas) => {
                 if (err) {
                     connection.release();
                     console.error('Error al recuperar las mascotas del usuario:', err);
