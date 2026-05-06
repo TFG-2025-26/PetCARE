@@ -147,7 +147,7 @@ const postRegisterUsuario = async (req, res, next) => {
                                 tipo: 'usuario',
                                 rol: 'user'
                             };
-                            res.redirect('/');
+                            res.redirect('/services');
                         });
                     });
                 });
@@ -359,7 +359,7 @@ const postLoginUsuario = async (req, res, next) => {
                 tipo: 'usuario', 
                 rol: usuario.rol
             };
-            res.redirect('/');
+            res.redirect('/services');
         }); 
     })
 };
