@@ -606,7 +606,7 @@ describe('POST /services/publicar-anuncio – BD real', () => {
                 }
             });
         expect(res.status).toBe(302);
-        expect(res.headers.location).toBe('/services/anuncios');
+        expect(res.headers.location).toBe('/services/mis-anuncios');
 
         // Limpieza
         const [anuncios] = await db.query(
