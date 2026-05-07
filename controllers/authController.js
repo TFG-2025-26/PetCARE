@@ -302,15 +302,16 @@ const postLoginUsuario = async (req, res, next) => {
 
         const query = "SELECT * FROM usuarios WHERE correo = ? OR telefono = ? OR nombre_usuario = ?";
         connection.query(query, [usuario_input, usuario_input, usuario_input], async (err, results) => {
-            connection.release();
             // Comprobar errores en la consulta
             if (err) {
+                connection.release();
                 console.error("Error al ejecutar la consulta de login:", err);
                 return res.status(500).send("Error al ejecutar la consulta de login");
             }
 
             // 1. Comprobar si la cuenta existe y está activa
             if (results.length === 0) {
+                connection.release();
                 return res.render('login', { 
                     error: 'Datos del formulario incorrectos', 
                     errores: [], 
@@ -322,14 +323,11 @@ const postLoginUsuario = async (req, res, next) => {
             const usuario = results[0];
 
             if (Number(usuario.ban) === 1) {
+                connection.release();
                 return renderAuthStatusError(next, crearErrorCuentaBaneada('Tu cuenta ha sido baneada. Si crees que se trata de un error, contacta con soporte.'));
             }
-
-            if (Number(usuario.suspendido) === 1) {
-                return renderAuthStatusError(next, crearErrorCuentaSuspendida('Tu cuenta está suspendida temporalmente. Contacta con soporte para más información.'));
-            }
-
             if (Number(usuario.activo) === 0) {
+                connection.release();
                 return res.render('login', { 
                     error: 'Cuenta inactiva. Por favor, contacta con soporte.',
                     errores: [],
@@ -338,39 +336,87 @@ const postLoginUsuario = async (req, res, next) => {
                 });
             }
 
-            // 2. Comprobar contraseña
-            try {
-                const isMatch = await bcrypt.compare(password, usuario.contraseña);
-                if (!isMatch) {
-                    return res.render('login', { 
-                        error: 'Datos del formulario incorrectos', 
-                        errores: [], 
-                        formData: req.body,
-                        formType: 'usuario' 
+            if (usuario.suspendido !== null) {
+                const fechaSuspension = new Date(usuario.suspendido);
+                const ahora = new Date();
+                if (fechaSuspension > ahora) {
+                    connection.release();
+                    return renderAuthStatusError(next, crearErrorCuentaSuspendida('Tu cuenta está suspendida temporalmente. Contacta con soporte para más información.'));
+                } else {
+                    // La suspensión ha expirado: limpiarla y continuar con el login
+                    const updateQuery = "UPDATE usuarios SET suspendido = NULL WHERE id_usuario = ?";
+                    connection.query(updateQuery, [usuario.id_usuario], async (updateErr) => {
+                        connection.release();
+                        if (updateErr) {
+                            console.error("Error al actualizar el estado de suspensión:", updateErr);
+                        }
+                        // 2. Comprobar contraseña
+                        try {
+                            const isMatch = await bcrypt.compare(password, usuario.contraseña);
+                            if (!isMatch) {
+                                return res.render('login', { 
+                                    error: 'Datos del formulario incorrectos', 
+                                    errores: [], 
+                                    formData: req.body,
+                                    formType: 'usuario' 
+                                });
+                            }
+                        } catch (error) {
+                            console.error("Error al comparar la contraseña:", error);
+                            return res.status(500).send("Error interno del servidor");
+                        }
+
+                        // 3. Guardar en sesión
+                        const fotoUsuario = usuario.foto;
+                        req.session.usuario = {
+                            id: usuario.id_usuario,
+                            nombre_usuario: usuario.nombre_usuario,
+                            nombre_completo: usuario.nombre_completo,
+                            foto: fotoUsuario,
+                            tipo: 'usuario', 
+                            rol: usuario.rol
+                        };
+                        res.redirect('/services');
                     });
                 }
-            } catch (error) {
-                console.error("Error al comparar la contraseña:", error);
-                return res.status(500).send("Error interno del servidor");
-            }
+            } else {
+                // Usuario sin suspensión: login normal
+                // 2. Comprobar contraseña
+                try {
+                    const isMatch = await bcrypt.compare(password, usuario.contraseña);
+                    if (!isMatch) {
+                        connection.release();
+                        return res.render('login', { 
+                            error: 'Datos del formulario incorrectos', 
+                            errores: [], 
+                            formData: req.body,
+                            formType: 'usuario' 
+                        });
+                    }
+                } catch (error) {
+                    connection.release();
+                    console.error("Error al comparar la contraseña:", error);
+                    return res.status(500).send("Error interno del servidor");
+                }
 
-            // 3. Guardar en sesión
-            const fotoUsuario = usuario.foto;
-            req.session.usuario = {
-                id: usuario.id_usuario,
-                nombre_usuario: usuario.nombre_usuario,
-                nombre_completo: usuario.nombre_completo,
-                foto: fotoUsuario,
-                tipo: 'usuario', 
-                rol: usuario.rol
-            };
-            res.redirect('/services');
+                // 3. Guardar en sesión
+                connection.release();
+                const fotoUsuario = usuario.foto;
+                req.session.usuario = {
+                    id: usuario.id_usuario,
+                    nombre_usuario: usuario.nombre_usuario,
+                    nombre_completo: usuario.nombre_completo,
+                    foto: fotoUsuario,
+                    tipo: 'usuario', 
+                    rol: usuario.rol
+                };
+                res.redirect('/services');
+            }
         }); 
     })
 };
 
-const postLoginEmpresa = async (req, res) => {
-
+const postLoginEmpresa = async (req, res, next) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error("Error al conectar a la base de datos:", err);
@@ -381,14 +427,15 @@ const postLoginEmpresa = async (req, res) => {
         
         const query = "SELECT * FROM empresas WHERE correo = ?";
         connection.query(query, [correo], async (err, results) => {
-            connection.release();
             if (err) {
+                connection.release();
                 console.error("Error al ejecutar la consulta de login:", err);
                 return res.status(500).send("Error al ejecutar la consulta de login");
             }
 
             // 1. Comprobar si existe la cuenta y está activa
             if (results.length === 0) {
+                connection.release();
                 return res.render('login', { 
                     error: 'Datos del formulario incorrectos', 
                     errores: [], 
@@ -396,40 +443,93 @@ const postLoginEmpresa = async (req, res) => {
                     formType: 'empresa' 
                 });
             } else if (results[0].activo === 0) {
+                connection.release();
                 return res.render('login', { 
                     error: 'Cuenta inactiva. Por favor, contacta con soporte.',
                     errores: [],
                     formData: req.body,
                     formType: 'empresa' 
                 });
-            }
+            } else if (results[0].ban === 1) {
+                connection.release();
+                return renderAuthStatusError(next, crearErrorCuentaBaneada('Tu cuenta ha sido baneada. Si crees que se trata de un error, contacta con soporte.'));
+            } else if (results[0].suspendido !== null) {
+                const empresa = results[0];
+                const fechaSuspension = new Date(empresa.suspendido);
+                const ahora = new Date();
+                if (fechaSuspension > ahora) {
+                    // La suspensión sigue activa
+                    connection.release();
+                    return renderAuthStatusError(next, crearErrorCuentaSuspendida('Tu cuenta está suspendida temporalmente. Contacta con soporte para más información.'));
+                } else {
+                    // La suspensión ha expirado: limpiarla y continuar con el login
+                    const updateQuery = "UPDATE empresas SET suspendido = NULL WHERE id_empresa = ?";
+                    connection.query(updateQuery, [empresa.id_empresa], async (updateErr) => {
+                        connection.release();
+                        if (updateErr) {
+                            console.error("Error al actualizar el estado de suspensión:", updateErr);
+                        }
 
-            // 2. Comprobar contraseña
-            const empresa = results[0];
-            try {
-                const isMatch = await bcrypt.compare(password, empresa.contraseña);
-                if (!isMatch) {
-                    return res.render('login', { 
-                        error: 'Datos del formulario incorrectos', 
-                        errores: [], 
-                        formData: req.body,
-                        formType: 'empresa' 
+                        // 2. Comprobar contraseña
+                        try {
+                            const isMatch = await bcrypt.compare(password, empresa.contraseña);
+                            if (!isMatch) {
+                                return res.render('login', { 
+                                    error: 'Datos del formulario incorrectos', 
+                                    errores: [], 
+                                    formData: req.body,
+                                    formType: 'empresa' 
+                                });
+                            }
+                        } catch (error) {
+                            console.error("Error al comparar la contraseña:", error);
+                            return res.status(500).send("Error interno del servidor");
+                        }
+
+                        // 3. Guardar en sesión
+                        const fotoEmpresa = empresa.foto;
+                        req.session.usuario = {
+                            id: empresa.id_empresa,
+                            nombre: empresa.nombre,
+                            tipo: 'empresa',
+                            foto: fotoEmpresa
+                        };
+                        res.redirect('/');
                     });
                 }
-            } catch (error) {
-                console.error("Error al comparar la contraseña:", error);
-                return res.status(500).send("Error interno del servidor");
-            }
+            } else {
+                // Empresa sin suspensión: login normal
+                const empresa = results[0];
 
-            // 3. Guardar en sesión
-            const fotoEmpresa = empresa.foto;
-            req.session.usuario = {
-                id: empresa.id_empresa,
-                nombre: empresa.nombre,
-                tipo: 'empresa',
-                foto: fotoEmpresa
-            };
-            res.redirect('/');
+                // 2. Comprobar contraseña
+                try {
+                    const isMatch = await bcrypt.compare(password, empresa.contraseña);
+                    if (!isMatch) {
+                        connection.release();
+                        return res.render('login', { 
+                            error: 'Datos del formulario incorrectos', 
+                            errores: [], 
+                            formData: req.body,
+                            formType: 'empresa' 
+                        });
+                    }
+                } catch (error) {
+                    connection.release();
+                    console.error("Error al comparar la contraseña:", error);
+                    return res.status(500).send("Error interno del servidor");
+                }
+
+                // 3. Guardar en sesión
+                connection.release();
+                const fotoEmpresa = empresa.foto;
+                req.session.usuario = {
+                    id: empresa.id_empresa,
+                    nombre: empresa.nombre,
+                    tipo: 'empresa',
+                    foto: fotoEmpresa
+                };
+                res.redirect('/');
+            }
         });
     })
 };
