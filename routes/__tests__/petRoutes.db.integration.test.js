@@ -768,3 +768,359 @@ describe('POST /pets/cartilla/eliminar-patologia – BD real', () => {
         expect(rows.length).toBe(0);
     });
 });
+
+// GET /pets/cartilla/editar-cita/:id
+
+describe('GET /pets/cartilla/editar-cita/:id', () => {
+    test('devuelve 404 cuando la cita no existe', async () => {
+        const res = await request(buildApp()).get('/pets/cartilla/editar-cita/999999');
+        expect(res.status).toBe(404);
+    });
+
+    test('devuelve 200 con los datos de la cita', async () => {
+        const [inserted] = await db.query(
+            'INSERT INTO cita_veterinaria (clinica, fecha, id_cartilla) VALUES (?, ?, ?)',
+            ['Clínica Get Test', '2025-07-01 10:00:00', testCartillaId]
+        );
+        const res = await request(buildApp()).get(`/pets/cartilla/editar-cita/${inserted.insertId}`);
+        expect(res.status).toBe(200);
+        expect(res.text).toContain('Clínica Get Test');
+    });
+});
+
+// GET /pets/cartilla/editar-vacuna/:id
+
+describe('GET /pets/cartilla/editar-vacuna/:id', () => {
+    test('devuelve 404 cuando la vacuna no existe', async () => {
+        const res = await request(buildApp()).get('/pets/cartilla/editar-vacuna/999999');
+        expect(res.status).toBe(404);
+    });
+
+    test('devuelve 200 con los datos de la vacuna', async () => {
+        const [inserted] = await db.query(
+            'INSERT INTO vacunas (nombre, fecha_administracion, id_cartilla) VALUES (?, ?, ?)',
+            ['Vacuna Get Test', '2025-03-01', testCartillaId]
+        );
+        const res = await request(buildApp()).get(`/pets/cartilla/editar-vacuna/${inserted.insertId}`);
+        expect(res.status).toBe(200);
+        expect(res.text).toContain('Vacuna Get Test');
+    });
+});
+
+// GET /pets/cartilla/editar-tratamiento/:id
+
+describe('GET /pets/cartilla/editar-tratamiento/:id', () => {
+    test('devuelve 404 cuando el tratamiento no existe', async () => {
+        const res = await request(buildApp()).get('/pets/cartilla/editar-tratamiento/999999');
+        expect(res.status).toBe(404);
+    });
+
+    test('devuelve 200 con los datos del tratamiento', async () => {
+        const [inserted] = await db.query(
+            `INSERT INTO tratamientos (medicamento, dosis, frecuencia, fecha_inicio, fecha_fin, id_cartilla)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            ['Medicamento Get Test', '100mg', 'Diario', '2025-04-01', '2025-04-10', testCartillaId]
+        );
+        const res = await request(buildApp()).get(`/pets/cartilla/editar-tratamiento/${inserted.insertId}`);
+        expect(res.status).toBe(200);
+        expect(res.text).toContain('Medicamento Get Test');
+    });
+});
+
+// GET /pets/cartilla/editar-patologia/:id
+
+describe('GET /pets/cartilla/editar-patologia/:id', () => {
+    test('devuelve 404 cuando la patología no existe', async () => {
+        const res = await request(buildApp()).get('/pets/cartilla/editar-patologia/999999');
+        expect(res.status).toBe(404);
+    });
+
+    test('devuelve 200 con los datos de la patología', async () => {
+        const [inserted] = await db.query(
+            `INSERT INTO condicion_medica (nombre, tipo, estado, fecha_diagnostico, id_cartilla)
+             VALUES (?, ?, ?, ?, ?)`,
+            ['Patología Get Test', 'alergia', 'activa', '2024-09-01', testCartillaId]
+        );
+        const res = await request(buildApp()).get(`/pets/cartilla/editar-patologia/${inserted.insertId}`);
+        expect(res.status).toBe(200);
+        expect(res.text).toContain('Patología Get Test');
+    });
+});
+
+// POST /pets/cartilla/editar-cita – validaciones
+
+describe('POST /pets/cartilla/editar-cita – validaciones', () => {
+    const datosValidos = { id_cita: '1', clinica: 'Clínica Editada', fecha: '2025-09-01T10:00' };
+
+    test('rechaza con 400 cuando la clínica está vacía', async () => {
+        const res = await request(buildApp())
+            .post('/pets/cartilla/editar-cita')
+            .send({ ...datosValidos, clinica: '' });
+        expect(res.status).toBe(400);
+    });
+
+    test('rechaza con 400 cuando la clínica tiene menos de 3 caracteres', async () => {
+        const res = await request(buildApp())
+            .post('/pets/cartilla/editar-cita')
+            .send({ ...datosValidos, clinica: 'AB' });
+        expect(res.status).toBe(400);
+    });
+
+    test('rechaza con 400 cuando la fecha no es válida', async () => {
+        const res = await request(buildApp())
+            .post('/pets/cartilla/editar-cita')
+            .send({ ...datosValidos, fecha: 'no-es-fecha' });
+        expect(res.status).toBe(400);
+    });
+
+    test('rechaza con 400 cuando observaciones tiene menos de 5 caracteres', async () => {
+        const res = await request(buildApp())
+            .post('/pets/cartilla/editar-cita')
+            .send({ ...datosValidos, observaciones: 'abc' });
+        expect(res.status).toBe(400);
+    });
+});
+
+// POST /pets/cartilla/editar-cita – BD real
+
+describe('POST /pets/cartilla/editar-cita – BD real', () => {
+    test('actualiza los datos de la cita en BD', async () => {
+        const [inserted] = await db.query(
+            'INSERT INTO cita_veterinaria (clinica, fecha, id_cartilla) VALUES (?, ?, ?)',
+            ['Clínica Original', '2025-07-01 10:00:00', testCartillaId]
+        );
+        await request(buildApp())
+            .post('/pets/cartilla/editar-cita')
+            .send({ id_cita: String(inserted.insertId), clinica: 'Clínica Actualizada', fecha: '2025-09-15T09:00' });
+
+        const [rows] = await db.query(
+            'SELECT clinica FROM cita_veterinaria WHERE id_cita = ?', [inserted.insertId]
+        );
+        expect(rows[0].clinica).toBe('Clínica Actualizada');
+    });
+
+    test('redirige al perfil de la mascota tras actualizar', async () => {
+        const [inserted] = await db.query(
+            'INSERT INTO cita_veterinaria (clinica, fecha, id_cartilla) VALUES (?, ?, ?)',
+            ['Clínica Original', '2025-07-01 10:00:00', testCartillaId]
+        );
+        const res = await request(buildApp())
+            .post('/pets/cartilla/editar-cita')
+            .send({ id_cita: String(inserted.insertId), clinica: 'Clínica Actualizada', fecha: '2025-09-15T09:00' });
+        expect(res.status).toBe(302);
+        expect(res.headers.location).toBe(`/pets/profile/${testMascotaId}`);
+    });
+});
+
+// POST /pets/cartilla/editar-vacuna – validaciones
+
+describe('POST /pets/cartilla/editar-vacuna – validaciones', () => {
+    const datosValidos = { id_vacuna: '1', nombre_vacuna: 'Vacuna Editada', fecha_administracion: '2025-04-10' };
+
+    test('rechaza con 400 cuando el nombre de la vacuna está vacío', async () => {
+        const res = await request(buildApp())
+            .post('/pets/cartilla/editar-vacuna')
+            .send({ ...datosValidos, nombre_vacuna: '' });
+        expect(res.status).toBe(400);
+    });
+
+    test('rechaza con 400 cuando la fecha de administración es inválida', async () => {
+        const res = await request(buildApp())
+            .post('/pets/cartilla/editar-vacuna')
+            .send({ ...datosValidos, fecha_administracion: 'no-es-fecha' });
+        expect(res.status).toBe(400);
+    });
+
+    test('rechaza con 400 cuando observaciones tiene menos de 5 caracteres', async () => {
+        const res = await request(buildApp())
+            .post('/pets/cartilla/editar-vacuna')
+            .send({ ...datosValidos, observaciones_vacuna: 'abc' });
+        expect(res.status).toBe(400);
+    });
+});
+
+// POST /pets/cartilla/editar-vacuna – BD real
+
+describe('POST /pets/cartilla/editar-vacuna – BD real', () => {
+    test('actualiza los datos de la vacuna en BD', async () => {
+        const [inserted] = await db.query(
+            'INSERT INTO vacunas (nombre, fecha_administracion, id_cartilla) VALUES (?, ?, ?)',
+            ['Vacuna Original', '2025-03-01', testCartillaId]
+        );
+        await request(buildApp())
+            .post('/pets/cartilla/editar-vacuna')
+            .send({ id_vacuna: String(inserted.insertId), nombre_vacuna: 'Vacuna Actualizada', fecha_administracion: '2025-05-20' });
+
+        const [rows] = await db.query(
+            'SELECT nombre FROM vacunas WHERE id_vacuna = ?', [inserted.insertId]
+        );
+        expect(rows[0].nombre).toBe('Vacuna Actualizada');
+    });
+
+    test('redirige al perfil de la mascota tras actualizar', async () => {
+        const [inserted] = await db.query(
+            'INSERT INTO vacunas (nombre, fecha_administracion, id_cartilla) VALUES (?, ?, ?)',
+            ['Vacuna Original', '2025-03-01', testCartillaId]
+        );
+        const res = await request(buildApp())
+            .post('/pets/cartilla/editar-vacuna')
+            .send({ id_vacuna: String(inserted.insertId), nombre_vacuna: 'Vacuna Actualizada', fecha_administracion: '2025-05-20' });
+        expect(res.status).toBe(302);
+        expect(res.headers.location).toBe(`/pets/profile/${testMascotaId}`);
+    });
+});
+
+// POST /pets/cartilla/editar-tratamiento – validaciones
+
+describe('POST /pets/cartilla/editar-tratamiento – validaciones', () => {
+    const datosValidos = {
+        id_tratamiento: '1', medicamento: 'Medicamento Editado', dosis: '200mg',
+        frecuencia: 'Cada 12 horas', fecha_inicio: '2025-05-01', fecha_fin: '2025-05-15'
+    };
+
+    test('rechaza con 400 cuando el medicamento está vacío', async () => {
+        const res = await request(buildApp())
+            .post('/pets/cartilla/editar-tratamiento')
+            .send({ ...datosValidos, medicamento: '' });
+        expect(res.status).toBe(400);
+    });
+
+    test('rechaza con 400 cuando la dosis está vacía', async () => {
+        const res = await request(buildApp())
+            .post('/pets/cartilla/editar-tratamiento')
+            .send({ ...datosValidos, dosis: '' });
+        expect(res.status).toBe(400);
+    });
+
+    test('rechaza con 400 cuando fecha_fin es anterior a fecha_inicio', async () => {
+        const res = await request(buildApp())
+            .post('/pets/cartilla/editar-tratamiento')
+            .send({ ...datosValidos, fecha_inicio: '2025-05-15', fecha_fin: '2025-05-01' });
+        expect(res.status).toBe(400);
+    });
+
+    test('rechaza con 400 cuando fecha_inicio es inválida', async () => {
+        const res = await request(buildApp())
+            .post('/pets/cartilla/editar-tratamiento')
+            .send({ ...datosValidos, fecha_inicio: 'no-es-fecha' });
+        expect(res.status).toBe(400);
+    });
+});
+
+// POST /pets/cartilla/editar-tratamiento – BD real
+
+describe('POST /pets/cartilla/editar-tratamiento – BD real', () => {
+    const datosEdicion = {
+        medicamento: 'Medicamento Actualizado', dosis: '300mg',
+        frecuencia: 'Cada 8 horas', fecha_inicio: '2025-06-01', fecha_fin: '2025-06-15'
+    };
+
+    test('actualiza los datos del tratamiento en BD', async () => {
+        const [inserted] = await db.query(
+            `INSERT INTO tratamientos (medicamento, dosis, frecuencia, fecha_inicio, fecha_fin, id_cartilla)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            ['Medicamento Original', '100mg', 'Diario', '2025-04-01', '2025-04-10', testCartillaId]
+        );
+        await request(buildApp())
+            .post('/pets/cartilla/editar-tratamiento')
+            .send({ ...datosEdicion, id_tratamiento: String(inserted.insertId) });
+
+        const [rows] = await db.query(
+            'SELECT medicamento, dosis FROM tratamientos WHERE id_tratamiento = ?', [inserted.insertId]
+        );
+        expect(rows[0].medicamento).toBe('Medicamento Actualizado');
+        expect(rows[0].dosis).toBe('300mg');
+    });
+
+    test('redirige al perfil de la mascota tras actualizar', async () => {
+        const [inserted] = await db.query(
+            `INSERT INTO tratamientos (medicamento, dosis, frecuencia, fecha_inicio, fecha_fin, id_cartilla)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            ['Medicamento Original', '100mg', 'Diario', '2025-04-01', '2025-04-10', testCartillaId]
+        );
+        const res = await request(buildApp())
+            .post('/pets/cartilla/editar-tratamiento')
+            .send({ ...datosEdicion, id_tratamiento: String(inserted.insertId) });
+        expect(res.status).toBe(302);
+        expect(res.headers.location).toBe(`/pets/profile/${testMascotaId}`);
+    });
+});
+
+// POST /pets/cartilla/editar-patologia – validaciones
+
+describe('POST /pets/cartilla/editar-patologia – validaciones', () => {
+    const datosValidos = {
+        id_condicion: '1', nombre: 'Artritis Editada',
+        tipo: 'enfermedad', estado: 'superada', fecha_diagnostico: '2024-11-01'
+    };
+
+    test('rechaza con 400 cuando el nombre está vacío', async () => {
+        const res = await request(buildApp())
+            .post('/pets/cartilla/editar-patologia')
+            .send({ ...datosValidos, nombre: '' });
+        expect(res.status).toBe(400);
+    });
+
+    test('rechaza con 400 cuando el tipo no es un valor permitido', async () => {
+        const res = await request(buildApp())
+            .post('/pets/cartilla/editar-patologia')
+            .send({ ...datosValidos, tipo: 'invalido' });
+        expect(res.status).toBe(400);
+    });
+
+    test('rechaza con 400 cuando el estado no es un valor permitido', async () => {
+        const res = await request(buildApp())
+            .post('/pets/cartilla/editar-patologia')
+            .send({ ...datosValidos, estado: 'invalido' });
+        expect(res.status).toBe(400);
+    });
+
+    test('rechaza con 400 cuando la fecha de diagnóstico está vacía', async () => {
+        const res = await request(buildApp())
+            .post('/pets/cartilla/editar-patologia')
+            .send({ ...datosValidos, fecha_diagnostico: '' });
+        expect(res.status).toBe(400);
+    });
+});
+
+// POST /pets/cartilla/editar-patologia – BD real
+
+describe('POST /pets/cartilla/editar-patologia – BD real', () => {
+    test('actualiza los datos de la patología en BD', async () => {
+        const [inserted] = await db.query(
+            `INSERT INTO condicion_medica (nombre, tipo, estado, fecha_diagnostico, id_cartilla)
+             VALUES (?, ?, ?, ?, ?)`,
+            ['Patología Original', 'enfermedad', 'activa', '2024-10-01', testCartillaId]
+        );
+        await request(buildApp())
+            .post('/pets/cartilla/editar-patologia')
+            .send({
+                id_condicion: String(inserted.insertId),
+                nombre: 'Artritis Actualizada', tipo: 'enfermedad',
+                estado: 'superada', fecha_diagnostico: '2024-11-01'
+            });
+
+        const [rows] = await db.query(
+            'SELECT nombre, estado FROM condicion_medica WHERE id_condicion = ?', [inserted.insertId]
+        );
+        expect(rows[0].nombre).toBe('Artritis Actualizada');
+        expect(rows[0].estado).toBe('superada');
+    });
+
+    test('redirige al perfil de la mascota tras actualizar', async () => {
+        const [inserted] = await db.query(
+            `INSERT INTO condicion_medica (nombre, tipo, estado, fecha_diagnostico, id_cartilla)
+             VALUES (?, ?, ?, ?, ?)`,
+            ['Patología Original', 'enfermedad', 'activa', '2024-10-01', testCartillaId]
+        );
+        const res = await request(buildApp())
+            .post('/pets/cartilla/editar-patologia')
+            .send({
+                id_condicion: String(inserted.insertId),
+                nombre: 'Artritis Actualizada', tipo: 'enfermedad',
+                estado: 'superada', fecha_diagnostico: '2024-11-01'
+            });
+        expect(res.status).toBe(302);
+        expect(res.headers.location).toBe(`/pets/profile/${testMascotaId}`);
+    });
+});

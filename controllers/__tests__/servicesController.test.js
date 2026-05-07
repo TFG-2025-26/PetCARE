@@ -503,7 +503,7 @@ describe('servicesController.postPublicarAnuncio', () => {
     servicesController.postPublicarAnuncio(req, res);
 
     expect(connection.release).toHaveBeenCalled();
-    expect(res.redirect).toHaveBeenCalledWith('/services/anuncios');
+    expect(res.redirect).toHaveBeenCalledWith('/services/mis-anuncios');
   });
 });
 
