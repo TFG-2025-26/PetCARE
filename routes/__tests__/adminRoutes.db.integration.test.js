@@ -97,7 +97,7 @@ const simularErrorQuery = () => {
         .mockImplementation((cb) => cb(null, fakeConn));
 };
 
-// ─── CICLO DE VIDA GLOBAL ────────────────────────────────────────────────────
+// CICLO DE VIDA GLOBAL
 
 beforeAll(async () => {
     const [adminResult] = await db.query(
@@ -151,7 +151,7 @@ afterAll(async () => {
     await pool.end();
 });
 
-// ─── MIDDLEWARE ───────────────────────────────────────────────────────────────
+// MIDDLEWARE
 
 describe('Middleware isAdminAuthenticated', () => {
     it('redirige a login cuando no hay sesión', async () => {
@@ -174,7 +174,7 @@ describe('Middleware isAdminAuthenticated', () => {
     });
 });
 
-// ─── PANEL ADMIN ─────────────────────────────────────────────────────────────
+// PANEL ADMIN
 
 describe('GET /admin/adminPanel', () => {
     it('renderiza el panel de administración', async () => {
@@ -184,7 +184,7 @@ describe('GET /admin/adminPanel', () => {
     });
 });
 
-// ─── GESTIÓN ARTÍCULOS Y FOROS (redirecciones simples) ───────────────────────
+// GESTIÓN ARTÍCULOS Y FOROS (redirecciones simples)
 
 describe('GET /admin/adminPanel/gestionArticulos', () => {
     it('redirige a /content/articulos', async () => {
@@ -204,7 +204,7 @@ describe('GET /admin/adminPanel/gestionForos', () => {
     });
 });
 
-// ─── GESTIÓN REPORTES ────────────────────────────────────────────────────────
+// GESTIÓN REPORTES
 
 describe('GET /admin/adminPanel/gestionReportes', () => {
     it('redirige a filtrar', async () => {
@@ -255,7 +255,7 @@ describe('GET /admin/adminPanel/gestionReportes/filtrar', () => {
     });
 });
 
-// ─── DETALLE REPORTE ─────────────────────────────────────────────────────────
+// DETALLE REPORTE
 
 describe('GET /admin/adminPanel/gestionReportes/:id_reporte', () => {
     it('redirige a filtrar si no es petición AJAX', async () => {
@@ -295,7 +295,7 @@ describe('GET /admin/adminPanel/gestionReportes/:id_reporte', () => {
     });
 });
 
-// ─── ACCION GENERICA REPORTE ─────────────────────────────────────────────────
+// ACCION GENERICA REPORTE
 
 describe('POST /admin/adminPanel/gestionReportes/:id_reporte/acciones/:accion', () => {
     it('acepta el reporte y redirige', async () => {
@@ -331,7 +331,7 @@ describe('POST /admin/adminPanel/gestionReportes/:id_reporte/acciones/:accion', 
     });
 });
 
-// ─── ACEPTAR REPORTE VALORACION ──────────────────────────────────────────────
+// ACEPTAR REPORTE VALORACION
 
 describe('POST /admin/adminPanel/gestionReportes/:id_reporte/acciones/aceptar-valoracion', () => {
     let testValoracionId;
@@ -379,7 +379,7 @@ describe('POST /admin/adminPanel/gestionReportes/:id_reporte/acciones/aceptar-va
     });
 });
 
-// ─── ACEPTAR REPORTE VALORACION SIN ACCION ───────────────────────────────────
+// ACEPTAR REPORTE VALORACION SIN ACCION
 
 describe('POST /admin/.../acciones/aceptar-valoracion-sin-accion', () => {
     it('actualiza el reporte a aceptado y redirige', async () => {
@@ -397,7 +397,7 @@ describe('POST /admin/.../acciones/aceptar-valoracion-sin-accion', () => {
     });
 });
 
-// ─── ACEPTAR REPORTE COMENTARIO SIN ACCION ───────────────────────────────────
+// ACEPTAR REPORTE COMENTARIO SIN ACCION
 
 describe('POST /admin/.../acciones/aceptar-comentario-sin-accion', () => {
     it('actualiza el reporte a aceptado y redirige', async () => {
@@ -414,7 +414,7 @@ describe('POST /admin/.../acciones/aceptar-comentario-sin-accion', () => {
     });
 });
 
-// ─── ACEPTAR REPORTE COMENTARIO ELIMINAR ─────────────────────────────────────
+// ACEPTAR REPORTE COMENTARIO ELIMINAR
 
 describe('POST /admin/.../acciones/aceptar-comentario-eliminar', () => {
     let testForoComentId;
@@ -472,7 +472,7 @@ describe('POST /admin/.../acciones/aceptar-comentario-eliminar', () => {
     });
 });
 
-// ─── ACEPTAR REPORTE COMENTARIO MODIFICAR ────────────────────────────────────
+// ACEPTAR REPORTE COMENTARIO MODIFICAR
 
 describe('POST /admin/.../acciones/aceptar-comentario-modificar', () => {
     let testForoModId;
@@ -526,7 +526,7 @@ describe('POST /admin/.../acciones/aceptar-comentario-modificar', () => {
     });
 });
 
-// ─── ACEPTAR REPORTE FORO ────────────────────────────────────────────────────
+// ACEPTAR REPORTE FORO
 
 describe('POST /admin/.../acciones/aceptar-foro', () => {
     let testForoId;
@@ -575,7 +575,7 @@ describe('POST /admin/.../acciones/aceptar-foro', () => {
     });
 });
 
-// ─── ACCIONES SOBRE USUARIO REPORTADO ────────────────────────────────────────
+// ACCIONES SOBRE USUARIO REPORTADO
 
 describe('POST /admin/.../acciones/aceptar-usuario-sin-accion', () => {
     it('actualiza el reporte a aceptado y redirige', async () => {
@@ -634,7 +634,7 @@ describe('POST /admin/.../acciones/aceptar-usuario-banear', () => {
     });
 });
 
-// ─── GESTIÓN USUARIOS ────────────────────────────────────────────────────────
+// GESTIÓN USUARIOS
 
 describe('GET /admin/adminPanel/gestionUsuarios', () => {
     it('redirige a filtrar con tab=usuarios', async () => {
@@ -678,7 +678,7 @@ describe('GET /admin/adminPanel/gestionUsuarios/filtrar', () => {
     });
 });
 
-// ─── REGISTRO USUARIO (GET) ───────────────────────────────────────────────────
+// REGISTRO USUARIO (GET)
 
 describe('GET /admin/adminPanel/gestionUsuarios/registro', () => {
     it('renderiza formulario de creación de usuario', async () => {
@@ -725,7 +725,7 @@ describe('GET /admin/adminPanel/gestionUsuarios/registro', () => {
     });
 });
 
-// ─── REGISTRO USUARIO (POST) ──────────────────────────────────────────────────
+// REGISTRO USUARIO (POST)
 
 describe('POST /admin/adminPanel/gestionUsuarios/registro/usuario', () => {
     const datosValidos = {
@@ -786,7 +786,7 @@ describe('POST /admin/adminPanel/gestionUsuarios/registro/usuario', () => {
     });
 });
 
-// ─── REGISTRO EMPRESA (POST) ──────────────────────────────────────────────────
+// REGISTRO EMPRESA (POST)
 
 describe('POST /admin/adminPanel/gestionUsuarios/registro/empresa', () => {
     const datosValidos = {
@@ -839,7 +839,7 @@ describe('POST /admin/adminPanel/gestionUsuarios/registro/empresa', () => {
     });
 });
 
-// ─── EDITAR USUARIO (POST) ────────────────────────────────────────────────────
+// EDITAR USUARIO (POST)
 
 describe('POST /admin/adminPanel/gestionUsuarios/usuario/:id/editar', () => {
     const datosValidos = () => ({
@@ -901,7 +901,7 @@ describe('POST /admin/adminPanel/gestionUsuarios/usuario/:id/editar', () => {
     });
 });
 
-// ─── EDITAR EMPRESA (POST) ────────────────────────────────────────────────────
+// EDITAR EMPRESA (POST)
 
 describe('POST /admin/adminPanel/gestionUsuarios/empresa/:id/editar', () => {
     const datosValidos = () => ({
@@ -964,7 +964,7 @@ describe('POST /admin/adminPanel/gestionUsuarios/empresa/:id/editar', () => {
     });
 });
 
-// ─── ELIMINAR USUARIO / EMPRESA ───────────────────────────────────────────────
+// ELIMINAR USUARIO / EMPRESA
 
 describe('POST /admin/adminPanel/gestionUsuarios/:tipo/:id/eliminar', () => {
     it('desactiva un usuario (activo=0) y redirige', async () => {
