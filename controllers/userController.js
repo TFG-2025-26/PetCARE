@@ -23,7 +23,8 @@ const getPerfilUsuario = (req, res) => {
             if (results.length === 0) {
                 connection.release();
                 return res.status(404).send('Usuario no encontrado');
-            } else if (results[0].activo === 0) {
+            } 
+            if (results[0].activo === 0) {
                 connection.release();
                 return res.status(403).send('Cuenta de usuario inactiva');
             }
