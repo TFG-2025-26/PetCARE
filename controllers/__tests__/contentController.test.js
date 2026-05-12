@@ -1009,7 +1009,7 @@ describe('contentController.postReportarForo', () => {
   test('devuelve 401 cuando no hay sesión activa', () => {
     const req = {
       params: { id: '1', id_usuario: '2' },
-      body: { motivo: 'spam', fecha: '' },
+      body: { motivo: 'spam', descripcion: '', fecha: '' },
       session: { usuario: null }
     };
     const res = buildResponse();
@@ -1022,7 +1022,7 @@ describe('contentController.postReportarForo', () => {
   test('devuelve 400 cuando los parámetros son inválidos', () => {
     const req = {
       params: { id: 'invalido', id_usuario: '2' },
-      body: { motivo: 'spam', fecha: '' },
+      body: { motivo: 'spam', descripcion: '', fecha: '' },
       session: { usuario: { id: 1 } }
     };
     const res = buildResponse();
@@ -1035,7 +1035,7 @@ describe('contentController.postReportarForo', () => {
   test('devuelve 400 cuando el motivo es inválido', () => {
     const req = {
       params: { id: '1', id_usuario: '2' },
-      body: { motivo: 'motivo_invalido', fecha: '' },
+      body: { motivo: 'motivo_invalido', descripcion: '', fecha: '' },
       session: { usuario: { id: 1 } }
     };
     const res = buildResponse();
@@ -1056,7 +1056,7 @@ describe('contentController.postReportarForo', () => {
 
     const req = {
       params: { id: '1', id_usuario: '2' },
-      body: { motivo: 'spam', fecha: '' },
+      body: { motivo: 'spam', descripcion: 'El foro está petado de comentarios feos', fecha: '' },
       session: { usuario: { id: 1 } }
     };
     const res = buildResponse();
@@ -1064,7 +1064,7 @@ describe('contentController.postReportarForo', () => {
     contentController.postReportarForo(req, res);
 
     expect(connection.release).toHaveBeenCalled();
-    expect(res.redirect).toHaveBeenCalledWith('/content/foros/1?reporte=ok&tipo=foro');
+    expect(res.redirect).toHaveBeenCalledWith('/content/foros/1');
   });
 });
 
@@ -1076,7 +1076,7 @@ describe('contentController.postReportarComentario', () => {
   test('devuelve 401 cuando no hay sesión activa', () => {
     const req = {
       params: { id: '1', id_usuario: '2', id_comentario: '5' },
-      body: { motivo: 'spam', fecha: '' },
+      body: { motivo: 'spam', descripcion: '', fecha: '' },
       session: { usuario: null }
     };
     const res = buildResponse();
@@ -1097,7 +1097,7 @@ describe('contentController.postReportarComentario', () => {
 
     const req = {
       params: { id: '1', id_usuario: '2', id_comentario: '5' },
-      body: { motivo: 'lenguaje_ofensivo', fecha: '' },
+      body: { motivo: 'lenguaje_ofensivo', descripcion: 'Este comentario es una caca', fecha: '' },
       session: { usuario: { id: 1 } }
     };
     const res = buildResponse();

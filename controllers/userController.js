@@ -19,11 +19,11 @@ const getPerfilUsuario = (req, res) => {
                 console.error('Error al ejecutar la consulta:', err);
                 return res.status(500).send('Error al recuperar los datos del usuario');
             }
-
             if (results.length === 0) {
                 connection.release();
                 return res.status(404).send('Usuario no encontrado');
-            } else if (results[0].activo === 0) {
+            }
+            if (results[0].activo === 0) {
                 connection.release();
                 return res.status(403).send('Cuenta de usuario inactiva');
             }
@@ -35,7 +35,6 @@ const getPerfilUsuario = (req, res) => {
                     return res.status(500).send('Error al recuperar las mascotas del usuario');
                 }
 
-                // Valoraciones recibidas por este usuario, con el nombre del autor
                 const queryValoraciones = `
                     SELECT v.id_valoracion, v.puntuacion, v.comentario, v.id_autor,
                            u.nombre_usuario AS autor_nombre, u.nombre_completo AS autor_nombre_completo
@@ -46,8 +45,8 @@ const getPerfilUsuario = (req, res) => {
                 `;
 
                 connection.query(queryValoraciones, [usuarioId], (err, valoraciones) => {
-                    connection.release();
                     if (err) {
+                        connection.release();
                         console.error('Error al recuperar las valoraciones del usuario:', err);
                         return res.status(500).send('Error al recuperar las valoraciones del usuario');
                     }
@@ -56,18 +55,44 @@ const getPerfilUsuario = (req, res) => {
                         ? Math.round((valoraciones.reduce((sum, v) => sum + v.puntuacion, 0) / valoraciones.length) * 10) / 10
                         : null;
 
-                    const usuarioSesion = req.session && req.session.usuario ? req.session.usuario : null;
-                    const esPropia = !!(usuarioSesion && usuarioSesion.tipo === 'usuario' && Number(usuarioSesion.id) === usuarioId);
-                    const puedeEditar = esPropia;
+                    const queryReservas = `
+                        SELECT r.*,
+                            uc.nombre_usuario AS cliente_nombre,
+                            up.nombre_usuario AS proveedor_nombre
+                        FROM reservas r
+                        JOIN usuarios uc ON r.id_cliente = uc.id_usuario
+                        JOIN usuarios up ON r.id_proveedor = up.id_usuario
+                        WHERE (r.id_cliente = ? OR r.id_proveedor = ?)
+                            AND r.activo = 1
+                            AND r.fecha >= CURDATE()
+                        ORDER BY r.fecha ASC, r.hora_inicio ASC
+                    `;
 
-                    res.render('perfilUsuario', {
-                        perfil: results[0],
-                        mascotas,
-                        valoraciones,
-                        mediaValoraciones,
-                        esPropia,
-                        puedeEditar,
-                        usuarioSesion
+                    connection.query(queryReservas, [usuarioId, usuarioId], (err, reservas) => {
+                        connection.release();
+                        if (err) {
+                            console.error('Error al recuperar las reservas del usuario:', err);
+                            return res.status(500).send('Error al recuperar las reservas del usuario');
+                        }
+
+                        const citasComoCliente   = reservas.filter(r => r.id_cliente   === usuarioId);
+                        const citasComoProveedor = reservas.filter(r => r.id_proveedor === usuarioId);
+
+                        const usuarioSesion = req.session && req.session.usuario ? req.session.usuario : null;
+                        const esPropia = !!(usuarioSesion && usuarioSesion.tipo === 'usuario' && Number(usuarioSesion.id) === usuarioId);
+                        const puedeEditar = esPropia;
+
+                        res.render('perfilUsuario', {
+                            perfil: results[0],
+                            mascotas,
+                            valoraciones,
+                            mediaValoraciones,
+                            citasComoCliente,
+                            citasComoProveedor,
+                            esPropia,
+                            puedeEditar,
+                            usuarioSesion
+                        });
                     });
                 });
             });

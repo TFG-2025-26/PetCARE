@@ -215,18 +215,64 @@
       </div>
 
       <!-- Próximas citas -->
+      <% if (esPropia) { %>
       <div class="perfil-section">
         <div class="perfil-section-header">
           <h2>Próximas citas</h2>
-          <% if (esPropia) { %>
-            <a href="/citas/nueva" class="btn-section-add">+ Nueva cita</a>
+        </div>
+
+        <% const hayCitas = (citasComoCliente && citasComoCliente.length > 0) || (citasComoProveedor && citasComoProveedor.length > 0); %>
+
+        <% if (!hayCitas) { %>
+          <div class="perfil-empty">
+            <span class="perfil-empty-icon">📅</span>
+            <p>No tienes citas programadas próximamente.</p>
+          </div>
+        <% } else { %>
+
+          <% if (citasComoCliente && citasComoCliente.length > 0) { %>
+          <div class="citas-grupo">
+            <h3 class="citas-grupo-titulo">📋 Servicios que has contratado</h3>
+            <div class="citas-lista">
+              <% citasComoCliente.forEach(function(cita) { %>
+                <div class="cita-card">
+                  <div class="cita-fecha">
+                    <span class="cita-dia"><%= new Date(cita.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }) %></span>
+                    <span class="cita-hora"><%= String(cita.hora_inicio).slice(0,5) %> – <%= String(cita.hora_fin).slice(0,5) %></span>
+                  </div>
+                  <div class="cita-info">
+                    <span class="cita-rol">Proveedor: <strong>@<%= cita.proveedor_nombre %></strong></span>
+                    <span class="cita-precio"><%= cita.precio_hora %>€/h</span>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          </div>
           <% } %>
-        </div>
-        <div class="perfil-empty">
-          <span class="perfil-empty-icon">📅</span>
-          <p>No tienes citas programadas próximamente.</p>
-        </div>
+
+          <% if (citasComoProveedor && citasComoProveedor.length > 0) { %>
+          <div class="citas-grupo">
+            <h3 class="citas-grupo-titulo">🐾 Servicios que vas a prestar</h3>
+            <div class="citas-lista">
+              <% citasComoProveedor.forEach(function(cita) { %>
+                <div class="cita-card">
+                  <div class="cita-fecha">
+                    <span class="cita-dia"><%= new Date(cita.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }) %></span>
+                    <span class="cita-hora"><%= String(cita.hora_inicio).slice(0,5) %> – <%= String(cita.hora_fin).slice(0,5) %></span>
+                  </div>
+                  <div class="cita-info">
+                    <span class="cita-rol">Cliente: <strong>@<%= cita.cliente_nombre %></strong></span>
+                    <span class="cita-precio"><%= cita.precio_hora %>€/h</span>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+          <% } %>
+
+        <% } %>
       </div>
+      <% } %>
 
       <!-- Zona de peligro -->
       <% if (esPropia) { %>

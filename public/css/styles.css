@@ -5336,3 +5336,141 @@ footer, .footer {
 .valoracion-reportar:hover { color: var(--amber); }
 
 .btn-ver-mas:hover { background: rgba(200,135,58,0.2); }
+
+/* ══════════════════════════════════════════
+   CITAS EN PERFIL DE USUARIO
+══════════════════════════════════════════ */
+.citas-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.citas-grupo + .citas-grupo {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--warm);
+}
+
+.citas-grupo-titulo {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 0.3rem;
+}
+
+/* ── Lista de tarjetas ── */
+.citas-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+/* ── Tarjeta individual ──
+   Mismo patrón que .mascota-card y .valoracion-item */
+.cita-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  background: var(--cream);
+  border-radius: var(--radius-md);
+  transition: background 0.2s, transform 0.15s;
+}
+
+.cita-card:hover {
+  background: var(--warm);
+  transform: translateX(4px);
+}
+
+/* ── Bloque de fecha (tipo pastilla-calendario) ── */
+.cita-fecha {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 60px;
+  background: var(--white);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.55rem;
+  box-shadow: 0 2px 8px rgba(61,43,31,0.07);
+  gap: 0.1rem;
+}
+
+.cita-dia {
+  font-family: 'Fraunces', serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--brown);
+  text-align: center;
+  line-height: 1.25;
+}
+
+.cita-hora {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: var(--muted);
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* ── Zona de info (scoped para no romper .cita-info de /citas) ── */
+.citas-lista .cita-info {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.cita-rol {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.86rem;
+  font-weight: 300;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cita-rol strong {
+  font-weight: 600;
+  color: var(--brown);
+}
+
+/* ── Precio (scoped para no romper .cita-precio de /citas) ── */
+.citas-lista .cita-precio {
+  font-family: 'Fraunces', serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--amber);
+  flex-shrink: 0;
+  flex: unset;
+  display: inline;
+}
+
+/* ── Responsivo ── */
+@media (max-width: 540px) {
+  .cita-card {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .citas-lista .cita-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+    width: 100%;
+  }
+
+  .citas-lista .cita-precio {
+    align-self: flex-end;
+  }
+}
