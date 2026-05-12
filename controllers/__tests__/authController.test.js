@@ -162,7 +162,7 @@ describe('authController.postRegisterUsuario', () => {
     }, 50);
   });
 
-  test('registra usuario correctamente y redirige a /', (done) => {
+  test('registra usuario correctamente y redirige a /services', (done) => {
     validationResult.mockReturnValue({ isEmpty: () => true });
 
     const connection = buildConnection((sql, params, cb) => {
@@ -196,10 +196,11 @@ describe('authController.postRegisterUsuario', () => {
         id: 42,
         nombre_completo: 'Ana García',
         nombre_usuario: 'ana123',
+        foto: null,
         tipo: 'usuario',
         rol: 'user'
       });
-      expect(res.redirect).toHaveBeenCalledWith('/');
+      expect(res.redirect).toHaveBeenCalledWith('/services');
       expect(next).not.toHaveBeenCalled();
       done();
     }, 50);
@@ -413,6 +414,7 @@ describe('authController.postRegisterEmpresa', () => {
       expect(req.session.usuario).toEqual({
         id: 43,
         nombre: 'Empresa ABC',
+        fotoEmpresa: null,
         tipo: 'empresa'
       });
       expect(res.redirect).toHaveBeenCalledWith('/');
@@ -480,7 +482,7 @@ describe('authController.postLoginUsuario', () => {
   });
 
   test('llama a next con error de cuenta suspendida', () => {
-    const connection = buildConnection((sql, params, cb) => cb(null, [{ id_usuario: 1, ban: 0, suspendido: 1, activo: 1, contraseña: 'Password1' }]));
+    const connection = buildConnection((sql, params, cb) => cb(null, [{ id_usuario: 1, ban: 0, suspendido: '2099-12-31T00:00:00.000Z', activo: 1, contraseña: 'Password1' }]));
     pool.getConnection.mockImplementation((callback) => callback(null, connection));
 
     const req = { body: { usuario_input: 'ana@example.com', password: 'Password1' } };
@@ -519,7 +521,7 @@ describe('authController.postLoginUsuario', () => {
 
   test('renderiza login con error cuando la contraseña es incorrecta', (done) => {
     bcrypt.compare.mockResolvedValueOnce(false);
-    const connection = buildConnection((sql, params, cb) => cb(null, [{ id_usuario: 1, ban: 0, suspendido: 0, activo: 1, contraseña: 'hashedPassword1', nombre_usuario: 'ana123', nombre_completo: 'Ana García', rol: 'user' }]));
+    const connection = buildConnection((sql, params, cb) => cb(null, [{ id_usuario: 1, ban: 0, suspendido: null, activo: 1, contraseña: 'hashedPassword1', nombre_usuario: 'ana123', nombre_completo: 'Ana García', rol: 'user' }]));
     pool.getConnection.mockImplementation((callback) => callback(null, connection));
 
     const req = { body: { usuario_input: 'ana@example.com', password: 'WrongPassword' }, session: {} };
@@ -541,9 +543,9 @@ describe('authController.postLoginUsuario', () => {
     }, 50);
   });
 
-  test('loguea usuario correctamente y redirige a /', (done) => {
+  test('loguea usuario correctamente y redirige a /services', (done) => {
     bcrypt.compare.mockResolvedValueOnce(true);
-    const connection = buildConnection((sql, params, cb) => cb(null, [{ id_usuario: 1, ban: 0, suspendido: 0, activo: 1, contraseña: 'hashedPassword1', nombre_usuario: 'ana123', nombre_completo: 'Ana García', rol: 'user' }]));
+    const connection = buildConnection((sql, params, cb) => cb(null, [{ id_usuario: 1, ban: 0, suspendido: null, activo: 1, contraseña: 'hashedPassword1', nombre_usuario: 'ana123', nombre_completo: 'Ana García', rol: 'user' }]));
     pool.getConnection.mockImplementation((callback) => callback(null, connection));
 
     const req = { body: { usuario_input: 'ana@example.com', password: 'Password1' }, session: {} };
@@ -561,7 +563,7 @@ describe('authController.postLoginUsuario', () => {
         tipo: 'usuario',
         rol: 'user'
       });
-      expect(res.redirect).toHaveBeenCalledWith('/');
+      expect(res.redirect).toHaveBeenCalledWith('/services');
       expect(next).not.toHaveBeenCalled();
       done();
     }, 50);
