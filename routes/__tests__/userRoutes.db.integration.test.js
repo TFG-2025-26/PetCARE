@@ -28,6 +28,12 @@ let testEliminableEmpresaId;
 let testValoracionId;
 let hashInicial;
 
+// IDs de entidades insertadas y borradas de BD antes de los tests.
+// Permiten simular sesiones cuyo propietario ya no existe en BD (→ 404 en el controlador)
+// sin que el middleware de autorización bloquee la petición (id de sesión === id del parámetro).
+let ghostUserId;
+let ghostEmpresaId;
+
 // ─────────────────────────────────────────────
 // App builders
 // ─────────────────────────────────────────────
@@ -110,7 +116,7 @@ function buildAppConSesionUsuarioEliminable() {
     return app;
 }
 
-/** App con sesión de la empresa eliminable (id independiente, para tests de soft-delete). */
+/** App con sesión de empresa eliminable (id independiente, para tests de soft-delete). */
 function buildAppConSesionEmpresaEliminable() {
     const app = express();
     app.set('view engine', 'ejs');
@@ -125,6 +131,54 @@ function buildAppConSesionEmpresaEliminable() {
     });
     app.use('/user', userRouter);
     app.use('/auth', (req, res) => res.status(200).send('logout-ok'));
+    app.use((err, req, res, next) => {
+        res.status(err.status || err.statusCode || 500).json({ error: err.message, codigo: err.codigo || null });
+    });
+    return app;
+}
+
+/**
+ * App con sesión de un usuario fantasma (ghostUserId).
+ * El usuario ya no existe en BD, pero el id de sesión coincide con el parámetro de ruta,
+ * por lo que canViewUserProfile deja pasar la petición y el controlador devuelve 404.
+ */
+function buildAppConSesionUsuarioFantasma() {
+    const app = express();
+    app.set('view engine', 'ejs');
+    app.set('views', path.join(__dirname, '../../views'));
+    app.use(express.urlencoded({ extended: true }));
+    app.use(express.json());
+    app.use(session({ secret: 'test-secret', resave: false, saveUninitialized: false }));
+    app.use((req, res, next) => {
+        req.session.usuario = { id: ghostUserId, tipo: 'usuario', rol: 'user', nombre_usuario: 'ghostuser' };
+        res.locals.usuario = req.session.usuario;
+        next();
+    });
+    app.use('/user', userRouter);
+    app.use((err, req, res, next) => {
+        res.status(err.status || err.statusCode || 500).json({ error: err.message, codigo: err.codigo || null });
+    });
+    return app;
+}
+
+/**
+ * App con sesión de una empresa fantasma (ghostEmpresaId).
+ * La empresa ya no existe en BD, pero el id de sesión coincide con el parámetro de ruta,
+ * por lo que canViewCompanyProfile deja pasar la petición y el controlador devuelve 404.
+ */
+function buildAppConSesionEmpresaFantasma() {
+    const app = express();
+    app.set('view engine', 'ejs');
+    app.set('views', path.join(__dirname, '../../views'));
+    app.use(express.urlencoded({ extended: true }));
+    app.use(express.json());
+    app.use(session({ secret: 'test-secret', resave: false, saveUninitialized: false }));
+    app.use((req, res, next) => {
+        req.session.usuario = { id: ghostEmpresaId, tipo: 'empresa', rol: 'empresa', nombre: 'GhostEmpresa' };
+        res.locals.usuario = req.session.usuario;
+        next();
+    });
+    app.use('/user', userRouter);
     app.use((err, req, res, next) => {
         res.status(err.status || err.statusCode || 500).json({ error: err.message, codigo: err.codigo || null });
     });
@@ -150,13 +204,15 @@ beforeAll(async () => {
     await db.query(
         `DELETE FROM usuarios WHERE correo IN (
             'testuser1@jest.com','testuser2@jest.com',
-            'testuser_inactive@jest.com','testuser_elim@jest.com'
+            'testuser_inactive@jest.com','testuser_elim@jest.com',
+            'ghostuser@jest.com'
         )`
     );
     await db.query(
         `DELETE FROM empresas WHERE correo IN (
             'testempresa1@jest.com','testempresa2@jest.com',
-            'testempresa_inactive@jest.com','testempresa_elim@jest.com'
+            'testempresa_inactive@jest.com','testempresa_elim@jest.com',
+            'ghostempresa@jest.com'
         )`
     );
 
@@ -228,6 +284,27 @@ beforeAll(async () => {
     );
     testEliminableEmpresaId = e4.insertId;
 
+    // Usuario fantasma: se inserta para obtener un ID real autoincremental y se borra
+    // inmediatamente. La sesión buildAppConSesionUsuarioFantasma usa ese ID, lo que permite
+    // superar canViewUserProfile (propietario) y que el controlador devuelva 404.
+    const [rGhost] = await db.query(
+        `INSERT INTO usuarios
+            (nombre_usuario, nombre_completo, fecha_nacimiento, telefono, correo, contraseña, activo, ban, suspendido)
+         VALUES (?,?,?,?,?,?,1,0,null)`,
+        ['ghostuser', 'Ghost User', '1990-01-01', 639999999, 'ghostuser@jest.com', hashInicial]
+    );
+    ghostUserId = rGhost.insertId;
+    await db.query('DELETE FROM usuarios WHERE id_usuario = ?', [ghostUserId]);
+
+    // Empresa fantasma: misma estrategia para canViewCompanyProfile.
+    const [eGhost] = await db.query(
+        `INSERT INTO empresas (nombre, correo, contraseña, CIF, telefono_contacto, tipo, activo)
+         VALUES (?,?,?,?,?,?,1)`,
+        ['GhostEmpresa', 'ghostempresa@jest.com', hashInicial, 'C99999999', 649999999, 'clinica_veterinaria']
+    );
+    ghostEmpresaId = eGhost.insertId;
+    await db.query('DELETE FROM empresas WHERE id_empresa = ?', [ghostEmpresaId]);
+
     // Valoración de testUser2 hacia testUser1 (para los tests de reportar)
     const [v1] = await db.query(
         `INSERT INTO valoraciones (puntuacion, comentario, id_autor, id_destinatario)
@@ -293,8 +370,8 @@ describe('GET /user/perfilUsuario/:id', () => {
     });
 
     test('devuelve 404 cuando el usuario no existe', async () => {
-        const res = await request(buildAppConSesionUsuario())
-            .get('/user/perfilUsuario/9999999');
+        const res = await request(buildAppConSesionUsuarioFantasma())
+            .get(`/user/perfilUsuario/${ghostUserId}`);
         expect(res.status).toBe(404);
     });
 
@@ -319,15 +396,15 @@ describe('GET /user/perfilUsuario/:id', () => {
 
 describe('GET /user/perfilEmpresa/:id', () => {
     test('devuelve 200 y renderiza el perfil cuando la empresa existe y está activa', async () => {
-        const res = await request(buildAppConSesionUsuario())
+        const res = await request(buildAppConSesionEmpresa())
             .get(`/user/perfilEmpresa/${testEmpresaId}`);
         expect(res.status).toBe(200);
         expect(res.text).toContain('EmpresaUserTest');
     });
 
     test('devuelve 404 cuando la empresa no existe', async () => {
-        const res = await request(buildAppConSesionUsuario())
-            .get('/user/perfilEmpresa/9999999');
+        const res = await request(buildAppConSesionEmpresaFantasma())
+            .get(`/user/perfilEmpresa/${ghostEmpresaId}`);
         expect(res.status).toBe(404);
     });
 
@@ -339,7 +416,7 @@ describe('GET /user/perfilEmpresa/:id', () => {
 
     test('devuelve 500 cuando falla la conexión a BD', async () => {
         simularErrorConexion();
-        const res = await request(buildAppConSesionUsuario())
+        const res = await request(buildAppConSesionEmpresa())
             .get(`/user/perfilEmpresa/${testEmpresaId}`);
         expect(res.status).toBe(500);
     });
