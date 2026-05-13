@@ -51,7 +51,7 @@
               </div>
               <div class="cita-precio">
                 <div class="precio-cita">
-                  <p><%= cita.precio_hora %>€</p>
+                  <p><%= parseFloat(parseFloat(cita.precio_hora).toFixed(2)) %>€</p>
                   <span>por hora</span>
                 </div>
                 <button class="btn-cancelar-cita" data-id="<%= cita.id_reserva %>" aria-label="Cancelar cita">
@@ -59,7 +59,7 @@
                 </button>
               </div>
             </div>
-            
+
           <% }); %>
         </div>
         <% } %>
@@ -99,7 +99,7 @@
               </div>
               <div class="cita-precio">
                 <div class="precio-anuncio">
-                  <p><%= cita.precio_hora %>€</p>
+                  <p><%= parseFloat(parseFloat(cita.precio_hora).toFixed(2)) %>€</p>
                   <span>por hora</span>
                 </div>
                 <button class="btn-cancelar-cita" data-id="<%= cita.id_reserva %>" aria-label="Cancelar cita">

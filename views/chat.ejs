@@ -51,7 +51,7 @@
             <div class="chat-anuncio-badges">
                 <span class="chat-anuncio-badge badge-servicio"><%= anuncio.tipoServicio %></span>
                 <span class="chat-anuncio-badge badge-mascota"><%= anuncio.tipoMascota %></span>
-                <span class="chat-anuncio-precio"><%= anuncio.precioHora %>€<span class="precio-sub">/h</span></span>
+                <span class="chat-anuncio-precio"><%= parseFloat(parseFloat(anuncio.precioHora).toFixed(2)) %>€<span class="precio-sub">/h</span></span>
             </div>
             <% if (anuncio.disponibilidades && anuncio.disponibilidades.length > 0) { %>
             <button class="chat-disp-toggle" id="btnToggleDisp" type="button">

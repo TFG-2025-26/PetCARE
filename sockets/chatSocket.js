@@ -56,8 +56,8 @@ function validarDatosCita(mensajeJSON) {
         const precio = parseFloat(precio_hora);
         if (isNaN(precio) || precio < 0) {
             errores.push({ msg: 'El precio por hora no puede ser negativo.' });
-        } else if (precio > 999) {
-            errores.push({ msg: 'El precio por hora no puede superar los 999 €.' });
+        } else if (precio > 999.99) {
+            errores.push({ msg: 'El precio por hora no puede superar los 999.99 €.' });
         }
     }
 

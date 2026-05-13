@@ -32,7 +32,7 @@ CREATE TABLE `anuncios` (
   `tipo_anuncio` enum('puntual','recurrente') NOT NULL,
   `descripcion` text DEFAULT NULL,
   `tipo_mascota` enum('perro','gato','roedor','reptil','pez','ave','otro') NOT NULL,
-  `precio_hora` int(11) NOT NULL,
+  `precio_hora` DECIMAL(10, 2) NOT NULL,
   `tipo_servicio` enum('cuidador','transporte','entrenador') NOT NULL,
   `eliminado` tinyint(1) NOT NULL DEFAULT 0,
   `activo` tinyint(1) NOT NULL DEFAULT 1,
@@ -273,7 +273,7 @@ CREATE TABLE `reservas` (
   `fecha` date NOT NULL,
   `hora_inicio` time NOT NULL,
   `hora_fin` time NOT NULL,
-  `precio_hora` int(11) NOT NULL,
+  `precio_hora` DECIMAL(10, 2) NOT NULL,
   `recordatorio_enviado` tinyint(1) NOT NULL DEFAULT 0,
   `id_chat` int(11) NOT NULL,
   `activo` tinyint(1) NOT NULL DEFAULT 1

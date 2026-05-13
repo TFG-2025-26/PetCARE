@@ -478,7 +478,7 @@ describe('POST /services/publicar-anuncio – validaciones de formulario', () =>
         expect(res.status).toBe(400);
     });
 
-    test('rechaza con 400 cuando precio_hora supera 999', async () => {
+    test('rechaza con 400 cuando precio_hora supera 999.99', async () => {
         const res = await request(buildApp())
             .post('/services/publicar-anuncio')
             .send({ ...datosValidos, precio_hora: '1000' });
