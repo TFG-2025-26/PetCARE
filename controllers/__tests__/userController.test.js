@@ -55,7 +55,6 @@ describe('userController', () => {
     // ============================================================
     describe('getPerfilUsuario', () => {
         it('Debería renderizar el perfil del usuario correctamente', (done) => {
-            // Arrange
             const mockUsuario = {
                 id_usuario: 1,
                 nombre_completo: 'Juan Pérez',
@@ -70,13 +69,14 @@ describe('userController', () => {
             });
 
             connection.query.mockImplementation((query, params, callback) => {
-                // Primera consulta: usuario
                 if (query.includes('SELECT * FROM usuarios WHERE')) {
                     callback(null, [mockUsuario]);
-                }
-                // Segunda consulta: mascotas
-                else if (query.includes('SELECT * FROM mascotas WHERE')) {
+                } else if (query.includes('SELECT * FROM mascotas WHERE')) {
                     callback(null, mockMascotas);
+                } else if (query.includes('FROM valoraciones')) {
+                    callback(null, []);
+                } else if (query.includes('FROM reservas')) {
+                    callback(null, []);
                 }
             });
 
@@ -88,6 +88,8 @@ describe('userController', () => {
                 expect(res.render).toHaveBeenCalledWith('perfilUsuario', expect.objectContaining({
                     perfil: mockUsuario,
                     mascotas: mockMascotas,
+                    citasComoCliente: [],
+                    citasComoProveedor: [],
                     esPropia: true,
                     puedeEditar: true
                 }));
