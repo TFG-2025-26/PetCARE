@@ -181,8 +181,9 @@ function validarPrecio() {
         mostrarError('error-precio_hora', 'El precio por hora es obligatorio.');
         return false;
     }
-    if (Number(val) < 0 || Number(val) > 999) {
-        mostrarError('error-precio_hora', 'El precio debe estar entre 0 y 999.');
+    const precio = parseFloat(val);
+    if (isNaN(precio) || precio < 0 || precio > 999.99) {
+        mostrarError('error-precio_hora', 'El precio debe estar entre 0 y 999.99.');
         return false;
     }
     limpiarError('error-precio_hora');

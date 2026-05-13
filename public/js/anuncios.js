@@ -263,7 +263,7 @@ function renderizarAnuncios(listaAnuncios) {
                     </div>
                     <div class="seccion-dcha-anuncio">
                         <div class="precio-anuncio">
-                            <p>${anuncio.precio_hora}€</p>
+                            <p>${parseFloat(parseFloat(anuncio.precio_hora).toFixed(2))}€</p>
                             <span>por hora</span>
                         </div>
                         <a href="/services/chat?usuario_id=${anuncio.id_usuario}&anuncio_id=${anuncio.id_anuncio}" id="btn-contacto">Contactar</a>

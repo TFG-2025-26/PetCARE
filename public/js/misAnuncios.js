@@ -167,7 +167,7 @@ function buildTarjeta(anuncio, inactivo) {
                     <div class="seccion-dcha-anuncio">
                         ${inactivo ? '<span class="badge-inactivo">Inactivo</span>' : ''}
                         <div class="precio-anuncio">
-                            <p>${anuncio.precio_hora}€</p>
+                            <p>${parseFloat(parseFloat(anuncio.precio_hora).toFixed(2))}€</p>
                             <span>por hora</span>
                         </div>
                         <div class="acciones-anuncio">

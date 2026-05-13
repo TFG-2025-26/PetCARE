@@ -292,7 +292,7 @@ function crearDivMensaje(texto, esPropio, idMensaje = null, leido = false, tipoM
                     <div class="cita-detalles">
                         <p><strong>Fecha:</strong> ${new Date(datosCita.fecha + 'T00:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                         <p><strong>Hora:</strong> ${datosCita.hora_inicio} - ${datosCita.hora_fin}</p>
-                        <p><strong>Precio/hora:</strong> ${datosCita.precio_hora} €</p>
+                        <p><strong>Precio/hora:</strong> ${parseFloat(parseFloat(datosCita.precio_hora).toFixed(2))} €</p>
                     </div>
                     <div class="cita-estado">${datosCita.estado}</div>
                     ${botonesHTML}
@@ -468,8 +468,8 @@ function validarPrecioHora() {
         return false;
     }
 
-    if (precioNum > 999) {
-        errorCitaPrecioHora.textContent = 'El precio no puede superar los 999 €';
+    if (precioNum > 999.99) {
+        errorCitaPrecioHora.textContent = 'El precio no puede superar los 999.99 €';
         return false;
     }
 
@@ -519,7 +519,7 @@ formSolicitarCita.addEventListener('submit', (e) => {
         hora_inicio: horaInicio,
         hora_fin: horaFin,
         tipo_servicio: tipoServicio,
-        precio_hora: parseInt(document.getElementById('citaPrecioHora').value),
+        precio_hora: parseFloat(document.getElementById('citaPrecioHora').value),
         estado: 'pendiente',
     };
 

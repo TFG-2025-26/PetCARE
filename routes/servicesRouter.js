@@ -17,7 +17,7 @@ const anuncioValidationRules = [
         .isIn(['perro', 'gato', 'roedor', 'reptil', 'pez', 'ave', 'otro']).withMessage('El tipo de mascota seleccionado no es válido.'),
     body('precio_hora')
         .notEmpty().withMessage('El precio por hora es obligatorio.')
-        .isFloat({ min: 0, max: 999 }).withMessage('El precio debe estar entre 0 y 999.'),
+        .isFloat({ min: 0, max: 999.99 }).withMessage('El precio debe estar entre 0 y 999.99.'),
     body('descripcion')
         .optional({ checkFalsy: true })
         .isLength({ max: 500 }).withMessage('La descripción no puede superar los 500 caracteres.'),

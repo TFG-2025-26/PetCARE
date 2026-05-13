@@ -63,7 +63,7 @@ const getAnuncios = (req, res) => {
     }
     if (precioMax) {
         query += ` AND a.precio_hora <= ?`;
-        params.push(parseInt(precioMax));
+        params.push(parseFloat(precioMax));
     }
 
     query += ` GROUP BY a.id_anuncio, u.id_usuario, u.nombre_usuario`;
