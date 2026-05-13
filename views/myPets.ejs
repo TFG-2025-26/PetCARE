@@ -45,7 +45,7 @@
                                     <p><strong>Especie:</strong> <%= pet.especie %></p>
                                     <p><strong>Raza:</strong> <%= pet.raza %></p>
                                     <p><strong>Peso:</strong> <%= parseFloat(parseFloat(pet.peso).toFixed(2)) %> kg</p>
-                                    <p><strong>Fecha de Nacimiento:</strong> <%= pet.fecha_nacimiento %></p>
+                                    <p><strong>Fecha de Nacimiento:</strong> <%= pet.fecha_nacimiento.split('-').reverse().join('/') %></p>
                                 </div>
                             </div>
                         </div>

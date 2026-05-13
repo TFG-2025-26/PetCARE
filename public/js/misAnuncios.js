@@ -101,7 +101,7 @@ function renderDisponibilidad(disponibilidades, tipo) {
     if (tipo === 'recurrente') {
         const filas = Object.entries(grupos).map(function([dia, franjas]) {
             const slots = franjas.map(function(f) {
-                return `<span class="slot">${f.hora_inicio} - ${f.hora_fin}</span>`;
+                return `<span class="slot">${String(f.hora_inicio).substring(0,5)} - ${String(f.hora_fin).substring(0,5)}</span>`;
             }).join('');
             return `<div class="fila-dia"><span class="day-tag">${dia}</span>${slots}</div>`;
         }).join('');
@@ -111,7 +111,7 @@ function renderDisponibilidad(disponibilidades, tipo) {
         if (Object.keys(grupos.puntual).length > 0) {
             const chips = Object.entries(grupos.puntual).map(function([fecha, franjas]) {
                 const slots = franjas.map(function(f) {
-                    return `<span class="slot">${f.hora_inicio} - ${f.hora_fin}</span>`;
+                    return `<span class="slot">${String(f.hora_inicio).substring(0,5)} - ${String(f.hora_fin).substring(0,5)}</span>`;
                 }).join('');
                 return `<div class="date-chip"><span class="date">${fecha}</span>${slots}</div>`;
             }).join('');
@@ -120,7 +120,7 @@ function renderDisponibilidad(disponibilidades, tipo) {
         if (Object.keys(grupos.recurrente).length > 0) {
             const filas = Object.entries(grupos.recurrente).map(function([dia, franjas]) {
                 const slots = franjas.map(function(f) {
-                    return `<span class="slot">${f.hora_inicio} - ${f.hora_fin}</span>`;
+                    return `<span class="slot">${String(f.hora_inicio).substring(0,5)} - ${String(f.hora_fin).substring(0,5)}</span>`;
                 }).join('');
                 return `<div class="fila-dia"><span class="day-tag">${dia}</span>${slots}</div>`;
             }).join('');
@@ -130,7 +130,7 @@ function renderDisponibilidad(disponibilidades, tipo) {
     } else {
         const chips = Object.entries(grupos).map(function([fecha, franjas]) {
             const slots = franjas.map(function(f) {
-                return `<span class="slot">${f.hora_inicio} - ${f.hora_fin}</span>`;
+                return `<span class="slot">${String(f.hora_inicio).substring(0,5)} - ${String(f.hora_fin).substring(0,5)}</span>`;
             }).join('');
             return `<div class="date-chip"><span class="date">${fecha}</span>${slots}</div>`;
         }).join('');
