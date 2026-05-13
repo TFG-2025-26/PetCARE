@@ -3,6 +3,28 @@
 const pool = require('../db'); // Importamos el pool de conexiones a la base de datos
 const { validationResult } = require('express-validator');
 
+// Convierte un Date de la BD a YYYY-MM-DD usando hora local (evita desfase de timezone con toISOString)
+const toDateInputValue = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+};
+
+// Convierte un Date de la BD a YYYY-MM-DDTHH:MM usando hora local
+const toDateTimeInputValue = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const h = String(d.getHours()).padStart(2, '0');
+    const min = String(d.getMinutes()).padStart(2, '0');
+    return `${y}-${m}-${day}T${h}:${min}`;
+};
+
 const getMyPets = (req, res) => {
     const id = req.session.usuario.id;
     pool.getConnection((err, connection) => {
@@ -16,6 +38,9 @@ const getMyPets = (req, res) => {
                 console.error("Error al ejecutar la consulta:", err);
                 return res.status(500).send("Error al obtener las mascotas");
             }
+            results.forEach(pet => {
+                pet.fecha_nacimiento = toDateInputValue(pet.fecha_nacimiento);
+            });
             res.render("myPets", { pets: results});
         });
     });
@@ -458,7 +483,7 @@ const getEditarMascota = (req, res) => {
             }
             const pet = results[0];
             console.log(pet);
-            pet.fecha_nacimiento = new Date(pet.fecha_nacimiento).toISOString().split('T')[0];
+            pet.fecha_nacimiento = toDateInputValue(pet.fecha_nacimiento);
             res.render("editarMascota", {formData: pet});
         });
     });
@@ -520,7 +545,7 @@ const getEditarCita = (req, res) => {
                 return res.status(404).send('Recurso no encontrado');
             }
             const cita = results[0];
-            cita.fecha = new Date(cita.fecha).toISOString().slice(0, 16);
+            cita.fecha = toDateTimeInputValue(cita.fecha);
             res.render("editarCita", { cita: cita });
         }
         );
@@ -544,7 +569,7 @@ const getEditarVacuna = (req, res) => {
                 return res.status(404).send('Recurso no encontrado');
             }
             const vacuna = results[0];
-            vacuna.fecha_administracion = new Date(vacuna.fecha_administracion).toISOString().slice(0, 10);
+            vacuna.fecha_administracion = toDateInputValue(vacuna.fecha_administracion);
             res.render("editarVacuna", { vacuna: vacuna });
         }
         );
@@ -569,8 +594,8 @@ const getEditarTratamiento = (req, res) => {
                 return res.status(404).send('Recurso no encontrado');
             }
             const tratamiento = results[0];
-            tratamiento.fecha_inicio = new Date(tratamiento.fecha_inicio).toISOString().slice(0, 16);
-            tratamiento.fecha_fin = new Date(tratamiento.fecha_fin).toISOString().slice(0, 16);
+            tratamiento.fecha_inicio = toDateTimeInputValue(tratamiento.fecha_inicio);
+            tratamiento.fecha_fin = toDateTimeInputValue(tratamiento.fecha_fin);
             res.render("editarTratamiento", { tratamiento: tratamiento });
         }
         );
@@ -595,7 +620,7 @@ const getEditarPatologia = (req, res) => {
                 return res.status(404).send('Recurso no encontrado');
             }
             const patologia = results[0];
-            patologia.fecha_diagnostico = new Date(patologia.fecha_diagnostico).toISOString().slice(0, 10);
+            patologia.fecha_diagnostico = toDateInputValue(patologia.fecha_diagnostico);
             res.render("editarPatologia", { patologia: patologia });
         }
         );
