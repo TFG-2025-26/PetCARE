@@ -46,7 +46,7 @@
                 <ul>
                     <li><strong>Especie:</strong> <%= pet.especie %></li>
                     <li><strong>Raza:</strong> <%= pet.raza %></li>
-                    <li><strong>Peso:</strong> <%= pet.peso %> kg</li>
+                    <li><strong>Peso:</strong> <%= parseFloat(parseFloat(pet.peso).toFixed(2)) %> kg</li>
                     <li><strong>Fecha de nacimiento:</strong> <%= pet.fecha_nacimiento %></li>
                 </ul>
             </div>

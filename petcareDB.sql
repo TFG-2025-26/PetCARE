@@ -205,7 +205,7 @@ CREATE TABLE `mascotas` (
   `fecha_nacimiento` date NOT NULL,
   `especie` varchar(50) NOT NULL,
   `raza` varchar(50) NOT NULL,
-  `peso` float NOT NULL,
+  `peso` DECIMAL(10, 2) NOT NULL,
   `foto` varchar(255) DEFAULT NULL,
   `activo` tinyint(1) NOT NULL DEFAULT 1,
   `id_usuario` int(11) NOT NULL
