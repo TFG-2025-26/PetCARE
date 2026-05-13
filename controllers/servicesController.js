@@ -4,6 +4,16 @@
 const pool = require('../db'); // Importamos el pool de conexiones a la base de datos
 const { validationResult } = require('express-validator');
 
+// Convierte un Date de la BD a YYYY-MM-DD usando hora local para enviar en JSON sin desfase UTC
+const toDateString = (date) => {
+    if (!date) return null;
+    const d = new Date(date);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+};
+
 
 const getServicios = (req, res) => {
     res.render('servicios');
@@ -121,6 +131,7 @@ const getAnuncios = (req, res) => {
                     // Agrupar disponibilidades por id_anuncio y añadirlas a cada anuncio
                     const dispMap = {};
                     disponibilidades.forEach(d => {
+                        if (d.fecha_inicio) d.fecha_inicio = toDateString(d.fecha_inicio);
                         if (!dispMap[d.id_anuncio]) dispMap[d.id_anuncio] = [];
                         dispMap[d.id_anuncio].push(d);
                     });
@@ -206,6 +217,7 @@ const getMisAnuncios = (req, res) => {
 
                     const dispMap = {};
                     disponibilidades.forEach(d => {
+                        if (d.fecha_inicio) d.fecha_inicio = toDateString(d.fecha_inicio);
                         if (!dispMap[d.id_anuncio]) dispMap[d.id_anuncio] = [];
                         dispMap[d.id_anuncio].push(d);
                     });
