@@ -1299,8 +1299,6 @@ const eliminarUsuarioGestion = (req, res) => {
     });
 };
 
-const editarAccionReporte = (req, res) => {}
-
 module.exports = {
     getAdminPanel,
     getGestionReportes,
@@ -1325,6 +1323,5 @@ module.exports = {
     aceptarReporteUsuarioSinAccion,
     aceptarReporteUsuarioSuspender,
     aceptarReporteUsuarioBanear,
-    eliminarUsuarioGestion,
-    editarAccionReporte
+    eliminarUsuarioGestion
 }; 

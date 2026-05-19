@@ -1213,4 +1213,4 @@ describe('POST .../reportar (postReportarValoracion)', () => {
         expect(rows.length).toBe(1);
         expect(rows[0].fecha).toBeTruthy();
     });
-});
+});x
