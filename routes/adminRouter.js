@@ -227,6 +227,5 @@ router.post('/adminPanel/gestionReportes/:id_reporte/acciones/aceptar-usuario-su
 router.post('/adminPanel/gestionReportes/:id_reporte/acciones/aceptar-usuario-banear', adminController.aceptarReporteUsuarioBanear);
 // Ruta genérica al final
 router.post('/adminPanel/gestionReportes/:id_reporte/acciones/:accion', adminController.aplicarAccionReporte);
-router.get('/adminPanel/gestionReportes/:id_reporte/editarAccion', adminController.editarAccionReporte);
 
 module.exports = router;
